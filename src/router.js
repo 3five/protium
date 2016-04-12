@@ -67,7 +67,6 @@ export class Router {
     } else {
       opts.history = browserHistory
     }
-    console.log(opts)
     this.history = opts.history
     return opts
   }
