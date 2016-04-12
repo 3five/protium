@@ -28,6 +28,7 @@ export default class HtmlPage extends Component {
       <body>
         {html}
         {this.renderState()}
+        {this.props.main && this.renderScriptTag(this.props.main)}
         {head.script.toComponent()}
       </body>
     </html>
@@ -39,6 +40,10 @@ export default class HtmlPage extends Component {
 
   asyncCss() {
     return this.props.inlineCss && this.props.inlineCss.length
+  }
+
+  renderScriptTag(src) {
+    return <script src={src} />
   }
 
   renderAsyncLinks() {
