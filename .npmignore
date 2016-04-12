@@ -5,5 +5,3 @@ npm-debug.log*
 *.seed
 node_modules
 .idea
-/index.js*
-/router.js*
