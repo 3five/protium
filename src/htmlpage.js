@@ -2,41 +2,39 @@ import React, { Component }   from 'react'
 import { renderToString }     from 'react-dom/server'
 import { map, merge }         from 'lodash'
 import serialize              from 'serialize-javascript'
+import Helmet                 from 'react-helmet'
 
 export default class HtmlPage extends Component {
 
   static defaultProps = {
-    title: '',
-    meta: {},
-    links: [],
-    scripts: [],
     state: {},
+    doctype: '<!doctype html>',
     component: <div/>,
     rootVar: '__STATE__',
     rootId: 'application'
   };
 
   render() {
-    return <html>
+    const html = this.renderAppHtml()
+    const head = this.getHead()
+    const inlineCss = this.renderInlineCss()
+    return <html {...head.htmlAttributes.toComponent()}>
       <head>
-        <meta charSet="utf-8" />
-        <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
-        {this.asyncCss() && this.renderInlineCss()}
-        {this.renderLinks()}
-        {this.renderMetaInfo()}
-        {this.renderTitle()}
+        {head.title.toComponent()}
+        {head.meta.toComponent()}
+        {inlineCss}
+        {head.link.toComponent()}
       </head>
       <body>
-        {this.renderAppHtml()}
+        {html}
         {this.renderState()}
-        {this.renderScripts()}
+        {head.script.toComponent()}
       </body>
     </html>
   }
 
-  static renderHtml(props) {
-    const {doctype} = merge({}, HtmlPage.defaultProps, props)
-    return doctype + renderToString(<HtmlPage {...props} />);
+  getHead() {
+    return Helmet.rewind()
   }
 
   asyncCss() {
@@ -51,32 +49,7 @@ export default class HtmlPage extends Component {
 
   renderInlineCss() {
     let html = __(this.props.inlineCss)
-    return <style dangerouslySetInnerHTML={__(html)} />
-  }
-
-  renderLinks() {
-    if (this.asyncCss()) {
-      return this.renderAsyncLinks()
-    }
-
-    let count = 0
-    return map(this.props.links, (href)=> {
-      count++
-      return <link key={`link-${count}`} rel="stylesheet" href={href} />
-    })
-  }
-
-  renderMetaInfo() {
-    let count = 0
-    return map(this.props.meta, (content, name)=> {
-      count++
-      const props = { content, name }
-      return <meta key={`meta-${count}`} {...props} />
-    })
-  }
-
-  renderTitle() {
-    return <title>{this.props.title}</title>
+    return <style dangerouslySetInnerHTML={html} />
   }
 
   renderAppHtml() {
@@ -88,15 +61,6 @@ export default class HtmlPage extends Component {
     let html = `${this.props.rootVar}=${serialize(this.props.state)}`
     return <script dangerouslySetInnerHTML={__(html)} />
   }
-
-  renderScripts() {
-    let count = 0
-    return map(this.props.scripts, (src)=> {
-      count++
-      return <script defer key={`script-${count}`} src={src}></script>
-    })
-  }
-
 }
 
 const LOADCSS_SCRIPT = `
