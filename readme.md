@@ -6,46 +6,56 @@ Bundles `react`, `react-router`, and `redux` into a nice little package, takes c
 
 WIP, don't use this in production... yet!
 
+Uses [react-helmet](https://github.com/nfl/react-helmet) for `<head>` management.
+
+`import {Helmet} from 'protium'`, and include that component within any of your views.
+
 ## Example
 
-```
+```javascript
 // app.js
+
 import React from 'react'
 import Root  from './views/root'
 import Comp  from './views/comp'
-import { 
-  Application,
-  Route, 
-  IndexRoute 
-} from 'protium'
+import * as reducers from './reducers'
+import { Application } from 'protium'
+import {
+  Router,
+  Route,
+  IndexRoute
+} from 'protium/router'
 
-export default new Application({
+const router = new Router({
   routes: [
     <Route path="/" component={Root}>
-      <IndexRoute component={Comp} title="Home" />
-      <Route path="/a" component={Comp} title="Page A" />
-      <Route path="/b" component={Comp} title="Page B" />
-      <Route path="/c" component={Comp} title="Page C" />
+      <IndexRoute component={Comp} />
+      <Route path="/a" component={Comp} />
+      <Route path="/b" component={Comp} />
+      <Route path="/c" component={Comp} />
+      <Route path="*" component={NotFoundComp} notFound={true} /> // signals 404 on server
     </Route>
-  ],
-  page: {
-    scripts: ['/assets/client.js']
-  }
+  ]
+})
+
+export default new Application({
+  router,
+  reducers
 })
 ```
 
-```
+```javascript
 // client.js (short and sweet!)
 import app from './app'
 
 app.render()
 ```
 
-```
+```javascript
 // server.js
 import express       from 'express'
 import app           from './app'
-import { renderer }  from 'protium'
+import { renderer }  from 'protium/router'
 
 const server = express()
 export default server
