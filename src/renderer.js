@@ -69,7 +69,9 @@ function getErrorPage(store, app, error) {
 
 function getHtmlPage(store, app, component) {
   let options = merge({}, app.options.page)
-  options.state = store.getState()
+  if (store) {
+    options.state = store.getState()
+  }
   options.component = component
   const Page = options.rootComponent
   return <Page {...options} />
