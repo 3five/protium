@@ -8,6 +8,7 @@ import {
   applyMiddleware
 } from 'redux'
 import { Provider } from 'react-redux'
+import { persistState } from 'react-devtools/lib/persistState'
 
 export default class Store {
 
@@ -54,9 +55,9 @@ export default class Store {
     
     this.composers.push(applyMiddleware(...middleware))
 
-    if (this.options.devTools && process.env.CLIENT) {
-      composers.push(
-        window.devToolsExtension ? window.devToolsExtension() : DevTools.instrument(),
+    if (CLIENT && this.options.devTools && window.devToolsExtension) {
+      this.composers.push(
+        window.devToolsExtension(),
         persistState(window.location.href.match(/[?&]debug_session=([^&]+)\b/))
       )
     }
