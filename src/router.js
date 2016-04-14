@@ -38,7 +38,7 @@ export class Router {
   }
   
   registerStore(store) {
-    syncHistoryWithStore(this.history, store)
+    this.history = syncHistoryWithStore(this.history, store)
   }
 
   getReducer() {
