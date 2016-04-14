@@ -2,7 +2,7 @@ import React     from 'react'
 import thunk     from 'redux-thunk'
 import { merge, reduce } from 'lodash'
 import { Provider } from 'react-redux'
-import { persistState } from 'react-devtools/lib/persistState'
+import { persistState } from 'redux-devtools/lib/persistState'
 import {
   compose,
   createStore,
