@@ -63,7 +63,8 @@ function getErrorPage(store, app, error) {
   if (ErrComp === ErrorComponent) {
     app.options.page.inlineCss = ErrorComponent.inlineCss
   }
-  return <ErrComp {...{store, app, error}} />
+  const comp = <ErrComp {...{store, app, error}} />
+  return getHtmlPage(store, app, comp)
 }
 
 function getHtmlPage(store, app, component) {
