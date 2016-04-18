@@ -42,10 +42,22 @@ export default class Store {
   }
 
   getInitialState() {
+    let state = {}
     if (SERVER) {
-      return {}
+      return state
     }
-    return window[this.options.rootVar]
+
+    if (window[this.options.rootVar]) {
+      state = window[this.options.rootVar]
+    }
+
+    // Handles react-router-redux #365; 
+    // react-router/redux doesn't like routing state sent from server
+    if (state.routing) {
+      state.routing = {}
+    }
+
+    return state
   }
 
   finalize(req, router = null) {
