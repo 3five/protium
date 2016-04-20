@@ -5,7 +5,8 @@ import { merge }          from 'lodash'
 export default function clientMiddleware(req, options) {
   let client = new ApiClient(req, options)
   return store => next => action => {
-    return next({ client, action })
+    action.client = client
+    return next(action)
   }
 }
 
