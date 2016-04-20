@@ -1,6 +1,6 @@
 {
   "name": "protium",
-  "version": "0.5.9",
+  "version": "0.6.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -40,7 +40,9 @@
     "react-router": "^2.0.1",
     "react-router-redux": "^4.0.2",
     "redux": "^3.4.0",
+    "redux-actions": "^0.9.1",
     "redux-devtools": "^3.2.0",
+    "redux-promise": "^0.5.3",
     "redux-thunk": "^2.0.1",
     "serialize-javascript": "^1.2.0"
   }

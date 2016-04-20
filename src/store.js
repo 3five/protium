@@ -1,8 +1,10 @@
 import React     from 'react'
 import thunk     from 'redux-thunk'
+import promise   from 'redux-promise'
 import { merge, reduce } from 'lodash'
 import { Provider } from 'react-redux'
 import persistState from 'redux-devtools/lib/persistState'
+import clientMiddleware from './api-client'
 import {
   compose,
   createStore,
@@ -14,16 +16,15 @@ export default class Store {
 
   static defaults = {
     devTools: true,
+    apiClient: {},
     reducers: {},
     middleware: [
-      thunk
+      thunk,
+      promise
     ],
-    createMiddleware(middleware, options) {
-      // middleware.push(new ApiClient(options))
-      return middleware
-    },
     composers: [],
-    createComposers(x) { return x }
+    createMiddleware: middleware => middleware,
+    createComposers: comp => comp
   }
 
   constructor(opts) {
@@ -61,7 +62,13 @@ export default class Store {
   }
 
   finalize(req, router = null) {
+    let client;
     const initialState = this.getInitialState()
+
+    if (this.options.apiClient) {
+      this.middleware.push(clientMiddleware(req, this.options.apiClient))
+    }
+
     const middleware = this.options.createMiddleware(this.middleware, { req })
     const reducer = combineReducers({ ...this.reducers })
     
