@@ -1,7 +1,7 @@
-import React        from 'react'
-import { render }   from 'react-dom'
+import React              from 'react'
+import { render }         from 'react-dom'
 import { merge, some }    from 'lodash'
-import Store        from './store'
+import Store              from './store'
 
 export default class Application {
 

@@ -26,7 +26,7 @@ export default function clientMiddleware(client) {
     next({...rest, type: REQUEST});
 
     // Setup handler action
-    return Promise.resolve(promise(client, dispatch, getState))
+    return promise(client, dispatch, getState)
       .then(onSuccess)
       .catch(onError)
 
