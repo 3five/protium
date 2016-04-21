@@ -66,7 +66,7 @@ export default class Application {
   resolve(req, renderProps) {
     const store = this.createStore(req)
     const component = this.getComponent(store, req, renderProps)
-    return this.internalStore.fetchComponentData(renderProps.components, renderProps.params)
+    return this.internalStore.fetchComponentData(store, renderProps)
       .then(()=> {
         return {
           store,
@@ -75,6 +75,16 @@ export default class Application {
         }
       })
   }
+
+  setCredentials(user, pass) {
+    if (this.options.store 
+          && this.options.store.apiClient) {
+      let server = this.options.store.apiClient.server 
+            || (this.options.store.apiClient.server = {})
+      server.auth = `${user}:${pass}`
+    }
+  }
+
 }
 
 function found(renderProps) {

@@ -2,7 +2,6 @@ import React                from 'react'
 import { merge, reduce }    from 'lodash'
 import { Provider }         from 'react-redux'
 import persistState         from 'redux-devtools/lib/persistState'
-import ApiClient            from './client'
 import clientMiddleware     from './client-middleware'
 import {
   compose,
@@ -61,6 +60,8 @@ export default class Store {
     let client;
     const initialState = this.getInitialState()
 
+    console.log(this.options)
+
     if (this.options.apiClient) {
       this.middleware.push(clientMiddleware(req, this.options.apiClient))
     }
@@ -86,7 +87,8 @@ export default class Store {
     return <Provider store={store}>{instance}</Provider>
   }
   
-  fetchComponentData(store, components, params) {
+  fetchComponentData(store, renderProps) {
+    const { components, params, location } = renderProps
     const needs = reduce(components, (prev, current) => {
       let nested = []
       if (current.WrappedComponent && current.WrappedComponent.need !== current.need) {
@@ -96,7 +98,9 @@ export default class Store {
         .concat(nested)
         .concat(prev)
     }, [])
-    return sequence(needs, need => store.dispatch(need(params, store.getState())))
+    return sequence(needs, need => {
+      return store.dispatch(need(params, location, store.getState()))
+    })
   }
 }
 

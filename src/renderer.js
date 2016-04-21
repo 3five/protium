@@ -5,8 +5,11 @@ import HtmlPage                   from './htmlpage'
 import ErrorComponent             from './error'
 
 const production = process.env.NODE_ENV === 'production'
+let warnedAbout404 = false;
 
-export default function renderer(app) {
+export default function renderer(app, options = {}) {
+
+  let { cachebust } = options
 
   if (!app.router) {
     throw new Error('Application must have a `router` for SSR.')
@@ -21,6 +24,11 @@ export default function renderer(app) {
   }
 
   return (req, res)=> {
+
+    if (typeof cachebust === 'function') {
+      app = cachebust()
+    }
+    
     app.router.match(req, (error, redirect, renderProps) => {
       if (error) {
         const page = getErrorPage(null, app, error)
@@ -32,9 +40,12 @@ export default function renderer(app) {
       }
 
       if (!renderProps) {
-        console.log('To configure a custom 404, register a route inside your root route')
-        console.log('<Route path="*" component={NotFound} notFound={true} />')
-        console.log('`notFound={true}` tells the renderer to send a 404')
+        if (!warnedAbout404) {
+          console.log('To configure a custom 404, register a route inside your root route')
+          console.log('<Route path="*" component={NotFound} notFound={true} />')
+          console.log('`notFound={true}` tells the renderer to send a 404')
+          warnedAbout404 = true
+        }
         return res.status(404)
       }
 

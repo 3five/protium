@@ -18,6 +18,7 @@ export default class ApiClient {
   }
 
   constructor(req, options) {
+    this.req = req
     this.options = merge({}, ApiClient.defaults, options)
     methods.forEach(method => {
       this[method] = this.genericMethod.bind(this, method)
@@ -27,6 +28,7 @@ export default class ApiClient {
   genericMethod(method, path, options) {
     if (!options) { options = {} }
 
+    let req = this.req
     let aborted = false
     let dfd = deferred()
     let request = Superagent[method](this.formatUrl(path))
@@ -64,7 +66,7 @@ export default class ApiClient {
     request.end((err, res) => {
       if (!aborted) {
         if (err) {
-          return dfd.reject((res && res.body) || err)
+          return dfd.reject(err)
         }
         dfd.resolve(res.body)
       }
@@ -79,8 +81,13 @@ export default class ApiClient {
     if (config.base) {
       config.pathname = config.base
     }
+
+    if (config.host && config.port) {
+      config.host = `${config.host}:${config.port}`
+    }
     const baseUrl = Url.format(config)
-    return Url.resolve(baseUrl, adjustedPath)
+    const url = baseUrl + adjustedPath
+    return url
   }
 }
 

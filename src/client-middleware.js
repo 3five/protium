@@ -1,4 +1,7 @@
-export default function clientMiddleware(client) {
+import ApiClient from './client'
+
+export default function clientMiddleware(req, options) {
+  let client = new ApiClient(req, options)
   return store => next => action => {
     const { dispatch, getState }              = store
     const { promise, types, run, ...rest }    = action
