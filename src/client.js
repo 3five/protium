@@ -2,17 +2,9 @@ import Url                from 'url'
 import Superagent         from 'superagent'
 import { merge }          from 'lodash'
 
-export default function clientMiddleware(req, options) {
-  let client = new ApiClient(req, options)
-  return store => next => action => {
-    action.client = client
-    return next(action)
-  }
-}
-
 const methods = ['get', 'post', 'put', 'patch', 'del']
 
-export class ApiClient {
+export default class ApiClient {
 
   static defaults = {
     server: {
@@ -34,7 +26,7 @@ export class ApiClient {
 
   genericMethod(method, path, options) {
     if (!options) { options = {} }
-    
+
     let aborted = false
     let dfd = deferred()
     let request = Superagent[method](this.formatUrl(path))
@@ -83,7 +75,7 @@ export class ApiClient {
 
   formatUrl(path) {
     const config = SERVER ? this.options.server : this.options.client
-    const adjustedPath = path[0] === '/' ? '/' : `/${path}`
+    const adjustedPath = path[0] === '/' ? path : `/${path}`
     if (config.base) {
       config.pathname = config.base
     }
@@ -104,6 +96,3 @@ function deferred() {
     reject
   }
 }
-
-
-

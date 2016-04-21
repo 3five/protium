@@ -1,10 +1,9 @@
-import React     from 'react'
-import thunk     from 'redux-thunk'
-import promise   from 'redux-promise'
-import { merge, reduce } from 'lodash'
-import { Provider } from 'react-redux'
-import persistState from 'redux-devtools/lib/persistState'
-import clientMiddleware from './api-client'
+import React                from 'react'
+import { merge, reduce }    from 'lodash'
+import { Provider }         from 'react-redux'
+import persistState         from 'redux-devtools/lib/persistState'
+import ApiClient            from './client'
+import clientMiddleware     from './client-middleware'
 import {
   compose,
   createStore,
@@ -18,10 +17,7 @@ export default class Store {
     devTools: true,
     apiClient: {},
     reducers: {},
-    middleware: [
-      thunk,
-      promise
-    ],
+    middleware: [],
     composers: [],
     createMiddleware: middleware => middleware,
     createComposers: comp => comp
