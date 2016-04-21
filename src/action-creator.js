@@ -13,7 +13,7 @@ class ActionCreator {
   }
 
   sync(cb) {
-    return (payload)=> {
+    return payload => {
       return {
         types: this.types,
         run: (...args)=> {
@@ -26,7 +26,7 @@ class ActionCreator {
   }
 
   async(cb) {
-    return (payload)=> {
+    return payload => {
       return {
         types: this.types,
         promise: (...args)=> {
@@ -39,8 +39,6 @@ class ActionCreator {
   }
 
   identity() {
-    return this.sync((payload)=> {
-      return payload;
-    })
+    return this.sync(payload => payload)
   }
 }

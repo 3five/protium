@@ -1,10 +1,15 @@
 export default function clientMiddleware(client) {
   return store => next => action => {
-    const { dispatch, getState }              = store;
-    const { promise, types, run, ...rest }    = action;
-    const [REQUEST, SUCCESS, FAILURE]         = types;
+    const { dispatch, getState }              = store
+    const { promise, types, run, ...rest }    = action
+    const [REQUEST, SUCCESS, FAILURE]         = types || []
 
-    let result, error;
+    let result, error
+
+    // Non conforming action, skip it
+    if (!types || (types.length > 1 && !promise)) {
+      return next(action)
+    }
 
     // Syncronous Action
     if (types.length === 1) {
@@ -16,14 +21,8 @@ export default function clientMiddleware(client) {
       return next({ ...rest, result, error, type: REQUEST })
     }
 
-    // Non conforming action, skip it
-    if (types.length > 1 && !promise) {
-      console.log("Non-conforming action, must specify a `promise` or `run` payload.", action)
-      return next(action);
-    }
-
     // Async actions, kick it off.
-    next({...rest, type: REQUEST});
+    next({...rest, type: REQUEST})
 
     // Setup handler action
     return promise(client, dispatch, getState)
