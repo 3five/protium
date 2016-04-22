@@ -33,8 +33,8 @@ export default class ApiClient {
     let dfd = deferred()
     let request = Superagent[method](this.formatUrl(path))
 
-    if (options.params) {
-      request.query(options.params)
+    if (options.query) {
+      request.query(options.query)
     }
 
     if (SERVER && req.get('cookie')) {
