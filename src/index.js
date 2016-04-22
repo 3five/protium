@@ -1,4 +1,5 @@
 export { connect }                   from 'react-redux'
+export { asyncConnect }              from 'redux-async-connect'
 export { default as Helmet }         from 'react-helmet'
 export { default as Application }    from './application'
 export { default as action }         from './action-creator'

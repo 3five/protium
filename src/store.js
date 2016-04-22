@@ -33,6 +33,10 @@ export default class Store {
     this.reducers[name] = reducer
   }
 
+  upgradeReducers(reducers) {
+    this.reducers = { ...this.reducers, ...reducers }
+  }
+
   removeReducer(name) {
     delete this.reducers[name]
   }
@@ -56,11 +60,13 @@ export default class Store {
     return state
   }
 
+  getWrappedComponent(store, instance) {
+    return <Provider store={store} key="provider">{instance}</Provider>
+  }
+
   finalize(req, router = null) {
     let client;
     const initialState = this.getInitialState()
-
-    console.log(this.options)
 
     if (this.options.apiClient) {
       this.middleware.push(clientMiddleware(req, this.options.apiClient))
@@ -83,39 +89,4 @@ export default class Store {
     return finalCreateStore(reducer, initialState)
   }
 
-  getWrappedComponent(store, instance) {
-    return <Provider store={store}>{instance}</Provider>
-  }
-  
-  fetchComponentData(store, renderProps) {
-    const { components, params, location } = renderProps
-    const needs = reduce(components, (prev, current) => {
-      let nested = []
-      if (current.WrappedComponent && current.WrappedComponent.need !== current.need) {
-        nested = current.WrappedComponent.need
-      }
-      return (current.need || [])
-        .concat(nested)
-        .concat(prev)
-    }, [])
-    return sequence(needs, need => {
-      return store.dispatch(need(params, location, store.getState()))
-    })
-  }
-}
-
-function sequence(items, consumer) {
-  const results = []
-  const runner = () => {
-    const item = items.shift()
-    if (item) {
-      return consumer(item)
-        .then((result) => {
-          results.push(result)
-        })
-        .then(runner);
-    }
-    return Promise.resolve(results)
-  }
-  return runner();
 }

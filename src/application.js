@@ -1,6 +1,7 @@
 import React              from 'react'
 import { render }         from 'react-dom'
 import { merge, some }    from 'lodash'
+import { loadOnServer }   from 'redux-async-connect'
 import Store              from './store'
 
 export default class Application {
@@ -26,7 +27,7 @@ export default class Application {
 
   createStore(req) {
     if (this.router) {
-      this.internalStore.addReducer('routing', this.router.getReducer())
+      this.internalStore.upgradeReducers(this.router.getReducers())
     }
     const store = this.internalStore.finalize(req)
     if (this.router) {
@@ -66,7 +67,7 @@ export default class Application {
   resolve(req, renderProps) {
     const store = this.createStore(req)
     const component = this.getComponent(store, req, renderProps)
-    return this.internalStore.fetchComponentData(store, renderProps)
+    return loadOnServer(renderProps, store)
       .then(()=> {
         return {
           store,

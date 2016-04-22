@@ -13,6 +13,19 @@ import {
   routerReducer
 } from 'react-router-redux'
 
+import {
+  ReduxAsyncConnect,
+  reducer as reduxAsyncConnect
+} from 'redux-async-connect'
+
+export {
+  push, 
+  replace, 
+  go, 
+  goBack, 
+  goForward
+} from 'react-router-redux'
+
 export {
   Route,
   IndexRoute,
@@ -41,13 +54,16 @@ export class Router {
     this.history = syncHistoryWithStore(this.history, store)
   }
 
-  getReducer() {
-    return routerReducer
+  getReducers() {
+    return {
+      routing: routerReducer,
+      reduxAsyncConnect
+    }
   }
 
   getComponent(renderProps, client = false) {
     return client
-      ? <ReactRouter {...renderProps} />
+      ? <ReactRouter render={Router.asyncRenderer} {...renderProps} />
       : <RouterContext {...renderProps} />
   }
 
@@ -69,6 +85,10 @@ export class Router {
     }
     this.history = opts.history
     return opts
+  }
+
+  static asyncRenderer(props) {
+    return <ReduxAsyncConnect {...props} filter={item => !item.deferred} />
   }
 
 }
