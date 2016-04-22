@@ -76,8 +76,9 @@ export default class ApiClient {
   }
 
   formatUrl(path) {
-    const config = SERVER ? this.options.server : this.options.client
+    const config = { ...(SERVER ? this.options.server : this.options.client) }
     const adjustedPath = path[0] === '/' ? path : `/${path}`
+
     if (config.base) {
       config.pathname = config.base
     }
@@ -85,6 +86,7 @@ export default class ApiClient {
     if (config.host && config.port) {
       config.host = `${config.host}:${config.port}`
     }
+
     const baseUrl = Url.format(config)
     const url = baseUrl + adjustedPath
     return url
