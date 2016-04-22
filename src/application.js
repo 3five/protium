@@ -67,7 +67,7 @@ export default class Application {
   resolve(req, renderProps) {
     const store = this.createStore(req)
     const component = this.getComponent(store, req, renderProps)
-    return loadOnServer(renderProps, store)
+    return loadOnServer({...renderProps, store})
       .then(()=> {
         return {
           store,
