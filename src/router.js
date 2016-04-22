@@ -50,8 +50,8 @@ export class Router {
     this.routes = this.options.routes
   }
   
-  registerStore(store) {
-    this.history = syncHistoryWithStore(this.history, store)
+  registerStore(history, store) {
+    return syncHistoryWithStore(history, store)
   }
 
   getReducers() {
@@ -61,8 +61,8 @@ export class Router {
     }
   }
 
-  getComponent(renderProps, client = false) {
-    return client
+  getComponent(renderProps, req) {
+    return (!req)
       ? <ReactRouter render={Router.asyncRenderer} {...renderProps} />
       : <RouterContext {...renderProps} />
   }
@@ -83,7 +83,6 @@ export class Router {
     } else {
       opts.history = browserHistory
     }
-    this.history = opts.history
     return opts
   }
 

@@ -25,20 +25,21 @@ export default class Application {
     this.router = this.options.router
   }
 
-  createStore(req) {
+  createStore(renderProps, req) {
     if (this.router) {
       this.internalStore.upgradeReducers(this.router.getReducers())
     }
     const store = this.internalStore.finalize(req)
     if (this.router) {
-      this.router.registerStore(store)
+      renderProps.router = 
+        this.router.registerStore(renderProps.router, store)
     }    
     return store
   }
 
-  getComponent(store, req, renderProps, client = false) {
+  getComponent(store, renderProps, req) {
     let component = (this.router)
-      ? this.router.getComponent(renderProps, client)
+      ? this.router.getComponent(renderProps, req)
       : this.options.root
 
     if (!component) {
@@ -53,20 +54,21 @@ export default class Application {
 
     if (this.router) {
       return this.router.match((error, redirectLocation, renderProps)=> {
-        const store = this.createStore()
-        const component = this.getComponent(store, null, renderProps, true)
+        const store = this.createStore(renderProps, null)
+        const component = this.getComponent(store, renderProps)
         render(component, mountNode)
       })
     }
 
     const store = this.createStore()
-    const component = this.getComponent(store, null, null, true)
+    const component = this.getComponent(store, null)
     render(component, mountNode)
   }
 
-  resolve(req, renderProps) {
-    const store = this.createStore(req)
-    const component = this.getComponent(store, req, renderProps)
+  resolve(renderProps, req) {
+    const store = this.createStore(renderProps, req)
+    const component = this.getComponent(store, renderProps, req)
+
     return loadOnServer({...renderProps, store})
       .then(()=> {
         return {

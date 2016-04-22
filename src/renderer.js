@@ -9,8 +9,6 @@ let warnedAbout404 = false;
 
 export default function renderer(app, options = {}) {
 
-  let { cachebust } = options
-
   if (!app.router) {
     throw new Error('Application must have a `router` for SSR.')
   }
@@ -24,11 +22,6 @@ export default function renderer(app, options = {}) {
   }
 
   return (req, res)=> {
-
-    if (typeof cachebust === 'function') {
-      app = cachebust()
-    }
-    
     app.router.match(req, (error, redirect, renderProps) => {
       if (error) {
         const page = getErrorPage(null, app, error)
@@ -49,7 +42,7 @@ export default function renderer(app, options = {}) {
         return res.status(404)
       }
 
-      app.resolve(req, renderProps)
+      app.resolve(renderProps, req)
         .then(({ store, component, status })=> {
           const page = getHtmlPage(store, app, component)
           res.status(status).send(getHtml(app, page))

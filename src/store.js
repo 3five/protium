@@ -64,8 +64,7 @@ export default class Store {
     return <Provider store={store} key="provider">{instance}</Provider>
   }
 
-  finalize(req, router = null) {
-    let client;
+  finalize(req) {
     const initialState = this.getInitialState()
 
     if (this.options.apiClient) {
