@@ -1,5 +1,7 @@
 import React        from 'react'
 import { merge }    from 'lodash'
+import { syncHistoryWithStore, routerReducer } from 'react-router-redux'
+import { ReduxAsyncConnect, reducer as reduxAsyncConnect } from 'redux-async-connect'
 import {
   Router as ReactRouter,
   RouterContext,
@@ -8,36 +10,6 @@ import {
   match
 } from 'react-router'
 
-import {
-  syncHistoryWithStore,
-  routerReducer
-} from 'react-router-redux'
-
-import {
-  ReduxAsyncConnect,
-  reducer as reduxAsyncConnect
-} from 'redux-async-connect'
-
-export {
-  push, 
-  replace, 
-  go, 
-  goBack, 
-  goForward
-} from 'react-router-redux'
-
-export {
-  Route,
-  IndexRoute,
-  Redirect,
-  IndexRedirect,
-  Link,
-  IndexLink,
-} from 'react-router'
-
-export renderer from './renderer'
-
-export default Router
 
 export class Router {
 
@@ -91,3 +63,30 @@ export class Router {
   }
 
 }
+
+export default Router
+
+export { default as renderer } from './renderer'
+
+export {
+  push, 
+  replace, 
+  go, 
+  goBack, 
+  goForward
+} from 'react-router-redux'
+
+export {
+  Route,
+  IndexRoute,
+  Redirect,
+  IndexRedirect,
+  Link,
+  IndexLink,
+} from 'react-router'
+
+export {
+  IndexLinkContainer,
+  LinkContainer
+} from 'react-router-bootstrap'
+
