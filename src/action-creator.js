@@ -19,7 +19,12 @@ class ActionCreator {
         run: (...args)=> {
           let proto = Object.getPrototypeOf(cb)
           args.unshift(payload)
-          return cb.apply(proto, args)
+          try {
+            return cb.apply(proto, args)
+          } catch(e) {
+            console.log(`ActionCreator Error:`, e)
+            return Promise.reject(e)
+          }
         }
       }
     }
@@ -32,7 +37,12 @@ class ActionCreator {
         promise: (...args)=> {
           let proto = Object.getPrototypeOf(cb)
           args.unshift(payload)
-          return Promise.resolve(cb.apply(proto, args))
+          try {
+            return Promise.resolve(cb.apply(proto, args))
+          } catch(e) {
+            console.log(`ActionCreator Error:`, e)
+            return Promise.reject(e)
+          }
         }
       }
     }
