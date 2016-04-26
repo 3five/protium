@@ -1,7 +1,7 @@
 import React              from 'react'
 import { render }         from 'react-dom'
 import { merge, some }    from 'lodash'
-import { loadOnServer }   from 'redux-async-connect'
+import { loadOnServer }   from 'redux-async-connect-3five'
 import Store              from './store'
 
 export default class Application {

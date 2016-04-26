@@ -1,7 +1,7 @@
 import React        from 'react'
 import { merge }    from 'lodash'
 import { syncHistoryWithStore, routerReducer } from 'react-router-redux'
-import { ReduxAsyncConnect, reducer as reduxAsyncConnect } from 'redux-async-connect'
+import { ReduxAsyncConnect, reducer as reduxAsyncConnect } from 'redux-async-connect-3five'
 import {
   Router as ReactRouter,
   RouterContext,
