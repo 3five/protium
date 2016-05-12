@@ -41,7 +41,7 @@ export default class Application {
     if (!store) {
       store = this.internalStore.finalize(req)
       if (!req) {
-        __protium__.store = req
+        __protium__.store = store
       }
     }
     if (this.router) {
