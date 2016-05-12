@@ -14,6 +14,11 @@ export default class Application {
       doctype: '<!doctype html>',
       rootVar: '__STATE__',
       rootId: 'application'
+    },
+    component: {
+      wrapper(store, component) {
+        return component
+      }
     }
   };
 
@@ -46,7 +51,9 @@ export default class Application {
       throw new Error('Must initialize the application with a `router` or `root` property')
     }
 
-    return this.internalStore.getWrappedComponent(store, component)
+    let provider = this.internalStore.getWrappedComponent(store, component)
+
+    return this.options.component.wrap(store, provider)
   }
 
   render() {
