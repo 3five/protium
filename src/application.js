@@ -52,9 +52,9 @@ export default class Application {
       throw new Error('Must initialize the application with a `router` or `root` property')
     }
 
-    let provider = this.internalStore.getWrappedComponent(store, component, !!req)
+    let provider = this.internalStore.getWrappedComponent(store, component)
 
-    return this.options.component.wrap(store, provider)
+    return this.options.component.wrap(store, provider, !!req)
   }
 
   render() {
