@@ -4,6 +4,8 @@ import { merge, some }    from 'lodash'
 import { loadOnServer }   from 'redux-async-connect-3five'
 import Store              from './store'
 
+global.__protium__ = { store: null }
+
 export default class Application {
 
   static defaults = {
@@ -34,13 +36,13 @@ export default class Application {
     if (this.router) {
       this.internalStore.upgradeReducers(this.router.getReducers())
     }
-    if (!this.store) {
-      this.store = this.internalStore.finalize(req)
+    if (!__protium__.store) {
+      __protium__.store = this.internalStore.finalize(req)
     }
     if (this.router) {
-      renderProps.router = this.router.registerStore(renderProps.router, this.store)
+      renderProps.router = this.router.registerStore(renderProps.router, __protium__.store)
     }    
-    return this.store
+    return __protium__.store
   }
 
   getComponent(store, renderProps, req) {
