@@ -33,7 +33,7 @@ export default class Application {
   }
 
   createStore(renderProps, req) {
-    let store = req ? null : __protium__.global
+    let store = req ? null : __protium__.store
     if (this.router) {
       this.internalStore.upgradeReducers(this.router.getReducers())
     }
