@@ -16,7 +16,7 @@ export default class Application {
       rootId: 'application'
     },
     component: {
-      wrapper(store, component) {
+      wrap(store, component) {
         return component
       }
     }
