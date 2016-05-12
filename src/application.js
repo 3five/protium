@@ -33,16 +33,21 @@ export default class Application {
   }
 
   createStore(renderProps, req) {
+    let store = req ? null : __protium__.global
     if (this.router) {
       this.internalStore.upgradeReducers(this.router.getReducers())
     }
-    if (!__protium__.store) {
-      __protium__.store = this.internalStore.finalize(req)
+    // Only hang onto the store globally if clientside
+    if (!store) {
+      store = this.internalStore.finalize(req)
+      if (!req) {
+        __protium__.store = req
+      }
     }
     if (this.router) {
-      renderProps.router = this.router.registerStore(renderProps.router, __protium__.store)
+      renderProps.router = this.router.registerStore(renderProps.router, store)
     }    
-    return __protium__.store
+    return store
   }
 
   getComponent(store, renderProps, req) {
