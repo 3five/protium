@@ -34,12 +34,13 @@ export default class Application {
     if (this.router) {
       this.internalStore.upgradeReducers(this.router.getReducers())
     }
-    const store = this.internalStore.finalize(req)
+    if (!this.store) {
+      this.store = this.internalStore.finalize(req)
+    }
     if (this.router) {
-      renderProps.router = 
-        this.router.registerStore(renderProps.router, store)
+      renderProps.router = this.router.registerStore(renderProps.router, this.store)
     }    
-    return store
+    return this.store
   }
 
   getComponent(store, renderProps, req) {
