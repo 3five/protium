@@ -1,6 +1,6 @@
 import Url                from 'url'
 import Superagent         from 'superagent'
-import { merge }          from 'lodash'
+import { merge, map }          from 'lodash'
 
 const methods = ['get', 'post', 'put', 'patch', 'del']
 
@@ -46,16 +46,26 @@ export default class ApiClient {
     } 
 
     else if (options.attach) {
-      let formData = new FormData()
+      let form = new FormData()
       let files = options.attach
 
-      for (let key in files) {
-        if (files.hasOwnProperty(key) && files[key] instanceof File) {
-          formData.append(`files`, files[key])
+      map(files, (val, key)=> {
+        if (val instanceof FileList) {
+          for (let f in val) {
+            if (val.hasOwnProperty(f) && val[f] instanceof File) {
+              form.append(key, val[f])
+            }
+          }
+          return
         }
-      }
+        if (val instanceof File) {
+          form.append(key, val)
+          return
+        }
+        console.log('Unrecognized object type for `'+key+'`, must be a File or FileList.')
+      })
 
-      request.send(formData)
+      request.send(form)
     }
 
     dfd.promise.abort = function() {
