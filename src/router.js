@@ -1,7 +1,16 @@
 import React        from 'react'
 import { merge }    from 'lodash'
-import { syncHistoryWithStore, routerReducer } from 'react-router-redux'
-import { ReduxAsyncConnect, reducer as reduxAsyncConnect } from 'redux-async-connect-3five'
+import { 
+  syncHistoryWithStore, 
+  routerReducer,
+  routerMiddleware
+} from 'react-router-redux'
+
+import { 
+  ReduxAsyncConnect, 
+  reducer as reduxAsyncConnect 
+} from 'redux-async-connect-3five'
+
 import {
   Router as ReactRouter,
   RouterContext,
@@ -55,6 +64,7 @@ export class Router {
     } else {
       opts.history = browserHistory
     }
+    this.middleware = routerMiddleware(opts.history)
     return opts
   }
 

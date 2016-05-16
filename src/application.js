@@ -35,7 +35,10 @@ export default class Application {
   createStore(renderProps, req) {
     let store = req ? null : __protium__.store
     if (this.router) {
-      this.internalStore.upgradeReducers(this.router.getReducers())
+      this.internalStore.upgradeWithRouting(
+        this.router.getReducers(), 
+        this.router.middleware
+      )
     }
     // Only hang onto the store globally if clientside
     if (!store) {

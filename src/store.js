@@ -33,8 +33,9 @@ export default class Store {
     this.reducers[name] = reducer
   }
 
-  upgradeReducers(reducers) {
+  upgradeWithRouting(reducers, routingMiddleware) {
     this.reducers = { ...this.reducers, ...reducers }
+    this.middleware.push(routingMiddleware)
   }
 
   removeReducer(name) {

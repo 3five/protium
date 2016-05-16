@@ -26,6 +26,9 @@ function buildConfig() {
       nodeModules,
       /^[a-z\/\-0-9]+$/i
     ],
+    node: {
+      global: false
+    },
     devtool: 'source-map'
   }
 }
