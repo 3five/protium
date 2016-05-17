@@ -44,7 +44,7 @@ export default function renderer(app, options = {}) {
 
       app.resolve(renderProps, req)
         .then(({ store, component, status })=> {
-          const page = getHtmlPage(store, app, component)
+          const page = getHtmlPage(store, app, component, options.page)
           res.status(status).send(getHtml(app, page))
         })
         .catch((err)=> {
@@ -72,8 +72,8 @@ function getErrorPage(store, app, error) {
   return getHtmlPage(store, app, comp)
 }
 
-function getHtmlPage(store, app, component) {
-  let options = merge({}, app.options.page)
+function getHtmlPage(store, app, component, extraOpts) {
+  let options = merge({}, app.options.page, extraOpts)
   if (store) {
     options.state = store.getState()
   }
