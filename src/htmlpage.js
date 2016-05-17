@@ -17,18 +17,18 @@ export default class HtmlPage extends Component {
   render() {
     const html = this.renderAppHtml()
     const head = this.getHead()
-    const inlineCss = this.renderInlineCss()
     return <html {...head.htmlAttributes.toComponent()}>
       <head>
         {head.title.toComponent()}
         {head.meta.toComponent()}
-        {inlineCss}
+        {this.renderInlineCss()}
+        {this.renderInlineScripts()}
         {head.link.toComponent()}
       </head>
       <body>
         {html}
         {this.renderState()}
-        {this.props.main && this.renderScriptTag(this.props.main)}
+        {this.renderMain()}
         {head.script.toComponent()}
       </body>
     </html>
@@ -42,8 +42,18 @@ export default class HtmlPage extends Component {
     return this.props.inlineCss && this.props.inlineCss.length
   }
 
-  renderScriptTag(src) {
-    return <script src={src} />
+  renderMain() {
+    if (!this.props.main) { return null }
+    let scripts = Array.isArray(this.props.main)
+          ? this.props.main
+          : [this.props.main]
+    return map(scripts, (script, i)=> {
+      return this.renderScriptTag(script, i)
+    })
+  }
+
+  renderScriptTag(src, key) {
+    return <script key={key} src={src} />
   }
 
   renderAsyncLinks() {
@@ -52,9 +62,26 @@ export default class HtmlPage extends Component {
     return <script dangerouslySetInnerHTML={__(html)} />
   }
 
+  renderInlineScripts() {
+    if (!this.props.inlineScripts) { return null }
+    let scripts = Array.isArray(this.props.inlineScripts) 
+          ? this.props.inlineScripts 
+          : [this.props.inlineScripts]
+    return map(scripts, (script, i)=> {
+      let html = __(script)
+      return <script key={'inline-script-'+i} dangerouslySetInnerHTML={html} />
+    })
+  }
+
   renderInlineCss() {
-    let html = __(this.props.inlineCss)
-    return <style dangerouslySetInnerHTML={html} />
+    if (!this.props.inlineCss) { return null }
+    let links = Array.isArray(this.props.inlineCss) 
+          ? this.props.inlineCss 
+          : [this.props.inlineCss]
+    return map(links, (css, i)=> {
+      let html = __(css)
+      return <style key={'inline-css-'+i} dangerouslySetInnerHTML={html} />
+    })
   }
 
   renderAppHtml() {
