@@ -54,9 +54,9 @@ export default class Store {
 
     // Handles react-router-redux #365; 
     // react-router/redux doesn't like routing state sent from server
-    if (state.routing) {
-      state.routing = {}
-    }
+    // if (state.routing) {
+    //   state.routing = {}
+    // }
 
     return state
   }

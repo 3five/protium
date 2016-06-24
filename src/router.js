@@ -9,7 +9,7 @@ import {
 import { 
   ReduxAsyncConnect, 
   reducer as reduxAsyncConnect 
-} from 'redux-async-connect-3five'
+} from 'redux-connect'
 
 import {
   Router as ReactRouter,
