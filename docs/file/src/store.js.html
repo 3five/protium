@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../">
+  <title data-ice="title">src/store.js | API Document</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  
+  
+  <script src="script/manual.js"></script>
+</head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <a data-ice="repoURL" href="https://github.com/3five/protium.git" class="repo-url-github">Repository</a>
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+</header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/application.js~Application.html">Application</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/client.js~ApiClient.html">ApiClient</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/devtools.js~DevTools.html">DevTools</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/error.js~ErrorComponent.html">ErrorComponent</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/htmlpage.js~HtmlPage.html">HtmlPage</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/router.js~Router.html">Router</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/store.js~Store.html">Store</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-action">action</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-clientMiddleware">clientMiddleware</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-renderer">renderer</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/store.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import React                from &apos;react&apos;
+import { merge, reduce }    from &apos;lodash&apos;
+import { Provider }         from &apos;react-redux&apos;
+import persistState         from &apos;redux-devtools/lib/persistState&apos;
+import clientMiddleware     from &apos;./client-middleware&apos;
+import ApiClient            from &apos;./client&apos;
+import {
+  compose,
+  createStore,
+  combineReducers,
+  applyMiddleware
+} from &apos;redux&apos;
+
+export default class Store {
+
+  static defaults = {
+    devTools: true,
+    apiClient: {},
+    reducers: {},
+    middleware: [],
+    composers: [],
+    createMiddleware: middleware =&gt; middleware,
+    createComposers: comp =&gt; comp
+  }
+
+  constructor(opts) {
+    this.options = merge({}, Store.defaults, opts)
+    this.reducers = this.options.reducers
+    this.middleware = this.options.middleware
+    this.composers = this.options.composers
+  }
+  
+  addReducer(name, reducer) {
+    this.reducers[name] = reducer
+  }
+
+  upgradeWithRouting(reducers, routingMiddleware) {
+    this.routing = true
+    this.reducers = { ...this.reducers, ...reducers }
+    this.routingMiddleware = routingMiddleware
+  }
+
+  removeReducer(name) {
+    delete this.reducers[name]
+  }
+
+  getInitialState() {
+    let state = {}
+    if (__SERVER__) {
+      return state
+    }
+
+    if (global[this.options.rootVar]) {
+      state = global[this.options.rootVar]
+    }
+
+    return state
+  }
+
+  getWrappedComponent(store, instance) {
+    return &lt;Provider store={store} key=&quot;provider&quot;&gt;{instance}&lt;/Provider&gt;
+  }
+
+  finalize(http) {
+    const initialState = this.getInitialState()
+    let middleware = [ ...this.options.middleware ]
+
+    if (this.routing) {
+      middleware.push(this.routingMiddleware)
+    }
+
+    if (this.options.apiClient) {
+      middleware.push(clientMiddleware(this.options.apiClient, http))
+    }
+
+
+    middleware = this.options.createMiddleware(middleware, http)
+    
+    const reducer = combineReducers({ ...this.reducers })
+    
+    this.composers.push(applyMiddleware(...middleware))
+
+    if (__CLIENT__ &amp;&amp; this.options.devTools &amp;&amp; global.devToolsExtension) {
+      this.composers.push(
+        global.devToolsExtension(),
+        persistState(global.location.href.match(/[?&amp;]debug_session=([^&amp;]+)\b/))
+      )
+    }
+    
+    const composers = this.options.createComposers(this.composers)
+    const finalCreateStore = compose(...composers)(createStore)
+    return finalCreateStore(reducer, initialState)
+  }
+
+}
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(0.4.6)</span></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

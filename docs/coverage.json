@@ -1,0 +1,134 @@
+{
+  "coverage": "0%",
+  "expectCount": 67,
+  "actualCount": 0,
+  "files": {
+    "src/client.js": {
+      "expectCount": 8,
+      "actualCount": 0,
+      "undocumentLines": [
+        9,
+        44,
+        31,
+        92,
+        74,
+        37,
+        33,
+        34
+      ]
+    },
+    "src/application.js": {
+      "expectCount": 11,
+      "actualCount": 0,
+      "undocumentLines": [
+        10,
+        23,
+        33,
+        58,
+        29,
+        24,
+        78,
+        96,
+        26,
+        108,
+        27
+      ]
+    },
+    "src/devtools.js": {
+      "expectCount": 5,
+      "actualCount": 0,
+      "undocumentLines": [
+        11,
+        73,
+        41,
+        42,
+        45
+      ]
+    },
+    "src/error.js": {
+      "expectCount": 2,
+      "actualCount": 0,
+      "undocumentLines": [
+        4,
+        5
+      ]
+    },
+    "src/htmlpage.js": {
+      "expectCount": 11,
+      "actualCount": 0,
+      "undocumentLines": [
+        7,
+        41,
+        37,
+        17,
+        87,
+        59,
+        76,
+        65,
+        45,
+        55,
+        92
+      ]
+    },
+    "src/router.js": {
+      "expectCount": 13,
+      "actualCount": 0,
+      "undocumentLines": [
+        24,
+        87,
+        30,
+        46,
+        75,
+        63,
+        42,
+        35,
+        53,
+        69,
+        31,
+        83,
+        32
+      ]
+    },
+    "src/store.js": {
+      "expectCount": 14,
+      "actualCount": 0,
+      "undocumentLines": [
+        14,
+        33,
+        30,
+        26,
+        64,
+        47,
+        60,
+        29,
+        27,
+        28,
+        43,
+        38,
+        40,
+        37
+      ]
+    },
+    "src/action-creator.js": {
+      "expectCount": 1,
+      "actualCount": 0,
+      "undocumentLines": [
+        2
+      ]
+    },
+    "src/client-middleware.js": {
+      "expectCount": 1,
+      "actualCount": 0,
+      "undocumentLines": [
+        3
+      ]
+    },
+    "src/renderer.js": {
+      "expectCount": 1,
+      "actualCount": 0,
+      "undocumentLines": [
+        13
+      ]
+    }
+  }
+}

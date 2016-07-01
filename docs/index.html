@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl">
+  <title data-ice="title">API Document</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  
+  
+  <script src="script/manual.js"></script>
+</head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="./">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <a data-ice="repoURL" href="https://github.com/3five/protium.git" class="repo-url-github">Repository</a>
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+</header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/application.js~Application.html">Application</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/client.js~ApiClient.html">ApiClient</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/devtools.js~DevTools.html">DevTools</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/error.js~ErrorComponent.html">ErrorComponent</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/htmlpage.js~HtmlPage.html">HtmlPage</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/router.js~Router.html">Router</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/store.js~Store.html">Store</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-action">action</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-clientMiddleware">clientMiddleware</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-renderer">renderer</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><div data-ice="index" class="github-markdown"><h1 id="protium">Protium</h1>
+<p>Protium is a micro framework for building universal React/Redux apps.</p>
+<p>Bundles <code>react</code>, <code>react-router</code>, and <code>redux</code> into a nice little package, takes care of routing and store/reducer setup for you (more examples forthcoming).</p>
+<p>WIP, don&apos;t use this in production... yet!</p>
+<p>Uses <a href="https://github.com/nfl/react-helmet">react-helmet</a> for <code>&lt;head&gt;</code> management.</p>
+<p><code>import {Helmet} from &apos;protium&apos;</code>, and include that component within any of your views.</p>
+<h2 id="example">Example</h2>
+<pre><code class="lang-javascript"><code class="source-code prettyprint">// app.js
+
+import React from &apos;react&apos;
+import Root  from &apos;./views/root&apos;
+import Comp  from &apos;./views/comp&apos;
+import * as reducers from &apos;./reducers&apos;
+import { Application } from &apos;protium&apos;
+import {
+  Router,
+  Route,
+  IndexRoute
+} from &apos;protium/router&apos;
+
+const router = new Router({
+  routes: [
+    &lt;Route path=&quot;/&quot; component={Root}&gt;
+      &lt;IndexRoute component={Comp} /&gt;
+      &lt;Route path=&quot;/a&quot; component={Comp} /&gt;
+      &lt;Route path=&quot;/b&quot; component={Comp} /&gt;
+      &lt;Route path=&quot;/c&quot; component={Comp} /&gt;
+      &lt;Route path=&quot;*&quot; component={NotFoundComp} notFound={true} /&gt; // signals 404 on server
+    &lt;/Route&gt;
+  ]
+})
+
+export default new Application({
+  router,
+  reducers
+})</code>
+</code></pre>
+<pre><code class="lang-javascript"><code class="source-code prettyprint">// client.js (short and sweet!)
+import app from &apos;./app&apos;
+
+app.render()</code>
+</code></pre>
+<pre><code class="lang-javascript"><code class="source-code prettyprint">// server.js
+import express       from &apos;express&apos;
+import app           from &apos;./app&apos;
+import { renderer }  from &apos;protium/router&apos;
+
+const server = express()
+export default server
+
+server.use(&apos;/assets&apos;, express.static(&apos;dist&apos;))
+server.get(&apos;/*&apos;, renderer(app))</code>
+</code></pre>
+</div>
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(0.4.6)</span></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>
