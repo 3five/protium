@@ -1,34 +1,36 @@
+var webpack = require('webpack')
 var fs = require('fs')
-var nodeModules = fs.readdirSync('node_modules')
-  .filter(function(x) { return x !== '.bin' })
+var nodeExternals = require('webpack-node-externals')
 
-
-module.exports = buildConfig()
-
-
-function buildConfig() {
-  return {
-    entry: {
-      index: ['./src/index.js'],
-      router: ['./src/router.js']
-    },
-    output: {
-      path: './',
-      filename: '[name].js',
-      libraryTarget: 'commonjs'
-    },
-    module: {
-      loaders: [
-        { test: /\.js$/, include: __dirname + '/src', loader: 'babel' }
-      ]
-    },
-    externals: [
-      nodeModules,
-      /^[a-z\/\-0-9]+$/i
-    ],
-    node: {
-      global: false
-    },
-    devtool: 'source-map'
-  }
+module.exports = {
+  entry: {
+    index: ['./src/index'],
+    router: ['./src/router'],
+    devtools: ['./src/devtools'],
+    server: ['./src/renderer']
+  },
+  output: {
+    path: './',
+    filename: '[name].js',
+    libraryTarget: 'commonjs'
+  },
+  module: {
+    loaders: [
+      { test: /\.js$/, include: __dirname + '/src', loader: 'babel' }
+    ]
+  },
+  externals: [ 
+    nodeExternals()
+  ],
+  target: 'node',
+  node: {
+    console: false,
+    global: false,
+    process: false,
+    Buffer: false,
+    __filename: false,
+    __dirname: false,
+    setImmediate: false
+  },
+  devtool: 'source-map'
 }

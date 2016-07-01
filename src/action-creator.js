@@ -16,11 +16,11 @@ class ActionCreator {
     return payload => {
       return {
         types: this.types,
-        run: (...args)=> {
+        run: (opts)=> {
           let proto = Object.getPrototypeOf(cb)
-          args.unshift(payload)
+          opts.payload = payload
           try {
-            return cb.apply(proto, args)
+            return cb.call(proto, opts)
           } catch(e) {
             console.log(`ActionCreator Error:`, e)
             return Promise.reject(e)
@@ -34,11 +34,11 @@ class ActionCreator {
     return payload => {
       return {
         types: this.types,
-        promise: (...args)=> {
+        promise: (opts)=> {
           let proto = Object.getPrototypeOf(cb)
-          args.unshift(payload)
+          opts.payload = payload
           try {
-            return Promise.resolve(cb.apply(proto, args))
+            return Promise.resolve(cb.call(proto, opts))
           } catch(e) {
             console.log(`ActionCreator Error:`, e)
             return Promise.reject(e)
@@ -49,6 +49,6 @@ class ActionCreator {
   }
 
   identity() {
-    return this.sync(payload => payload)
+    return this.sync(x => x.payload)
   }
 }

@@ -1,28 +1,37 @@
 import React                      from 'react'
 import { merge }                  from 'lodash'
-import { renderToString }         from 'react-dom/server'
+import { plugToRequest }          from 'react-cookie'
 import HtmlPage                   from './htmlpage'
 import ErrorComponent             from './error'
+import { renderToString, renderToStaticMarkup } from 'react-dom/server'
 
 const production = process.env.NODE_ENV === 'production'
-let warnedAbout404 = false;
 
-export default function renderer(app, options = {}) {
+global.__SERVER__ = true
+global.__CLIENT__ = false
 
-  if (!app.router) {
-    throw new Error('Application must have a `router` for SSR.')
-  }
-
-  if (!app.options.page.errorComponent) {
-    app.options.page.errorComponent = ErrorComponent
-  }
-
-  if (!app.options.page.rootComponent) {
-    app.options.page.rootComponent = HtmlPage
-  }
-
+export function renderer(appFn, options = {}) {
   return (req, res)=> {
-    app.router.match(req, (error, redirect, renderProps) => {
+    let app = (typeof appFn === 'function') ? appFn() : appFn
+
+    if (!app.router) {
+      throw new Error('Application must have a `router` for SSR.')
+    }
+
+    if (!app.options.page.errorComponent) {
+      app.options.page.errorComponent = ErrorComponent
+    }
+
+    if (!app.options.page.rootComponent) {
+      app.options.page.rootComponent = HtmlPage
+    }
+
+    const http = {req, res}
+    const unplug = plugToRequest(req, res)
+    const history = app.router.createHistory()
+    const store = app.createStore(history, http)
+
+    app.router.match(history, store, http, (error, redirect, renderProps) => {
       if (error) {
         const page = getErrorPage(null, app, error)
         return res.status(500).send(getHtml(app, page))
@@ -33,16 +42,10 @@ export default function renderer(app, options = {}) {
       }
 
       if (!renderProps) {
-        if (!warnedAbout404) {
-          console.log('To configure a custom 404, register a route inside your root route')
-          console.log('<Route path="*" component={NotFound} notFound={true} />')
-          console.log('`notFound={true}` tells the renderer to send a 404')
-          warnedAbout404 = true
-        }
         return res.status(404)
       }
 
-      app.resolve(renderProps, req)
+      app.resolve(store, renderProps, http)
         .then(({ store, component, status })=> {
           const page = getHtmlPage(store, app, component, options.page)
           res.status(status).send(getHtml(app, page))
@@ -51,9 +54,12 @@ export default function renderer(app, options = {}) {
           const page = getErrorPage(null, app, err)
           res.status(500).send(getHtml(app, page))
         })
-        .catch((err)=> {
-          res.status(500).send(err.stack)
+        .catch((error)=> {
+          const component = <ErrorComponent {...{error, production}} />
+          res.status(500).send(
+            '<!doctype html>' + renderToStaticMarkup(component))
         })
+        .then(unplug)
     })
   }
 }

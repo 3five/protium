@@ -3,6 +3,7 @@ import { merge, reduce }    from 'lodash'
 import { Provider }         from 'react-redux'
 import persistState         from 'redux-devtools/lib/persistState'
 import clientMiddleware     from './client-middleware'
+import ApiClient            from './client'
 import {
   compose,
   createStore,
@@ -34,8 +35,9 @@ export default class Store {
   }
 
   upgradeWithRouting(reducers, routingMiddleware) {
+    this.routing = true
     this.reducers = { ...this.reducers, ...reducers }
-    this.middleware.push(routingMiddleware)
+    this.routingMiddleware = routingMiddleware
   }
 
   removeReducer(name) {
@@ -44,19 +46,13 @@ export default class Store {
 
   getInitialState() {
     let state = {}
-    if (SERVER) {
+    if (__SERVER__) {
       return state
     }
 
-    if (window[this.options.rootVar]) {
-      state = window[this.options.rootVar]
+    if (global[this.options.rootVar]) {
+      state = global[this.options.rootVar]
     }
-
-    // Handles react-router-redux #365; 
-    // react-router/redux doesn't like routing state sent from server
-    // if (state.routing) {
-    //   state.routing = {}
-    // }
 
     return state
   }
@@ -65,22 +61,29 @@ export default class Store {
     return <Provider store={store} key="provider">{instance}</Provider>
   }
 
-  finalize(req) {
+  finalize(http) {
     const initialState = this.getInitialState()
+    let middleware = [ ...this.options.middleware ]
 
-    if (this.options.apiClient) {
-      this.middleware.push(clientMiddleware(req, this.options.apiClient))
+    if (this.routing) {
+      middleware.push(this.routingMiddleware)
     }
 
-    const middleware = this.options.createMiddleware(this.middleware, { req })
+    if (this.options.apiClient) {
+      middleware.push(clientMiddleware(this.options.apiClient, http))
+    }
+
+
+    middleware = this.options.createMiddleware(middleware, http)
+    
     const reducer = combineReducers({ ...this.reducers })
     
     this.composers.push(applyMiddleware(...middleware))
 
-    if (CLIENT && this.options.devTools && window.devToolsExtension) {
+    if (__CLIENT__ && this.options.devTools && global.devToolsExtension) {
       this.composers.push(
-        window.devToolsExtension(),
-        persistState(window.location.href.match(/[?&]debug_session=([^&]+)\b/))
+        global.devToolsExtension(),
+        persistState(global.location.href.match(/[?&]debug_session=([^&]+)\b/))
       )
     }
     

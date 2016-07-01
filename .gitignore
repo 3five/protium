@@ -7,3 +7,5 @@ node_modules
 .idea
 /index.js*
 /router.js*
+/server.js*
+/devtools.js*

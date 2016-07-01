@@ -12,28 +12,26 @@
     "type": "git",
     "url": "https://github.com/3five/protium.git"
   },
-  "author": "Jon Jaques <jaquers@gmail.com>",
+  "author": "Jon Jaques <jon@3five.com>",
   "license": "MIT",
-  "devDependencies": {
+  "peerDependencies": {
+    "react": ">=15.1.0",
+    "babel-loader": "^6.2.4",
+    "source-map-loader": "^0.1.5",
+    "webpack": "^2.1.0-beta.14"
+  },
+  "dependencies": {
     "babel-core": "^6.7.6",
     "babel-loader": "^6.2.1",
-    "babel-preset-es2015": "^6.6.0",
+    "babel-preset-es2015-webpack": "^6.4.1",
     "babel-preset-react": "^6.3.13",
     "babel-preset-stage-0": "^6.3.13",
-    "esdoc": "^0.4.6",
-    "webpack": "^1.12.11"
-  },
-  "babel": {
-    "presets": [
-      "es2015",
-      "react",
-      "stage-0"
-    ]
-  },
-  "peerDependencies": {},
-  "dependencies": {
+    "clean-webpack-plugin": "^0.1.9",
+    "deep-extend": "^0.4.1",
+    "isomorphic-fetch": "^2.2.1",
     "lodash": "^4.13.1",
-    "react": "^15.1.0",
+    "qs": "^6.2.0",
+    "react-cookie": "^0.4.7",
     "react-dom": "^15.1.0",
     "react-helmet": "^3.1.0",
     "react-hot-loader": "^3.0.0-beta.2",
@@ -43,7 +41,14 @@
     "react-router-redux": "^4.0.5",
     "redux": "^3.5.2",
     "redux-connect": "^2.4.0",
+    "redux-devtools": "^3.3.1",
     "serialize-javascript": "^1.3.0",
-    "superagent": "^2.0.0"
+    "source-map-loader": "^0.1.5",
+    "use-scroll-behavior": "^0.1.4",
+    "webpack": "^2.1.0-beta.14",
+    "webpack-assets-plugin": "0.0.3",
+    "webpack-dev-middleware": "^1.6.1",
+    "webpack-hot-middleware": "^2.10.0",
+    "webpack-node-externals": "^1.2.0"
   }
 }

@@ -1,6 +1,8 @@
-import Url                from 'url'
-import Superagent         from 'superagent'
-import { merge, map }          from 'lodash'
+import 'isomorphic-fetch'
+import Url      from 'url'
+import QS       from 'qs'
+import merge    from 'deep-extend'
+import { map }  from 'lodash'
 
 const methods = ['get', 'post', 'put', 'patch', 'del']
 
@@ -15,74 +17,76 @@ export default class ApiClient {
     client: {
       pathname: '/'
     }
+  };
+
+  static requestDefaults = {
+    method        : 'get',
+    mode          : 'same-origin',
+    redorect      : 'follow',
+    cache         : 'default',
+    credentials   : 'include',
+    as            : 'json'
   }
 
-  constructor(req, options) {
-    this.req = req
+  constructor(options, http) {
+    if (http) {
+      this.req = http.req
+      this.res = http.res
+    }
+
     this.options = merge({}, ApiClient.defaults, options)
+    
     methods.forEach(method => {
       this[method] = this.genericMethod.bind(this, method)
     })
   }
 
-  genericMethod(method, path, options) {
-    if (!options) { options = {} }
+  buildRequest(method, path, options) {
+    let url = this.formatUrl(path)
 
-    let req = this.req
-    let aborted = false
-    let dfd = deferred()
-    let request = Superagent[method](this.formatUrl(path))
+    options.method = method.toUpperCase()
+
+    if (options.body) {
+      options.body = JSON.stringify(options.body)
+    } else if (options.formData) {
+      options.body = new FormData(options.formData)
+      delete options.formData
+    }
 
     if (options.query) {
-      request.query(options.query)
+      url += QS.stringify(options.query)
+      delete options.query
     }
 
-    if (SERVER && req.get('cookie')) {
-      request.set('cookie', req.get('cookie'))
-    }
-    
-    if (options.data) {
-      request.send(options.data)
-    } 
-
-    else if (options.attach) {
-      let form = new FormData()
-      let files = options.attach
-
-      map(files, (val, key)=> {
-        if (val instanceof FileList) {
-          for (let f in val) {
-            if (val.hasOwnProperty(f) && val[f] instanceof File) {
-              form.append(key, val[f])
-            }
-          }
-          return
-        }
-        if (val instanceof File) {
-          form.append(key, val)
-          return
-        }
-        console.log('Unrecognized object type for `'+key+'`, must be a File or FileList.')
-      })
-
-      request.send(form)
+    if (options.headers) {
+      if (__SERVER__ && this.req.get('cookie')) {
+        options.headers.cookie = this.req.get('cookie')
+      }
+      options.headers = new Headers(options.headers)
     }
 
-    dfd.promise.abort = function() {
-      aborted = true
-      request.abort()
-    }
+    return new Request(url, merge(
+      ApiClient.requestDefaults,
+      options
+    ))
+  }
 
-    request.end((err, res) => {
-      if (!aborted) {
-        if (err) {
-          return dfd.reject(err)
-        }
-        dfd.resolve(res.body)
+  genericMethod(method, path, options = {}) {
+    let req = this.req
+    let request = this.buildRequest(method, path, options)
+
+    return fetch(request).then(response => {
+      switch(options.as) {
+        case 'json':
+          return response.json()
+        case 'text':
+          return response.text()
+        case 'blob':
+          return response.blob()
+        default:
+          return response
       }
     })
-
-    return dfd.promise
   }
 
   formatUrl(path) {
@@ -100,18 +104,5 @@ export default class ApiClient {
     const baseUrl = Url.format(config)
     const url = baseUrl + adjustedPath
     return url
-  }
-}
-
-function deferred() {
-  let resolve, reject,
-  promise = new Promise((_resolve, _reject)=> {
-    resolve = _resolve
-    reject = _reject
-  })
-  return {
-    promise,
-    resolve,
-    reject
   }
 }

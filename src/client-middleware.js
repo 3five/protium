@@ -1,11 +1,13 @@
 import ApiClient from './client'
 
-export default function clientMiddleware(req, options) {
-  let client = new ApiClient(req, options)
+export default function clientMiddleware(options, http) {
   return store => next => action => {
+    const { req, res } = http || {}
     const { dispatch, getState }              = store
     const { promise, types, run, ...rest }    = action
     const [REQUEST, SUCCESS, FAILURE]         = types || []
+
+    const client = new ApiClient(options, http)
 
     let result, error
 
@@ -17,7 +19,7 @@ export default function clientMiddleware(req, options) {
     // Syncronous Action
     if (types.length === 1) {
       try {
-        result = run(client, dispatch, getState)
+        result = run({ client, dispatch, getState })
       } catch (e) {
         error = e
       }
@@ -28,7 +30,7 @@ export default function clientMiddleware(req, options) {
     next({...rest, type: REQUEST})
 
     // Setup handler action
-    return promise(client, dispatch, getState)
+    return promise({ client, dispatch, getState })
       .then(onSuccess)
       .catch(onError)
 

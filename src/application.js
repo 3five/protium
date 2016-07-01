@@ -1,10 +1,11 @@
 import React              from 'react'
 import { render }         from 'react-dom'
 import { merge, some }    from 'lodash'
-import { loadOnServer }   from 'redux-async-connect-3five'
+import { loadOnServer }   from 'redux-connect'
+import { AppContainer }   from 'react-hot-loader'
 import Store              from './store'
 
-global.__protium__ = { store: null }
+global.__PROTIUM__ = { store: null }
 
 export default class Application {
 
@@ -16,83 +17,90 @@ export default class Application {
       doctype: '<!doctype html>',
       rootVar: '__STATE__',
       rootId: 'application'
-    },
-    component: {
-      wrap(store, component) {
-        return component
-      }
     }
   };
 
   constructor(options = {}) {
     this.options = merge({}, Application.defaults, options)
-    this.store = null
     this.options.store.rootVar = this.options.page.rootVar
-    this.internalStore = new Store(this.options.store)
     this.router = this.options.router
+    this.store = new Store(this.options.store)
+    if (this.router) {
+      this.history = this.router.createHistory()
+    }
   }
 
-  createStore(renderProps, req) {
-    let store = req ? null : __protium__.store
-    if (this.router) {
-      this.internalStore.upgradeWithRouting(
+  createStore(history, http) {
+    let store = http ? null : __PROTIUM__.store
+
+    if (history) {
+      this.store.upgradeWithRouting(
         this.router.getReducers(), 
-        this.router.middleware
+        this.router.getMiddleware(history)
       )
     }
+
     // Only hang onto the store globally if clientside
     if (!store) {
-      store = this.internalStore.finalize(req)
-      if (!req) {
-        __protium__.store = store
+      store = this.store.finalize(http)
+      if (!http) {
+        __PROTIUM__.store = store
       }
     }
-    if (this.router) {
-      renderProps.router = this.router.registerStore(renderProps.router, store)
-    }    
+    
+    if (history) {
+      this.router.registerStore(history, store)
+    }
+
     return store
   }
 
-  getComponent(store, renderProps, req) {
+  getComponent(store, renderProps, http) {
     let component = (this.router)
-      ? this.router.getComponent(renderProps, req)
+      ? this.router.getComponent(renderProps, http)
       : this.options.root
 
     if (!component) {
       throw new Error('Must initialize the application with a `router` or `root` property')
     }
 
-    let provider = this.internalStore.getWrappedComponent(store, component)
+    let provider = this.store.getWrappedComponent(store, component)
 
-    return this.options.component.wrap(store, provider, !!req)
+    if (this.options.hot && !http) {
+      return <AppContainer>
+        {provider}
+      </AppContainer>
+    }
+
+    return provider
   }
 
   render() {
     const mountNode = document.getElementById(this.options.page.rootId)
+    const http = null
 
     if (this.router) {
-      return this.router.match((error, redirectLocation, renderProps)=> {
-        const store = this.createStore(renderProps, null)
+      const history = this.router.createHistory()
+      const store = this.createStore(history, http)
+      return this.router.match(history, store, http, (error, redirectLocation, renderProps)=> {
         const component = this.getComponent(store, renderProps)
         render(component, mountNode)
       })
     }
 
     const store = this.createStore()
-    const component = this.getComponent(store, null)
+    const component = this.getComponent(store)
     render(component, mountNode)
   }
 
-  resolve(renderProps, req) {
-    const store = this.createStore(renderProps, req)
-    const component = this.getComponent(store, renderProps, req)
-
-    return loadOnServer({...renderProps, store})
+  resolve(store, renderProps, http) {
+    const component = this.getComponent(store, renderProps, http)
+    return loadOnServer({store, ...renderProps})
       .then(()=> {
         return {
           store,
           component,
-          status: found(renderProps) ? 200 : 404
+          status: getStatus(renderProps) || 200
         }
       })
   }
@@ -108,10 +116,10 @@ export default class Application {
 
 }
 
-function found(renderProps) {
+function getStatus(renderProps) {
   if (some(renderProps.routes, r => r.notFound)) {
-    return false;
+    return 404
   }
-  return true
+  return null
 }
 

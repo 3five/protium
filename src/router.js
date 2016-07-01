@@ -1,4 +1,5 @@
 import React        from 'react'
+import useScroll    from 'use-scroll-behavior'
 import { merge }    from 'lodash'
 import { 
   syncHistoryWithStore, 
@@ -28,11 +29,7 @@ export class Router {
 
   constructor(opts) {
     this.options = merge({}, Router.defaults, opts)
-    this.routes = this.options.routes
-  }
-  
-  registerStore(history, store) {
-    return syncHistoryWithStore(history, store)
+    this.routes = null
   }
 
   getReducers() {
@@ -42,30 +39,49 @@ export class Router {
     }
   }
 
-  getComponent(renderProps, req) {
-    return (!req)
+  getMiddleware(history) {
+    return routerMiddleware(history)
+  }
+
+  createHistory() {
+    let history = __SERVER__ 
+      ? createMemoryHistory()
+      : useScroll(browserHistory)
+    return history
+  }
+
+  getRoutes(store) {
+    let routes = (typeof this.options.routes === 'function')
+      ? this.options.routes(store)
+      : this.options.routes
+    return Promise.resolve(routes)
+      .then(result => {
+        return Array.isArray(result) ? result : [result]
+      })
+  }
+
+  getComponent(renderProps, http) {
+    return (!http)
       ? <ReactRouter render={Router.asyncRenderer} {...renderProps} />
       : <RouterContext {...renderProps} />
   }
 
-  match(req, callback) {
-    if (arguments.length === 1 && typeof req === 'function') {
-      callback = req
-      req = null
-    }
-    return match(this.createMatchOptions(req), callback)
+  match(history, store, http, callback) {
+    this.getRoutes(store).then(routes => {
+      return match(this.createMatchOptions(routes, history, http), callback)
+    })
   }
 
-  createMatchOptions(req) {
-    const opts = { routes: this.routes }
-    if (req) {
-      opts.history = createMemoryHistory()
-      opts.location = req.url
-    } else {
-      opts.history = browserHistory
+  createMatchOptions(routes, history, http) {
+    const opts = { routes, history }
+    if (http) {
+      opts.location = http.req.url
     }
-    this.middleware = routerMiddleware(opts.history)
     return opts
+  }
+
+  registerStore(history, store) {
+    return syncHistoryWithStore(history, store)
   }
 
   static asyncRenderer(props) {
