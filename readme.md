@@ -11,9 +11,21 @@ Uses [react-helmet](https://github.com/nfl/react-helmet) for `<head>` management
 `import {Helmet} from 'protium'`, and include that component within any of your views.
 
 ## Example
-
+**webpack.config.js**
 ```javascript
-// app.js
+var DevTools = require('protium/devtools').default
+
+var devtools = new DevTools(__dirname) // sets webpack context for your app
+
+module.exports = [
+  devtools.serverConfig('./app'), // points to exported application
+  devtools.browserConfig('./client')  // points to client entrypoint
+]
+```
+
+
+**app.js**
+```javascript
 
 import React from 'react'
 import Root  from './views/root'
@@ -27,23 +39,27 @@ import {
 } from 'protium/router'
 
 const router = new Router({
-  routes: [
-    <Route path="/" component={Root}>
+  routes(store) { // use onEnter props to validate routes based on app state
+    // Can also return a promise here, for async route definition
+    return <Route path="/" component={Root}>
       <IndexRoute component={Comp} />
       <Route path="/a" component={Comp} />
       <Route path="/b" component={Comp} />
       <Route path="/c" component={Comp} />
       <Route path="*" component={NotFoundComp} notFound={true} /> // signals 404 on server
     </Route>
-  ]
+  }
 })
 
 export default new Application({
   router,
-  reducers
+  store: {
+    reducers
+  }
 })
 ```
 
+**client.js**
 ```javascript
 // client.js (short and sweet!)
 import app from './app'
@@ -55,7 +71,7 @@ app.render()
 // server.js
 import express       from 'express'
 import app           from './app'
-import { renderer }  from 'protium/router'
+import { renderer }  from 'protium/server'
 
 const server = express()
 export default server
