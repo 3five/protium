@@ -7,7 +7,7 @@ export default function clientMiddleware(options, http) {
     const { promise, types, run, ...rest }    = action
     const [REQUEST, SUCCESS, FAILURE]         = types || []
 
-    const client = new ApiClient(options, http)
+    const client = new ApiClient(options, store, http)
 
     let result, error
 
@@ -40,6 +40,7 @@ export default function clientMiddleware(options, http) {
     }
 
     function onError(error) {
+      console.error('ApiClient', error)
       return next({...rest, error, type: FAILURE})
     }
   }

@@ -4,6 +4,8 @@ import AssetsPlugin     from 'webpack-assets-plugin'
 import CleanPlugin      from 'clean-webpack-plugin'
 import merge            from 'deep-extend'
 import nodeExternals    from 'webpack-node-externals'
+import devMiddleware    from 'webpack-dev-middleware'
+import hotMiddleware    from 'webpack-hot-middleware'
 
 const __PRODUCTION__      = (process.env.NODE_ENV === 'production')
 const __DEVELOPMENT__     = !(__PRODUCTION__)
@@ -112,6 +114,64 @@ export default class DevTools {
     }
 
     return config
+  }
+
+  devMiddleware(config, options = {}) {
+    var browserConfig, serverConfig
+
+    if (Array.isArray(config)) {
+      browserConfig = config[0]
+      serverConfig = config[1]
+    } else {
+      browserConfig = config.browser
+      serverConfig = config.server
+    }
+
+    // SERVER SIDE //
+    const serverCompiler = Webpack(serverConfig)
+    serverCompiler.watch({}, (err, stats)=> {
+      if (err) {
+        throw err
+      }
+      if (stats.hasErrors() || stats.hasWarnings()) {
+        console.log(stats.toString(statsOptions))
+      }
+      console.log('Compiled server build...')
+    })
+
+
+    // CLIENT SIDE //
+    const devCompiler = Webpack(browserConfig)
+    const devDefaultOptions = {
+      quiet: true,
+      noInfo: false,
+      hot: true,
+      inline: true,
+      lazy: false,
+      publicPath: browserConfig.output.publicPath,
+      headers: {'Access-Control-Allow-Origin': '*'},
+      stats: {colors: true}
+    }
+
+    const devOptions = {...devDefaultOptions, ...(options.middleware || {})}
+
+    const statsDefaults = {
+      hash: false,
+      version: false,
+      timings: true,
+      assets: true,
+      chunks: false,
+      chunkModules: false,
+      modules: false,
+      colors: true
+    }
+
+    const statsOptions = {...statsDefaults, ...(options.stats || {})}
+
+    return [
+      devMiddleware(devCompiler, devOptions),
+      hotMiddleware(devCompiler)
+    ]
   }
 
 }

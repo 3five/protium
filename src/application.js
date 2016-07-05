@@ -66,8 +66,8 @@ export default class Application {
 
     let provider = this.store.getWrappedComponent(store, component)
 
-    if (this.options.hot && !http) {
-      return <AppContainer>
+    if (this.options.hot && __CLIENT__) {
+      return <AppContainer store={store}>
         {provider}
       </AppContainer>
     }
@@ -103,15 +103,6 @@ export default class Application {
           status: getStatus(renderProps) || 200
         }
       })
-  }
-
-  setCredentials(user, pass) {
-    if (this.options.store 
-          && this.options.store.apiClient) {
-      let server = this.options.store.apiClient.server 
-            || (this.options.store.apiClient.server = {})
-      server.auth = `${user}:${pass}`
-    }
   }
 
 }

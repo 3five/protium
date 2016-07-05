@@ -9,3 +9,4 @@ node_modules
 /router.js*
 /server.js*
 /devtools.js*
+*.DS_Store*

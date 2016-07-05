@@ -26,15 +26,17 @@ export default class ApiClient {
     credentials   : 'same-origin',
     redirect      : 'follow',
     cache         : 'default',
-    as            : 'json'
+    as            : 'json',
+    headers       : {}
   }
 
-  constructor(options, http) {
+  constructor(options, store, http) {
     if (http) {
       this.req = http.req
       this.res = http.res
     }
 
+    this.store = store
     this.options = merge({}, ApiClient.defaults, options)
     
     methods.forEach(method => {
@@ -46,14 +48,16 @@ export default class ApiClient {
     return /^https?:\/\//i.test(path)
   }
 
-  buildOptions(method, path, options) {
+  buildOptions(method, path, opts) {
+    let options = merge(ApiClient.requestDefaults, options)
+    let external = this.isExternal(path)
+    
     options.method = method.toUpperCase()
 
     if (options.body) {
-      options.body = JSON.stringify(options.body)
-    } else if (options.formData) {
-      options.body = new FormData(options.formData)
-      delete options.formData
+      options.body = (options.body instanceof FormData || typeof options.body === 'string') 
+        ? options.body 
+        : JSON.stringify(options.body)
     }
 
     if (options.query) {
@@ -65,16 +69,22 @@ export default class ApiClient {
       if (__SERVER__ && this.req.get('cookie')) {
         options.headers.cookie = this.req.get('cookie')
       }
+
+      if (this.options.auth && typeof this.options.auth.getToken === 'function') {
+        let token = this.options.auth.getToken(this.store)
+        if (token && token.length && !external) {
+          options.headers['Authorization'] = `Bearer ${token}`
+        }
+      }
+
       options.headers = new Headers(options.headers)
     }
-
-    let requestOptions = merge(ApiClient.requestDefaults, options)
     
-    if (this.isExternal(path)) {
-      requestOptions.mode = 'cors'
+    if (external) {
+      options.mode = 'cors'
     }
 
-    return requestOptions
+    return options
   }
 
   genericMethod(method, path, options = {}) {
@@ -103,7 +113,7 @@ export default class ApiClient {
     }
 
     const config = { ...(__SERVER__ ? this.options.server : this.options.client) }
-    const adjustedPath = path[0] === '/' ? path : `/${path}`
+    const adjustedPath = path[0] === '/' ? path.slice(1) : path
 
     if (config.base) {
       config.pathname = config.base
@@ -114,7 +124,7 @@ export default class ApiClient {
     }
 
     const baseUrl = Url.format(config)
-    const url = Url.join(baseUrl, adjustedPath)
-    return url
+
+    return baseUrl + adjustedPath
   }
 }
