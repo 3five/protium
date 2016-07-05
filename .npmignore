@@ -5,3 +5,5 @@ npm-debug.log*
 *.seed
 node_modules
 .idea
+docs
+index.html

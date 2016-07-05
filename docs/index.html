@@ -111,7 +111,11 @@ const server = express()
 export default server
 
 server.use(&apos;/assets&apos;, express.static(&apos;dist&apos;))
-server.get(&apos;/*&apos;, renderer(app))</code>
+server.get(&apos;/*&apos;, renderer(app, {
+  page: {
+    main: require(&apos;./webpack-assets.json&apos;).javascript.client
+  }
+}))</code>
 </code></pre>
 </div>
 </div>
