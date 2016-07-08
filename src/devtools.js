@@ -117,7 +117,7 @@ export default class DevTools {
   }
 
   devMiddleware(config, options = {}) {
-    var browserConfig, serverConfig
+    let browserConfig, serverConfig
 
     if (Array.isArray(config)) {
       browserConfig = config[0]
@@ -133,10 +133,12 @@ export default class DevTools {
       if (err) {
         throw err
       }
-      if (stats.hasErrors() || stats.hasWarnings()) {
+      if (stats.hasWarnings() || stats.hasErrors()) {
         console.log(stats.toString(statsOptions))
+      } else {
+        let s = stats.toJson()
+        console.log(`(server) webpack built ${s.hash} in ${s.time}ms`)
       }
-      console.log('Compiled server build...')
     })
 
 
@@ -144,7 +146,7 @@ export default class DevTools {
     const devCompiler = Webpack(browserConfig)
     const devDefaultOptions = {
       quiet: true,
-      noInfo: false,
+      noInfo: true,
       hot: true,
       inline: true,
       lazy: false,
