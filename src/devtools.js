@@ -13,7 +13,7 @@ const __DEVELOPMENT__     = !(__PRODUCTION__)
 export default class DevTools {
 
   static baseConfig = {
-    environment: {},
+    environment: [],
     define: {},
 
     output: {
@@ -45,6 +45,7 @@ export default class DevTools {
   }
 
   serverConfig(entrypoint, options = {}) {
+    console.log(DevTools.baseConfig, options)
     const config = merge(DevTools.baseConfig, options)
 
     const entry = Array.isArray(entrypoint) ? entrypoint : [entrypoint]
@@ -73,6 +74,8 @@ export default class DevTools {
   }
 
   browserConfig(entrypoint, options = {}) {
+    console.log(DevTools.baseConfig, options)
+
     const config = merge(DevTools.baseConfig, options)
 
     const entry = Array.isArray(entrypoint) ? entrypoint : [entrypoint]
