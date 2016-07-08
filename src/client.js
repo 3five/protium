@@ -1,7 +1,7 @@
 import 'isomorphic-fetch'
 import Url      from 'url'
 import QS       from 'qs'
-import merge    from 'deep-extend'
+import merge    from 'deepmerge'
 import { map }  from 'lodash'
 
 const methods = ['get', 'post', 'put', 'patch', 'del']

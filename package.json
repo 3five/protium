@@ -29,7 +29,7 @@
     "babel-preset-react": "^6.11.1",
     "babel-preset-stage-0": "^6.3.13",
     "clean-webpack-plugin": "^0.1.9",
-    "deep-extend": "^0.4.1",
+    "deepmerge": "^0.2.10",
     "isomorphic-fetch": "^2.2.1",
     "lodash": "^4.13.1",
     "qs": "^6.2.0",
