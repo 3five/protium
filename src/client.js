@@ -37,7 +37,7 @@ export default class ApiClient {
     }
 
     this.store = store
-    this.options = merge({}, ApiClient.defaults, options)
+    this.options = merge(ApiClient.defaults, options)
     
     methods.forEach(method => {
       this[method] = this.genericMethod.bind(this, method)
