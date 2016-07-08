@@ -61,7 +61,8 @@ export default class ApiClient {
     server: {
       protocol: &apos;http&apos;,
       host: &apos;localhost&apos;,
-      pathname: &apos;/&apos;
+      pathname: &apos;/&apos;,
+      port: process.env.API_PORT || process.env.PORT || 5000
     },
     client: {
       pathname: &apos;/&apos;
@@ -71,18 +72,20 @@ export default class ApiClient {
   static requestDefaults = {
     method        : &apos;get&apos;,
     mode          : &apos;same-origin&apos;,
-    redorect      : &apos;follow&apos;,
+    credentials   : &apos;same-origin&apos;,
+    redirect      : &apos;follow&apos;,
     cache         : &apos;default&apos;,
-    credentials   : &apos;include&apos;,
-    as            : &apos;json&apos;
+    as            : &apos;json&apos;,
+    headers       : {}
   }
 
-  constructor(options, http) {
+  constructor(options, store, http) {
     if (http) {
       this.req = http.req
       this.res = http.res
     }
 
+    this.store = store
     this.options = merge({}, ApiClient.defaults, options)
     
     methods.forEach(method =&gt; {
@@ -90,16 +93,20 @@ export default class ApiClient {
     })
   }
 
-  buildRequest(method, path, options) {
-    let url = this.formatUrl(path)
+  isExternal(path) {
+    return /^https?:\/\//i.test(path)
+  }
 
+  buildOptions(method, path, opts) {
+    let options = merge(ApiClient.requestDefaults, options)
+    let external = this.isExternal(path)
+    
     options.method = method.toUpperCase()
 
-    if (options.body) {
-      options.body = JSON.stringify(options.body)
-    } else if (options.formData) {
-      options.body = new FormData(options.formData)
-      delete options.formData
+    if (!!options.body) {
+      options.body = (options.body instanceof FormData || typeof options.body === &apos;string&apos;) 
+        ? options.body 
+        : JSON.stringify(options.body)
     }
 
     if (options.query) {
@@ -111,21 +118,32 @@ export default class ApiClient {
       if (__SERVER__ &amp;&amp; this.req.get(&apos;cookie&apos;)) {
         options.headers.cookie = this.req.get(&apos;cookie&apos;)
       }
+
+      if (this.options.auth &amp;&amp; typeof this.options.auth.getBearer === &apos;function&apos;) {
+        let token = this.options.auth.getBearer(this.store)
+        if (token &amp;&amp; token.length &amp;&amp; !external) {
+          options.headers[&apos;Authorization&apos;] = `Bearer ${token}`
+        }
+      }
+
       options.headers = new Headers(options.headers)
     }
+    
+    if (external) {
+      options.mode = &apos;cors&apos;
+    }
 
-    return new Request(url, merge(
-      ApiClient.requestDefaults,
-      options
-    ))
+    return options
   }
 
   genericMethod(method, path, options = {}) {
     let req = this.req
-    let request = this.buildRequest(method, path, options)
+    let url = this.formatUrl(path)
+    let requestOptions = this.buildOptions(method, path, options)
+    let request = new Request(url, requestOptions)
 
     return fetch(request).then(response =&gt; {
-      switch(options.as) {
+      switch(requestOptions.as) {
         case &apos;json&apos;:
           return response.json()
         case &apos;text&apos;:
@@ -139,8 +157,12 @@ export default class ApiClient {
   }
 
   formatUrl(path) {
-    const config = { ...(SERVER ? this.options.server : this.options.client) }
-    const adjustedPath = path[0] === &apos;/&apos; ? path : `/${path}`
+    if (this.isExternal(path)) {
+      return path
+    }
+
+    const config = { ...(__SERVER__ ? this.options.server : this.options.client) }
+    const adjustedPath = path[0] === &apos;/&apos; ? path.slice(1) : path
 
     if (config.base) {
       config.pathname = config.base
@@ -151,8 +173,8 @@ export default class ApiClient {
     }
 
     const baseUrl = Url.format(config)
-    const url = baseUrl + adjustedPath
-    return url
+
+    return baseUrl + adjustedPath
   }
 }
 </code></pre>

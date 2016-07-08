@@ -1,24 +1,26 @@
 {
   "coverage": "0%",
-  "expectCount": 67,
+  "expectCount": 69,
   "actualCount": 0,
   "files": {
     "src/client.js": {
-      "expectCount": 8,
+      "expectCount": 10,
       "actualCount": 0,
       "undocumentLines": [
         9,
-        44,
-        31,
-        92,
-        74,
-        37,
+        51,
         33,
-        34
+        110,
+        90,
+        47,
+        40,
+        35,
+        36,
+        39
       ]
     },
     "src/application.js": {
-      "expectCount": 11,
+      "expectCount": 10,
       "actualCount": 0,
       "undocumentLines": [
         10,
@@ -30,19 +32,19 @@
         78,
         96,
         26,
-        108,
         27
       ]
     },
     "src/devtools.js": {
-      "expectCount": 5,
+      "expectCount": 6,
       "actualCount": 0,
       "undocumentLines": [
-        11,
-        73,
-        41,
-        42,
-        45
+        13,
+        75,
+        43,
+        44,
+        119,
+        47
       ]
     },
     "src/error.js": {
@@ -58,16 +60,16 @@
       "actualCount": 0,
       "undocumentLines": [
         7,
-        41,
-        37,
-        17,
-        87,
-        59,
-        76,
-        65,
+        49,
         45,
-        55,
-        92
+        17,
+        95,
+        67,
+        84,
+        73,
+        53,
+        63,
+        100
       ]
     },
     "src/router.js": {

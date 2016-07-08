@@ -53,6 +53,8 @@ import AssetsPlugin     from &apos;webpack-assets-plugin&apos;
 import CleanPlugin      from &apos;clean-webpack-plugin&apos;
 import merge            from &apos;deep-extend&apos;
 import nodeExternals    from &apos;webpack-node-externals&apos;
+import devMiddleware    from &apos;webpack-dev-middleware&apos;
+import hotMiddleware    from &apos;webpack-hot-middleware&apos;
 
 const __PRODUCTION__      = (process.env.NODE_ENV === &apos;production&apos;)
 const __DEVELOPMENT__     = !(__PRODUCTION__)
@@ -161,6 +163,66 @@ export default class DevTools {
     }
 
     return config
+  }
+
+  devMiddleware(config, options = {}) {
+    let browserConfig, serverConfig
+
+    if (Array.isArray(config)) {
+      browserConfig = config[0]
+      serverConfig = config[1]
+    } else {
+      browserConfig = config.browser
+      serverConfig = config.server
+    }
+
+    // SERVER SIDE //
+    const serverCompiler = Webpack(serverConfig)
+    serverCompiler.watch({}, (err, stats)=&gt; {
+      if (err) {
+        throw err
+      }
+      if (stats.hasWarnings() || stats.hasErrors()) {
+        console.log(stats.toString(statsOptions))
+      } else {
+        let s = stats.toJson()
+        console.log(`(server) webpack built ${s.hash} in ${s.time}ms`)
+      }
+    })
+
+
+    // CLIENT SIDE //
+    const devCompiler = Webpack(browserConfig)
+    const devDefaultOptions = {
+      quiet: true,
+      noInfo: true,
+      hot: true,
+      inline: true,
+      lazy: false,
+      publicPath: browserConfig.output.publicPath,
+      headers: {&apos;Access-Control-Allow-Origin&apos;: &apos;*&apos;},
+      stats: {colors: true}
+    }
+
+    const devOptions = {...devDefaultOptions, ...(options.middleware || {})}
+
+    const statsDefaults = {
+      hash: false,
+      version: false,
+      timings: true,
+      assets: true,
+      chunks: false,
+      chunkModules: false,
+      modules: false,
+      colors: true
+    }
+
+    const statsOptions = {...statsDefaults, ...(options.stats || {})}
+
+    return [
+      devMiddleware(devCompiler, devOptions),
+      hotMiddleware(devCompiler)
+    ]
   }
 
 }

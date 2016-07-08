@@ -66,7 +66,15 @@ export default class HtmlPage extends Component {
   render() {
     const html = this.renderAppHtml()
     const head = this.getHead()
-    return &lt;html {...head.htmlAttributes.toComponent()}&gt;
+    let htmlAttributes = head.htmlAttributes.toComponent()
+
+    // Hack to avoid React createElement warning
+    // https://github.com/nfl/react-helmet/issues/150
+    htmlAttributes = (Array.isArray(htmlAttributes) &amp;&amp; !htmlAttributes.length) 
+      ? {} 
+      : htmlAttributes
+
+    return &lt;html {...htmlAttributes}&gt;
       &lt;head&gt;
         {head.title.toComponent()}
         {head.meta.toComponent()}

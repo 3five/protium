@@ -119,6 +119,9 @@ export default class Store {
     }
 
     if (this.options.apiClient) {
+      if (this.options.auth) {
+        this.options.apiClient.auth = this.options.auth
+      }
       middleware.push(clientMiddleware(this.options.apiClient, http))
     }
 
@@ -138,7 +141,13 @@ export default class Store {
     
     const composers = this.options.createComposers(this.composers)
     const finalCreateStore = compose(...composers)(createStore)
-    return finalCreateStore(reducer, initialState)
+    const finalStore = finalCreateStore(reducer, initialState)
+
+    if (this.options.auth &amp;&amp; typeof this.options.auth.initialize === &apos;function&apos;) {
+      this.options.auth.initialize(finalStore, http)
+    }
+
+    return finalStore
   }
 
 }

@@ -450,12 +450,6 @@ window.esdocSearchIndex = [
     "member"
   ],
   [
-    "src/application.js~application#setcredentials",
-    "class/src/application.js~Application.html#instance-method-setCredentials",
-    "src/application.js~Application#setCredentials",
-    "method"
-  ],
-  [
     "src/application.js~application#store",
     "class/src/application.js~Application.html#instance-member-store",
     "src/application.js~Application#store",
@@ -474,9 +468,9 @@ window.esdocSearchIndex = [
     "file"
   ],
   [
-    "src/client.js~apiclient#buildrequest",
-    "class/src/client.js~ApiClient.html#instance-method-buildRequest",
-    "src/client.js~ApiClient#buildRequest",
+    "src/client.js~apiclient#buildoptions",
+    "class/src/client.js~ApiClient.html#instance-method-buildOptions",
+    "src/client.js~ApiClient#buildOptions",
     "method"
   ],
   [
@@ -498,6 +492,12 @@ window.esdocSearchIndex = [
     "method"
   ],
   [
+    "src/client.js~apiclient#isexternal",
+    "class/src/client.js~ApiClient.html#instance-method-isExternal",
+    "src/client.js~ApiClient#isExternal",
+    "method"
+  ],
+  [
     "src/client.js~apiclient#options",
     "class/src/client.js~ApiClient.html#instance-member-options",
     "src/client.js~ApiClient#options",
@@ -513,6 +513,12 @@ window.esdocSearchIndex = [
     "src/client.js~apiclient#res",
     "class/src/client.js~ApiClient.html#instance-member-res",
     "src/client.js~ApiClient#res",
+    "member"
+  ],
+  [
+    "src/client.js~apiclient#store",
+    "class/src/client.js~ApiClient.html#instance-member-store",
+    "src/client.js~ApiClient#store",
     "member"
   ],
   [
@@ -538,6 +544,12 @@ window.esdocSearchIndex = [
     "class/src/devtools.js~DevTools.html#instance-member-cwd",
     "src/devtools.js~DevTools#cwd",
     "member"
+  ],
+  [
+    "src/devtools.js~devtools#devmiddleware",
+    "class/src/devtools.js~DevTools.html#instance-method-devMiddleware",
+    "src/devtools.js~DevTools#devMiddleware",
+    "method"
   ],
   [
     "src/devtools.js~devtools#serverconfig",
