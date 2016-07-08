@@ -54,7 +54,7 @@ export default class ApiClient {
     
     options.method = method.toUpperCase()
 
-    if (options.body) {
+    if (!!options.body) {
       options.body = (options.body instanceof FormData || typeof options.body === 'string') 
         ? options.body 
         : JSON.stringify(options.body)
@@ -70,8 +70,8 @@ export default class ApiClient {
         options.headers.cookie = this.req.get('cookie')
       }
 
-      if (this.options.auth && typeof this.options.auth.getToken === 'function') {
-        let token = this.options.auth.getToken(this.store)
+      if (this.options.auth && typeof this.options.auth.getBearer === 'function') {
+        let token = this.options.auth.getBearer(this.store)
         if (token && token.length && !external) {
           options.headers['Authorization'] = `Bearer ${token}`
         }
