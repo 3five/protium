@@ -272,53 +272,6 @@
             },
             "name": "map"
           }
-        },
-        {
-          "type": "ImportSpecifier",
-          "start": 111,
-          "end": 116,
-          "loc": {
-            "start": {
-              "line": 3,
-              "column": 14
-            },
-            "end": {
-              "line": 3,
-              "column": 19
-            }
-          },
-          "imported": {
-            "type": "Identifier",
-            "start": 111,
-            "end": 116,
-            "loc": {
-              "start": {
-                "line": 3,
-                "column": 14
-              },
-              "end": {
-                "line": 3,
-                "column": 19
-              }
-            },
-            "name": "merge"
-          },
-          "local": {
-            "type": "Identifier",
-            "start": 111,
-            "end": 116,
-            "loc": {
-              "start": {
-                "line": 3,
-                "column": 14
-              },
-              "end": {
-                "line": 3,
-                "column": 19
-              }
-            },
-            "name": "merge"
-          }
         }
       ],
       "importKind": "value",

@@ -49,7 +49,8 @@
 <div class="content" data-ice="content"><h1 data-ice="title">src/router.js</h1>
 <pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import React        from &apos;react&apos;
 import useScroll    from &apos;use-scroll-behavior&apos;
-import { merge }    from &apos;lodash&apos;
+import extendify          from &apos;extendify&apos;
+
 import { 
   syncHistoryWithStore, 
   routerReducer,
@@ -69,6 +70,11 @@ import {
   match
 } from &apos;react-router&apos;
 
+const merge = extendify({
+  inPlace: false,
+  isDeep: true,
+  arrays: &apos;concat&apos;
+})
 
 export class Router {
 

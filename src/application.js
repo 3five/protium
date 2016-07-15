@@ -1,9 +1,16 @@
 import React              from 'react'
 import { render }         from 'react-dom'
-import { merge, some }    from 'lodash'
+import { some }           from 'lodash'
 import { loadOnServer }   from 'redux-connect'
 import { AppContainer }   from 'react-hot-loader'
 import Store              from './store'
+import extendify          from 'extendify'
+
+const merge = extendify({
+  inPlace: false,
+  isDeep: true,
+  arrays: 'concat'
+})
 
 global.__PROTIUM__ = { store: null }
 
@@ -21,7 +28,7 @@ export default class Application {
   };
 
   constructor(options = {}) {
-    this.options = merge({}, Application.defaults, options)
+    this.options = merge(Application.defaults, options)
     this.options.store.rootVar = this.options.page.rootVar
     this.router = this.options.router
     this.store = new Store(this.options.store)

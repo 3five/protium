@@ -48,17 +48,24 @@
 
 <div class="content" data-ice="content"><h1 data-ice="title">src/store.js</h1>
 <pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import React                from &apos;react&apos;
-import { merge, reduce }    from &apos;lodash&apos;
+import { reduce }           from &apos;lodash&apos;
 import { Provider }         from &apos;react-redux&apos;
 import persistState         from &apos;redux-devtools/lib/persistState&apos;
 import clientMiddleware     from &apos;./client-middleware&apos;
 import ApiClient            from &apos;./client&apos;
+import extendify            from &apos;extendify&apos;
 import {
   compose,
   createStore,
   combineReducers,
   applyMiddleware
 } from &apos;redux&apos;
+
+const merge = extendify({
+  inPlace: false,
+  isDeep: true,
+  arrays: &apos;concat&apos;
+})
 
 export default class Store {
 
@@ -73,7 +80,7 @@ export default class Store {
   }
 
   constructor(opts) {
-    this.options = merge({}, Store.defaults, opts)
+    this.options = merge(Store.defaults, opts)
     this.reducers = this.options.reducers
     this.middleware = this.options.middleware
     this.composers = this.options.composers

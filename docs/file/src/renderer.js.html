@@ -48,11 +48,17 @@
 
 <div class="content" data-ice="content"><h1 data-ice="title">src/renderer.js</h1>
 <pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import React                      from &apos;react&apos;
-import { merge }                  from &apos;lodash&apos;
 import { plugToRequest }          from &apos;react-cookie&apos;
 import HtmlPage                   from &apos;./htmlpage&apos;
 import ErrorComponent             from &apos;./error&apos;
+import extendify                  from &apos;extendify&apos;
 import { renderToString, renderToStaticMarkup } from &apos;react-dom/server&apos;
+
+const merge = extendify({
+  inPlace: false,
+  isDeep: true,
+  arrays: &apos;concat&apos;
+})
 
 const production = process.env.NODE_ENV === &apos;production&apos;
 
@@ -62,6 +68,10 @@ global.__CLIENT__ = false
 export function renderer(appFn, options = {}) {
   return (req, res)=&gt; {
     let app = (typeof appFn === &apos;function&apos;) ? appFn() : appFn
+
+    if (req.url === &apos;/favicon.ico&apos;) {
+      return res.sendStatus(404)
+    }
 
     if (!app.router) {
       throw new Error(&apos;Application must have a `router` for SSR.&apos;)
@@ -128,7 +138,7 @@ function getErrorPage(store, app, error) {
 }
 
 function getHtmlPage(store, app, component, extraOpts) {
-  let options = merge({}, app.options.page, extraOpts)
+  let options = merge(app.options.page, extraOpts)
   if (store) {
     options.state = store.getState()
   }

@@ -1,8 +1,14 @@
 import 'isomorphic-fetch'
-import Url      from 'url'
-import QS       from 'qs'
-import merge    from 'deepmerge'
-import { map }  from 'lodash'
+import Url        from 'url'
+import QS         from 'qs'
+import { map }    from 'lodash'
+import extendify  from 'extendify'
+
+const merge = extendify({
+  inPlace: false,
+  isDeep: true,
+  arrays: 'concat'
+})
 
 const methods = ['get', 'post', 'put', 'patch', 'del']
 

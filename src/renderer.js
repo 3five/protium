@@ -1,9 +1,15 @@
 import React                      from 'react'
-import { merge }                  from 'lodash'
 import { plugToRequest }          from 'react-cookie'
 import HtmlPage                   from './htmlpage'
 import ErrorComponent             from './error'
+import extendify                  from 'extendify'
 import { renderToString, renderToStaticMarkup } from 'react-dom/server'
+
+const merge = extendify({
+  inPlace: false,
+  isDeep: true,
+  arrays: 'concat'
+})
 
 const production = process.env.NODE_ENV === 'production'
 
@@ -13,6 +19,10 @@ global.__CLIENT__ = false
 export function renderer(appFn, options = {}) {
   return (req, res)=> {
     let app = (typeof appFn === 'function') ? appFn() : appFn
+
+    if (req.url === '/favicon.ico') {
+      return res.sendStatus(404)
+    }
 
     if (!app.router) {
       throw new Error('Application must have a `router` for SSR.')
@@ -79,7 +89,7 @@ function getErrorPage(store, app, error) {
 }
 
 function getHtmlPage(store, app, component, extraOpts) {
-  let options = merge({}, app.options.page, extraOpts)
+  let options = merge(app.options.page, extraOpts)
   if (store) {
     options.state = store.getState()
   }

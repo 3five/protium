@@ -48,10 +48,16 @@
 
 <div class="content" data-ice="content"><h1 data-ice="title">src/client.js</h1>
 <pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import &apos;isomorphic-fetch&apos;
-import Url      from &apos;url&apos;
-import QS       from &apos;qs&apos;
-import merge    from &apos;deepmerge&apos;
-import { map }  from &apos;lodash&apos;
+import Url        from &apos;url&apos;
+import QS         from &apos;qs&apos;
+import { map }    from &apos;lodash&apos;
+import extendify  from &apos;extendify&apos;
+
+const merge = extendify({
+  inPlace: false,
+  isDeep: true,
+  arrays: &apos;concat&apos;
+})
 
 const methods = [&apos;get&apos;, &apos;post&apos;, &apos;put&apos;, &apos;patch&apos;, &apos;del&apos;]
 

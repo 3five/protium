@@ -1,15 +1,22 @@
 import React                from 'react'
-import { merge, reduce }    from 'lodash'
+import { reduce }           from 'lodash'
 import { Provider }         from 'react-redux'
 import persistState         from 'redux-devtools/lib/persistState'
 import clientMiddleware     from './client-middleware'
 import ApiClient            from './client'
+import extendify            from 'extendify'
 import {
   compose,
   createStore,
   combineReducers,
   applyMiddleware
 } from 'redux'
+
+const merge = extendify({
+  inPlace: false,
+  isDeep: true,
+  arrays: 'concat'
+})
 
 export default class Store {
 
@@ -24,7 +31,7 @@ export default class Store {
   }
 
   constructor(opts) {
-    this.options = merge({}, Store.defaults, opts)
+    this.options = merge(Store.defaults, opts)
     this.reducers = this.options.reducers
     this.middleware = this.options.middleware
     this.composers = this.options.composers

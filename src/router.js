@@ -1,6 +1,7 @@
 import React        from 'react'
 import useScroll    from 'use-scroll-behavior'
-import { merge }    from 'lodash'
+import extendify          from 'extendify'
+
 import { 
   syncHistoryWithStore, 
   routerReducer,
@@ -20,6 +21,11 @@ import {
   match
 } from 'react-router'
 
+const merge = extendify({
+  inPlace: false,
+  isDeep: true,
+  arrays: 'concat'
+})
 
 export class Router {
 

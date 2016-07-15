@@ -51,10 +51,16 @@
 import Path             from &apos;path&apos;
 import AssetsPlugin     from &apos;webpack-assets-plugin&apos;
 import CleanPlugin      from &apos;clean-webpack-plugin&apos;
-import merge            from &apos;deepmerge&apos;
 import nodeExternals    from &apos;webpack-node-externals&apos;
 import devMiddleware    from &apos;webpack-dev-middleware&apos;
 import hotMiddleware    from &apos;webpack-hot-middleware&apos;
+import extendify        from &apos;extendify&apos;
+
+const merge = extendify({
+  inPlace: false,
+  isDeep: true,
+  arrays: &apos;concat&apos;
+})
 
 const __PRODUCTION__      = (process.env.NODE_ENV === &apos;production&apos;)
 const __DEVELOPMENT__     = !(__PRODUCTION__)
@@ -67,6 +73,7 @@ export default class DevTools {
 
     output: {
       filename: &apos;[name].js&apos;,
+      path: &apos;public&apos;,
       publicPath: &apos;/assets/&apos;
     },
 
@@ -94,8 +101,8 @@ export default class DevTools {
   }
 
   serverConfig(entrypoint, options = {}) {
-    console.log(DevTools.baseConfig, options)
-    const config = merge(DevTools.baseConfig, options)
+
+    const config = merge({}, DevTools.baseConfig, options)
 
     const entry = Array.isArray(entrypoint) ? entrypoint : [entrypoint]
 
@@ -119,13 +126,15 @@ export default class DevTools {
       setImmediate: false
     }
 
+    delete config.hot
+    delete config.define
+
     return config
   }
 
   browserConfig(entrypoint, options = {}) {
-    console.log(DevTools.baseConfig, options)
 
-    const config = merge(DevTools.baseConfig, options)
+    const config = merge({}, DevTools.baseConfig, options)
 
     const entry = Array.isArray(entrypoint) ? entrypoint : [entrypoint]
 
@@ -134,10 +143,20 @@ export default class DevTools {
     config.entry = { client: entry }
 
     config.output.filename = &apos;[name].js&apos;
-    config.output.path = Path.resolve(config.context, &apos;public&apos;)
+    config.output.library = &apos;__APPLICATION__&apos;
+    config.output.libraryTarget = &apos;var&apos;
+
+    if (config.output.path === DevTools.baseConfig.output.path) {
+      config.output.path = Path.resolve(config.context, &apos;public&apos;)
+    }
 
     config.plugins = [
-      new AssetsPlugin(),
+      new AssetsPlugin({ 
+        assetsRegex: /\.(jpe?g|png|gif|svg|scss|sass|css)$/i,
+        metadata: true,
+        prettyPrint: true,
+        filename: &apos;assets.json&apos;
+      }),
       new Webpack.EnvironmentPlugin([
         &apos;NODE_ENV&apos;,
         ...config.environment
@@ -149,7 +168,8 @@ export default class DevTools {
         __PRODUCTION__: __PRODUCTION__,
         ...config.define
       }),
-      new CleanPlugin([config.output.path])
+      new CleanPlugin([config.output.path], { root: config.context }),
+      ...config.plugins || []
     ]
 
     if (__DEVELOPMENT__ &amp;&amp; options.hot) {
@@ -164,6 +184,9 @@ export default class DevTools {
         new Webpack.IgnorePlugin(/webpack-stats\.json$/)
       )
     }
+
+    delete config.hot
+    delete config.define
 
     return config
   }
@@ -229,8 +252,6 @@ export default class DevTools {
   }
 
 }
-
-
 
 </code></pre>
 

@@ -7,44 +7,44 @@
       "expectCount": 10,
       "actualCount": 0,
       "undocumentLines": [
-        9,
-        51,
-        33,
-        110,
-        90,
-        47,
-        40,
-        35,
-        36,
-        39
+        15,
+        57,
+        39,
+        116,
+        96,
+        53,
+        46,
+        41,
+        42,
+        45
       ]
     },
     "src/application.js": {
       "expectCount": 10,
       "actualCount": 0,
       "undocumentLines": [
-        10,
-        23,
+        17,
+        30,
+        40,
+        65,
+        36,
+        31,
+        85,
+        103,
         33,
-        58,
-        29,
-        24,
-        78,
-        96,
-        26,
-        27
+        34
       ]
     },
     "src/devtools.js": {
       "expectCount": 6,
       "actualCount": 0,
       "undocumentLines": [
-        13,
-        76,
-        43,
-        44,
-        122,
-        47
+        19,
+        86,
+        50,
+        51,
+        145,
+        54
       ]
     },
     "src/error.js": {
@@ -76,39 +76,39 @@
       "expectCount": 13,
       "actualCount": 0,
       "undocumentLines": [
-        24,
-        87,
         30,
-        46,
-        75,
-        63,
-        42,
-        35,
-        53,
+        93,
+        36,
+        52,
+        81,
         69,
-        31,
-        83,
-        32
+        48,
+        41,
+        59,
+        75,
+        37,
+        89,
+        38
       ]
     },
     "src/store.js": {
       "expectCount": 14,
       "actualCount": 0,
       "undocumentLines": [
-        14,
-        33,
-        30,
-        26,
-        64,
-        47,
-        60,
-        29,
-        27,
-        28,
-        43,
-        38,
+        21,
         40,
-        37
+        37,
+        33,
+        71,
+        54,
+        67,
+        36,
+        34,
+        35,
+        50,
+        45,
+        47,
+        44
       ]
     },
     "src/action-creator.js": {
@@ -129,7 +129,7 @@
       "expectCount": 1,
       "actualCount": 0,
       "undocumentLines": [
-        13
+        19
       ]
     }
   }

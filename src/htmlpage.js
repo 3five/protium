@@ -1,6 +1,6 @@
 import React, { Component }   from 'react'
 import { renderToString }     from 'react-dom/server'
-import { map, merge }         from 'lodash'
+import { map }                from 'lodash'
 import serialize              from 'serialize-javascript'
 import Helmet                 from 'react-helmet'
 

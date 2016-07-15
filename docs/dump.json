@@ -185,10 +185,31 @@
     "access": null,
     "description": null,
     "lineNumber": 1,
-    "content": "import React              from 'react'\nimport { render }         from 'react-dom'\nimport { merge, some }    from 'lodash'\nimport { loadOnServer }   from 'redux-connect'\nimport { AppContainer }   from 'react-hot-loader'\nimport Store              from './store'\n\nglobal.__PROTIUM__ = { store: null }\n\nexport default class Application {\n\n  static defaults = {\n    router: null,\n    root: null,\n    store: {},\n    page: {\n      doctype: '<!doctype html>',\n      rootVar: '__STATE__',\n      rootId: 'application'\n    }\n  };\n\n  constructor(options = {}) {\n    this.options = merge({}, Application.defaults, options)\n    this.options.store.rootVar = this.options.page.rootVar\n    this.router = this.options.router\n    this.store = new Store(this.options.store)\n    if (this.router) {\n      this.history = this.router.createHistory()\n    }\n  }\n\n  createStore(history, http) {\n    let store = http ? null : __PROTIUM__.store\n\n    if (history) {\n      this.store.upgradeWithRouting(\n        this.router.getReducers(), \n        this.router.getMiddleware(history)\n      )\n    }\n\n    // Only hang onto the store globally if clientside\n    if (!store) {\n      store = this.store.finalize(http)\n      if (!http) {\n        __PROTIUM__.store = store\n      }\n    }\n    \n    if (history) {\n      this.router.registerStore(history, store)\n    }\n\n    return store\n  }\n\n  getComponent(store, renderProps, http) {\n    let component = (this.router)\n      ? this.router.getComponent(renderProps, http)\n      : this.options.root\n\n    if (!component) {\n      throw new Error('Must initialize the application with a `router` or `root` property')\n    }\n\n    let provider = this.store.getWrappedComponent(store, component)\n\n    if (this.options.hot && __CLIENT__) {\n      return <AppContainer store={store}>\n        {provider}\n      </AppContainer>\n    }\n\n    return provider\n  }\n\n  render() {\n    const mountNode = document.getElementById(this.options.page.rootId)\n    const http = null\n\n    if (this.router) {\n      const history = this.router.createHistory()\n      const store = this.createStore(history, http)\n      return this.router.match(history, store, http, (error, redirectLocation, renderProps)=> {\n        const component = this.getComponent(store, renderProps)\n        render(component, mountNode)\n      })\n    }\n\n    const store = this.createStore()\n    const component = this.getComponent(store)\n    render(component, mountNode)\n  }\n\n  resolve(store, renderProps, http) {\n    const component = this.getComponent(store, renderProps, http)\n    return loadOnServer({store, ...renderProps})\n      .then(()=> {\n        return {\n          store,\n          component,\n          status: getStatus(renderProps) || 200\n        }\n      })\n  }\n\n}\n\nfunction getStatus(renderProps) {\n  if (some(renderProps.routes, r => r.notFound)) {\n    return 404\n  }\n  return null\n}\n\n"
+    "content": "import React              from 'react'\nimport { render }         from 'react-dom'\nimport { some }           from 'lodash'\nimport { loadOnServer }   from 'redux-connect'\nimport { AppContainer }   from 'react-hot-loader'\nimport Store              from './store'\nimport extendify          from 'extendify'\n\nconst merge = extendify({\n  inPlace: false,\n  isDeep: true,\n  arrays: 'concat'\n})\n\nglobal.__PROTIUM__ = { store: null }\n\nexport default class Application {\n\n  static defaults = {\n    router: null,\n    root: null,\n    store: {},\n    page: {\n      doctype: '<!doctype html>',\n      rootVar: '__STATE__',\n      rootId: 'application'\n    }\n  };\n\n  constructor(options = {}) {\n    this.options = merge(Application.defaults, options)\n    this.options.store.rootVar = this.options.page.rootVar\n    this.router = this.options.router\n    this.store = new Store(this.options.store)\n    if (this.router) {\n      this.history = this.router.createHistory()\n    }\n  }\n\n  createStore(history, http) {\n    let store = http ? null : __PROTIUM__.store\n\n    if (history) {\n      this.store.upgradeWithRouting(\n        this.router.getReducers(), \n        this.router.getMiddleware(history)\n      )\n    }\n\n    // Only hang onto the store globally if clientside\n    if (!store) {\n      store = this.store.finalize(http)\n      if (!http) {\n        __PROTIUM__.store = store\n      }\n    }\n    \n    if (history) {\n      this.router.registerStore(history, store)\n    }\n\n    return store\n  }\n\n  getComponent(store, renderProps, http) {\n    let component = (this.router)\n      ? this.router.getComponent(renderProps, http)\n      : this.options.root\n\n    if (!component) {\n      throw new Error('Must initialize the application with a `router` or `root` property')\n    }\n\n    let provider = this.store.getWrappedComponent(store, component)\n\n    if (this.options.hot && __CLIENT__) {\n      return <AppContainer store={store}>\n        {provider}\n      </AppContainer>\n    }\n\n    return provider\n  }\n\n  render() {\n    const mountNode = document.getElementById(this.options.page.rootId)\n    const http = null\n\n    if (this.router) {\n      const history = this.router.createHistory()\n      const store = this.createStore(history, http)\n      return this.router.match(history, store, http, (error, redirectLocation, renderProps)=> {\n        const component = this.getComponent(store, renderProps)\n        render(component, mountNode)\n      })\n    }\n\n    const store = this.createStore()\n    const component = this.getComponent(store)\n    render(component, mountNode)\n  }\n\n  resolve(store, renderProps, http) {\n    const component = this.getComponent(store, renderProps, http)\n    return loadOnServer({store, ...renderProps})\n      .then(()=> {\n        return {\n          store,\n          component,\n          status: getStatus(renderProps) || 200\n        }\n      })\n  }\n\n}\n\nfunction getStatus(renderProps) {\n  if (some(renderProps.routes, r => r.notFound)) {\n    return 404\n  }\n  return null\n}\n\n"
   },
   {
     "__docId__": 9,
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "merge",
+    "memberof": "src/application.js",
+    "longname": "src/application.js~merge",
+    "access": null,
+    "export": false,
+    "importPath": "protium/src/application.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 9,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 10,
     "kind": "class",
     "static": true,
     "variation": null,
@@ -200,12 +221,12 @@
     "importPath": "protium/src/application.js",
     "importStyle": "Application",
     "description": null,
-    "lineNumber": 10,
+    "lineNumber": 17,
     "undocument": true,
     "interface": false
   },
   {
-    "__docId__": 10,
+    "__docId__": 11,
     "kind": "constructor",
     "static": false,
     "variation": null,
@@ -214,7 +235,7 @@
     "longname": "src/application.js~Application#constructor",
     "access": null,
     "description": null,
-    "lineNumber": 23,
+    "lineNumber": 30,
     "undocument": true,
     "params": [
       {
@@ -230,7 +251,7 @@
     "generator": false
   },
   {
-    "__docId__": 11,
+    "__docId__": 12,
     "kind": "member",
     "static": false,
     "variation": null,
@@ -239,25 +260,7 @@
     "longname": "src/application.js~Application#options",
     "access": null,
     "description": null,
-    "lineNumber": 24,
-    "undocument": true,
-    "type": {
-      "types": [
-        "*"
-      ]
-    }
-  },
-  {
-    "__docId__": 12,
-    "kind": "member",
-    "static": false,
-    "variation": null,
-    "name": "router",
-    "memberof": "src/application.js~Application",
-    "longname": "src/application.js~Application#router",
-    "access": null,
-    "description": null,
-    "lineNumber": 26,
+    "lineNumber": 31,
     "undocument": true,
     "type": {
       "types": [
@@ -270,12 +273,12 @@
     "kind": "member",
     "static": false,
     "variation": null,
-    "name": "store",
+    "name": "router",
     "memberof": "src/application.js~Application",
-    "longname": "src/application.js~Application#store",
+    "longname": "src/application.js~Application#router",
     "access": null,
     "description": null,
-    "lineNumber": 27,
+    "lineNumber": 33,
     "undocument": true,
     "type": {
       "types": [
@@ -288,12 +291,12 @@
     "kind": "member",
     "static": false,
     "variation": null,
-    "name": "history",
+    "name": "store",
     "memberof": "src/application.js~Application",
-    "longname": "src/application.js~Application#history",
+    "longname": "src/application.js~Application#store",
     "access": null,
     "description": null,
-    "lineNumber": 29,
+    "lineNumber": 34,
     "undocument": true,
     "type": {
       "types": [
@@ -303,6 +306,24 @@
   },
   {
     "__docId__": 15,
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "history",
+    "memberof": "src/application.js~Application",
+    "longname": "src/application.js~Application#history",
+    "access": null,
+    "description": null,
+    "lineNumber": 36,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 16,
     "kind": "method",
     "static": false,
     "variation": null,
@@ -311,7 +332,7 @@
     "longname": "src/application.js~Application#createStore",
     "access": null,
     "description": null,
-    "lineNumber": 33,
+    "lineNumber": 40,
     "undocument": true,
     "params": [
       {
@@ -335,7 +356,7 @@
     "generator": false
   },
   {
-    "__docId__": 16,
+    "__docId__": 17,
     "kind": "method",
     "static": false,
     "variation": null,
@@ -344,7 +365,7 @@
     "longname": "src/application.js~Application#getComponent",
     "access": null,
     "description": null,
-    "lineNumber": 58,
+    "lineNumber": 65,
     "undocument": true,
     "params": [
       {
@@ -366,26 +387,6 @@
         ]
       }
     ],
-    "return": {
-      "types": [
-        "*"
-      ]
-    },
-    "generator": false
-  },
-  {
-    "__docId__": 17,
-    "kind": "method",
-    "static": false,
-    "variation": null,
-    "name": "render",
-    "memberof": "src/application.js~Application",
-    "longname": "src/application.js~Application#render",
-    "access": null,
-    "description": null,
-    "lineNumber": 78,
-    "undocument": true,
-    "params": [],
     "return": {
       "types": [
         "*"
@@ -398,12 +399,32 @@
     "kind": "method",
     "static": false,
     "variation": null,
+    "name": "render",
+    "memberof": "src/application.js~Application",
+    "longname": "src/application.js~Application#render",
+    "access": null,
+    "description": null,
+    "lineNumber": 85,
+    "undocument": true,
+    "params": [],
+    "return": {
+      "types": [
+        "*"
+      ]
+    },
+    "generator": false
+  },
+  {
+    "__docId__": 19,
+    "kind": "method",
+    "static": false,
+    "variation": null,
     "name": "resolve",
     "memberof": "src/application.js~Application",
     "longname": "src/application.js~Application#resolve",
     "access": null,
     "description": null,
-    "lineNumber": 96,
+    "lineNumber": 103,
     "undocument": true,
     "params": [
       {
@@ -433,7 +454,7 @@
     "generator": false
   },
   {
-    "__docId__": 19,
+    "__docId__": 20,
     "kind": "function",
     "static": true,
     "variation": null,
@@ -445,7 +466,7 @@
     "importPath": "protium/src/application.js",
     "importStyle": null,
     "description": null,
-    "lineNumber": 110,
+    "lineNumber": 117,
     "undocument": true,
     "params": [
       {
@@ -463,7 +484,7 @@
     "generator": false
   },
   {
-    "__docId__": 20,
+    "__docId__": 21,
     "kind": "file",
     "static": true,
     "variation": null,
@@ -476,7 +497,7 @@
     "content": "import ApiClient from './client'\n\nexport default function clientMiddleware(options, http) {\n  return store => next => action => {\n    const { req, res } = http || {}\n    const { dispatch, getState }              = store\n    const { promise, types, run, ...rest }    = action\n    const [REQUEST, SUCCESS, FAILURE]         = types || []\n\n    const client = new ApiClient(options, store, http)\n\n    let result, error\n\n    // Non conforming action, skip it\n    if (!types || (types.length > 1 && !promise)) {\n      return next(action)\n    }\n\n    // Syncronous Action\n    if (types.length === 1) {\n      try {\n        result = run({ client, dispatch, getState })\n      } catch (e) {\n        error = e\n      }\n      return next({ ...rest, result, error, type: REQUEST })\n    }\n\n    // Async actions, kick it off.\n    next({...rest, type: REQUEST})\n\n    // Setup handler action\n    return promise({ client, dispatch, getState })\n      .then(onSuccess)\n      .catch(onError)\n\n\n    function onSuccess(result) {\n      return next({...rest, result, type: SUCCESS})\n    }\n\n    function onError(error) {\n      console.error('ApiClient', error)\n      return next({...rest, error, type: FAILURE})\n    }\n  }\n}"
   },
   {
-    "__docId__": 21,
+    "__docId__": 22,
     "kind": "function",
     "static": true,
     "variation": null,
@@ -512,7 +533,7 @@
     "generator": false
   },
   {
-    "__docId__": 22,
+    "__docId__": 23,
     "kind": "file",
     "static": true,
     "variation": null,
@@ -522,16 +543,16 @@
     "access": null,
     "description": null,
     "lineNumber": 1,
-    "content": "import 'isomorphic-fetch'\nimport Url      from 'url'\nimport QS       from 'qs'\nimport merge    from 'deepmerge'\nimport { map }  from 'lodash'\n\nconst methods = ['get', 'post', 'put', 'patch', 'del']\n\nexport default class ApiClient {\n\n  static defaults = {\n    server: {\n      protocol: 'http',\n      host: 'localhost',\n      pathname: '/',\n      port: process.env.API_PORT || process.env.PORT || 5000\n    },\n    client: {\n      pathname: '/'\n    }\n  };\n\n  static requestDefaults = {\n    method        : 'get',\n    mode          : 'same-origin',\n    credentials   : 'same-origin',\n    redirect      : 'follow',\n    cache         : 'default',\n    as            : 'json',\n    headers       : {}\n  }\n\n  constructor(options, store, http) {\n    if (http) {\n      this.req = http.req\n      this.res = http.res\n    }\n\n    this.store = store\n    this.options = merge(ApiClient.defaults, options)\n    \n    methods.forEach(method => {\n      this[method] = this.genericMethod.bind(this, method)\n    })\n  }\n\n  isExternal(path) {\n    return /^https?:\\/\\//i.test(path)\n  }\n\n  buildOptions(method, path, opts) {\n    let options = merge(ApiClient.requestDefaults, options)\n    let external = this.isExternal(path)\n    \n    options.method = method.toUpperCase()\n\n    if (!!options.body) {\n      options.body = (options.body instanceof FormData || typeof options.body === 'string') \n        ? options.body \n        : JSON.stringify(options.body)\n    }\n\n    if (options.query) {\n      url += QS.stringify(options.query)\n      delete options.query\n    }\n\n    if (options.headers) {\n      if (__SERVER__ && this.req.get('cookie')) {\n        options.headers.cookie = this.req.get('cookie')\n      }\n\n      if (this.options.auth && typeof this.options.auth.getBearer === 'function') {\n        let token = this.options.auth.getBearer(this.store)\n        if (token && token.length && !external) {\n          options.headers['Authorization'] = `Bearer ${token}`\n        }\n      }\n\n      options.headers = new Headers(options.headers)\n    }\n    \n    if (external) {\n      options.mode = 'cors'\n    }\n\n    return options\n  }\n\n  genericMethod(method, path, options = {}) {\n    let req = this.req\n    let url = this.formatUrl(path)\n    let requestOptions = this.buildOptions(method, path, options)\n    let request = new Request(url, requestOptions)\n\n    return fetch(request).then(response => {\n      switch(requestOptions.as) {\n        case 'json':\n          return response.json()\n        case 'text':\n          return response.text()\n        case 'blob':\n          return response.blob()\n        default:\n          return response\n      }\n    })\n  }\n\n  formatUrl(path) {\n    if (this.isExternal(path)) {\n      return path\n    }\n\n    const config = { ...(__SERVER__ ? this.options.server : this.options.client) }\n    const adjustedPath = path[0] === '/' ? path.slice(1) : path\n\n    if (config.base) {\n      config.pathname = config.base\n    }\n\n    if (config.host && config.port) {\n      config.host = `${config.host}:${config.port}`\n    }\n\n    const baseUrl = Url.format(config)\n\n    return baseUrl + adjustedPath\n  }\n}\n"
+    "content": "import 'isomorphic-fetch'\nimport Url        from 'url'\nimport QS         from 'qs'\nimport { map }    from 'lodash'\nimport extendify  from 'extendify'\n\nconst merge = extendify({\n  inPlace: false,\n  isDeep: true,\n  arrays: 'concat'\n})\n\nconst methods = ['get', 'post', 'put', 'patch', 'del']\n\nexport default class ApiClient {\n\n  static defaults = {\n    server: {\n      protocol: 'http',\n      host: 'localhost',\n      pathname: '/',\n      port: process.env.API_PORT || process.env.PORT || 5000\n    },\n    client: {\n      pathname: '/'\n    }\n  };\n\n  static requestDefaults = {\n    method        : 'get',\n    mode          : 'same-origin',\n    credentials   : 'same-origin',\n    redirect      : 'follow',\n    cache         : 'default',\n    as            : 'json',\n    headers       : {}\n  }\n\n  constructor(options, store, http) {\n    if (http) {\n      this.req = http.req\n      this.res = http.res\n    }\n\n    this.store = store\n    this.options = merge(ApiClient.defaults, options)\n    \n    methods.forEach(method => {\n      this[method] = this.genericMethod.bind(this, method)\n    })\n  }\n\n  isExternal(path) {\n    return /^https?:\\/\\//i.test(path)\n  }\n\n  buildOptions(method, path, opts) {\n    let options = merge(ApiClient.requestDefaults, options)\n    let external = this.isExternal(path)\n    \n    options.method = method.toUpperCase()\n\n    if (!!options.body) {\n      options.body = (options.body instanceof FormData || typeof options.body === 'string') \n        ? options.body \n        : JSON.stringify(options.body)\n    }\n\n    if (options.query) {\n      url += QS.stringify(options.query)\n      delete options.query\n    }\n\n    if (options.headers) {\n      if (__SERVER__ && this.req.get('cookie')) {\n        options.headers.cookie = this.req.get('cookie')\n      }\n\n      if (this.options.auth && typeof this.options.auth.getBearer === 'function') {\n        let token = this.options.auth.getBearer(this.store)\n        if (token && token.length && !external) {\n          options.headers['Authorization'] = `Bearer ${token}`\n        }\n      }\n\n      options.headers = new Headers(options.headers)\n    }\n    \n    if (external) {\n      options.mode = 'cors'\n    }\n\n    return options\n  }\n\n  genericMethod(method, path, options = {}) {\n    let req = this.req\n    let url = this.formatUrl(path)\n    let requestOptions = this.buildOptions(method, path, options)\n    let request = new Request(url, requestOptions)\n\n    return fetch(request).then(response => {\n      switch(requestOptions.as) {\n        case 'json':\n          return response.json()\n        case 'text':\n          return response.text()\n        case 'blob':\n          return response.blob()\n        default:\n          return response\n      }\n    })\n  }\n\n  formatUrl(path) {\n    if (this.isExternal(path)) {\n      return path\n    }\n\n    const config = { ...(__SERVER__ ? this.options.server : this.options.client) }\n    const adjustedPath = path[0] === '/' ? path.slice(1) : path\n\n    if (config.base) {\n      config.pathname = config.base\n    }\n\n    if (config.host && config.port) {\n      config.host = `${config.host}:${config.port}`\n    }\n\n    const baseUrl = Url.format(config)\n\n    return baseUrl + adjustedPath\n  }\n}\n"
   },
   {
-    "__docId__": 23,
+    "__docId__": 24,
     "kind": "variable",
     "static": true,
     "variation": null,
-    "name": "methods",
+    "name": "merge",
     "memberof": "src/client.js",
-    "longname": "src/client.js~methods",
+    "longname": "src/client.js~merge",
     "access": null,
     "export": false,
     "importPath": "protium/src/client.js",
@@ -546,7 +567,28 @@
     }
   },
   {
-    "__docId__": 24,
+    "__docId__": 25,
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "methods",
+    "memberof": "src/client.js",
+    "longname": "src/client.js~methods",
+    "access": null,
+    "export": false,
+    "importPath": "protium/src/client.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 13,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 26,
     "kind": "class",
     "static": true,
     "variation": null,
@@ -558,12 +600,12 @@
     "importPath": "protium/src/client.js",
     "importStyle": "ApiClient",
     "description": null,
-    "lineNumber": 9,
+    "lineNumber": 15,
     "undocument": true,
     "interface": false
   },
   {
-    "__docId__": 25,
+    "__docId__": 27,
     "kind": "constructor",
     "static": false,
     "variation": null,
@@ -572,7 +614,7 @@
     "longname": "src/client.js~ApiClient#constructor",
     "access": null,
     "description": null,
-    "lineNumber": 33,
+    "lineNumber": 39,
     "undocument": true,
     "params": [
       {
@@ -597,7 +639,7 @@
     "generator": false
   },
   {
-    "__docId__": 26,
+    "__docId__": 28,
     "kind": "member",
     "static": false,
     "variation": null,
@@ -606,43 +648,7 @@
     "longname": "src/client.js~ApiClient#req",
     "access": null,
     "description": null,
-    "lineNumber": 35,
-    "undocument": true,
-    "type": {
-      "types": [
-        "*"
-      ]
-    }
-  },
-  {
-    "__docId__": 27,
-    "kind": "member",
-    "static": false,
-    "variation": null,
-    "name": "res",
-    "memberof": "src/client.js~ApiClient",
-    "longname": "src/client.js~ApiClient#res",
-    "access": null,
-    "description": null,
-    "lineNumber": 36,
-    "undocument": true,
-    "type": {
-      "types": [
-        "*"
-      ]
-    }
-  },
-  {
-    "__docId__": 28,
-    "kind": "member",
-    "static": false,
-    "variation": null,
-    "name": "store",
-    "memberof": "src/client.js~ApiClient",
-    "longname": "src/client.js~ApiClient#store",
-    "access": null,
-    "description": null,
-    "lineNumber": 39,
+    "lineNumber": 41,
     "undocument": true,
     "type": {
       "types": [
@@ -655,12 +661,12 @@
     "kind": "member",
     "static": false,
     "variation": null,
-    "name": "options",
+    "name": "res",
     "memberof": "src/client.js~ApiClient",
-    "longname": "src/client.js~ApiClient#options",
+    "longname": "src/client.js~ApiClient#res",
     "access": null,
     "description": null,
-    "lineNumber": 40,
+    "lineNumber": 42,
     "undocument": true,
     "type": {
       "types": [
@@ -670,6 +676,42 @@
   },
   {
     "__docId__": 30,
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "store",
+    "memberof": "src/client.js~ApiClient",
+    "longname": "src/client.js~ApiClient#store",
+    "access": null,
+    "description": null,
+    "lineNumber": 45,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 31,
+    "kind": "member",
+    "static": false,
+    "variation": null,
+    "name": "options",
+    "memberof": "src/client.js~ApiClient",
+    "longname": "src/client.js~ApiClient#options",
+    "access": null,
+    "description": null,
+    "lineNumber": 46,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 32,
     "kind": "method",
     "static": false,
     "variation": null,
@@ -678,7 +720,7 @@
     "longname": "src/client.js~ApiClient#isExternal",
     "access": null,
     "description": null,
-    "lineNumber": 47,
+    "lineNumber": 53,
     "undocument": true,
     "params": [
       {
@@ -696,7 +738,7 @@
     "generator": false
   },
   {
-    "__docId__": 31,
+    "__docId__": 33,
     "kind": "method",
     "static": false,
     "variation": null,
@@ -705,7 +747,7 @@
     "longname": "src/client.js~ApiClient#buildOptions",
     "access": null,
     "description": null,
-    "lineNumber": 51,
+    "lineNumber": 57,
     "undocument": true,
     "params": [
       {
@@ -735,7 +777,7 @@
     "generator": false
   },
   {
-    "__docId__": 32,
+    "__docId__": 34,
     "kind": "method",
     "static": false,
     "variation": null,
@@ -744,7 +786,7 @@
     "longname": "src/client.js~ApiClient#genericMethod",
     "access": null,
     "description": null,
-    "lineNumber": 90,
+    "lineNumber": 96,
     "undocument": true,
     "params": [
       {
@@ -777,7 +819,7 @@
     "generator": false
   },
   {
-    "__docId__": 33,
+    "__docId__": 35,
     "kind": "method",
     "static": false,
     "variation": null,
@@ -786,7 +828,7 @@
     "longname": "src/client.js~ApiClient#formatUrl",
     "access": null,
     "description": null,
-    "lineNumber": 110,
+    "lineNumber": 116,
     "undocument": true,
     "params": [
       {
@@ -804,7 +846,7 @@
     "generator": false
   },
   {
-    "__docId__": 34,
+    "__docId__": 36,
     "kind": "file",
     "static": true,
     "variation": null,
@@ -814,16 +856,16 @@
     "access": null,
     "description": null,
     "lineNumber": 1,
-    "content": "import Webpack          from 'webpack'\nimport Path             from 'path'\nimport AssetsPlugin     from 'webpack-assets-plugin'\nimport CleanPlugin      from 'clean-webpack-plugin'\nimport merge            from 'deepmerge'\nimport nodeExternals    from 'webpack-node-externals'\nimport devMiddleware    from 'webpack-dev-middleware'\nimport hotMiddleware    from 'webpack-hot-middleware'\n\nconst __PRODUCTION__      = (process.env.NODE_ENV === 'production')\nconst __DEVELOPMENT__     = !(__PRODUCTION__)\n\nexport default class DevTools {\n\n  static baseConfig = {\n    environment: [],\n    define: {},\n\n    output: {\n      filename: '[name].js',\n      publicPath: '/assets/'\n    },\n\n    module: {\n      preLoaders: [\n        {\n          test: /\\.js$/,\n          loader: \"source-map-loader\"\n        }\n      ],\n      loaders: [\n        {\n          test: /\\.jsx?$/,\n          loaders: ['babel'],\n          exclude: /node_modules/\n        }\n      ]\n    },\n\n    devtool: 'source-map'\n  }\n\n  constructor(cwd) {\n    this.cwd = Path.resolve(cwd)\n  }\n\n  serverConfig(entrypoint, options = {}) {\n    console.log(DevTools.baseConfig, options)\n    const config = merge(DevTools.baseConfig, options)\n\n    const entry = Array.isArray(entrypoint) ? entrypoint : [entrypoint]\n\n    config.context = this.cwd\n\n    config.entry = { server: entry }\n\n    config.output.path = Path.resolve(config.context, 'public')\n    config.output.libraryTarget = 'commonjs'\n\n    config.externals = [nodeExternals()]\n\n    config.target = 'node'\n    config.node = {\n      console: false,\n      global: false,\n      process: false,\n      Buffer: false,\n      __filename: false,\n      __dirname: false,\n      setImmediate: false\n    }\n\n    return config\n  }\n\n  browserConfig(entrypoint, options = {}) {\n    console.log(DevTools.baseConfig, options)\n\n    const config = merge(DevTools.baseConfig, options)\n\n    const entry = Array.isArray(entrypoint) ? entrypoint : [entrypoint]\n\n    config.context = this.cwd\n\n    config.entry = { client: entry }\n\n    config.output.filename = '[name].js'\n    config.output.path = Path.resolve(config.context, 'public')\n\n    config.plugins = [\n      new AssetsPlugin(),\n      new Webpack.EnvironmentPlugin([\n        'NODE_ENV',\n        ...config.environment\n      ]),\n      new Webpack.DefinePlugin({\n        __CLIENT__: true,\n        __SERVER__: false,\n        __DEVELOPMENT__: __DEVELOPMENT__,\n        __PRODUCTION__: __PRODUCTION__,\n        ...config.define\n      }),\n      new CleanPlugin([config.output.path])\n    ]\n\n    if (__DEVELOPMENT__ && options.hot) {\n      config.entry.client.unshift(\n        'webpack-hot-middleware/client',\n        'webpack/hot/only-dev-server',\n        'react-hot-loader/patch'\n      )\n\n      config.plugins.push(\n        new Webpack.HotModuleReplacementPlugin(),\n        new Webpack.IgnorePlugin(/webpack-stats\\.json$/)\n      )\n    }\n\n    return config\n  }\n\n  devMiddleware(config, options = {}) {\n    let browserConfig, serverConfig\n\n    if (Array.isArray(config)) {\n      browserConfig = config[0]\n      serverConfig = config[1]\n    } else {\n      browserConfig = config.browser\n      serverConfig = config.server\n    }\n\n    // SERVER SIDE //\n    const serverCompiler = Webpack(serverConfig)\n    serverCompiler.watch({}, (err, stats)=> {\n      if (err) {\n        throw err\n      }\n      if (stats.hasWarnings() || stats.hasErrors()) {\n        console.log(stats.toString(statsOptions))\n      } else {\n        let s = stats.toJson()\n        console.log(`(server) webpack built ${s.hash} in ${s.time}ms`)\n      }\n    })\n\n\n    // CLIENT SIDE //\n    const devCompiler = Webpack(browserConfig)\n    const devDefaultOptions = {\n      quiet: true,\n      noInfo: true,\n      hot: true,\n      inline: true,\n      lazy: false,\n      publicPath: browserConfig.output.publicPath,\n      headers: {'Access-Control-Allow-Origin': '*'},\n      stats: {colors: true}\n    }\n\n    const devOptions = {...devDefaultOptions, ...(options.middleware || {})}\n\n    const statsDefaults = {\n      hash: false,\n      version: false,\n      timings: true,\n      assets: true,\n      chunks: false,\n      chunkModules: false,\n      modules: false,\n      colors: true\n    }\n\n    const statsOptions = {...statsDefaults, ...(options.stats || {})}\n\n    return [\n      devMiddleware(devCompiler, devOptions),\n      hotMiddleware(devCompiler)\n    ]\n  }\n\n}\n\n\n\n"
+    "content": "import Webpack          from 'webpack'\nimport Path             from 'path'\nimport AssetsPlugin     from 'webpack-assets-plugin'\nimport CleanPlugin      from 'clean-webpack-plugin'\nimport nodeExternals    from 'webpack-node-externals'\nimport devMiddleware    from 'webpack-dev-middleware'\nimport hotMiddleware    from 'webpack-hot-middleware'\nimport extendify        from 'extendify'\n\nconst merge = extendify({\n  inPlace: false,\n  isDeep: true,\n  arrays: 'concat'\n})\n\nconst __PRODUCTION__      = (process.env.NODE_ENV === 'production')\nconst __DEVELOPMENT__     = !(__PRODUCTION__)\n\nexport default class DevTools {\n\n  static baseConfig = {\n    environment: [],\n    define: {},\n\n    output: {\n      filename: '[name].js',\n      path: 'public',\n      publicPath: '/assets/'\n    },\n\n    module: {\n      preLoaders: [\n        {\n          test: /\\.js$/,\n          loader: \"source-map-loader\"\n        }\n      ],\n      loaders: [\n        {\n          test: /\\.jsx?$/,\n          loaders: ['babel'],\n          exclude: /node_modules/\n        }\n      ]\n    },\n\n    devtool: 'source-map'\n  }\n\n  constructor(cwd) {\n    this.cwd = Path.resolve(cwd)\n  }\n\n  serverConfig(entrypoint, options = {}) {\n\n    const config = merge({}, DevTools.baseConfig, options)\n\n    const entry = Array.isArray(entrypoint) ? entrypoint : [entrypoint]\n\n    config.context = this.cwd\n\n    config.entry = { server: entry }\n\n    config.output.path = Path.resolve(config.context, 'public')\n    config.output.libraryTarget = 'commonjs'\n\n    config.externals = [nodeExternals()]\n\n    config.target = 'node'\n    config.node = {\n      console: false,\n      global: false,\n      process: false,\n      Buffer: false,\n      __filename: false,\n      __dirname: false,\n      setImmediate: false\n    }\n\n    delete config.hot\n    delete config.define\n\n    return config\n  }\n\n  browserConfig(entrypoint, options = {}) {\n\n    const config = merge({}, DevTools.baseConfig, options)\n\n    const entry = Array.isArray(entrypoint) ? entrypoint : [entrypoint]\n\n    config.context = this.cwd\n\n    config.entry = { client: entry }\n\n    config.output.filename = '[name].js'\n    config.output.library = '__APPLICATION__'\n    config.output.libraryTarget = 'var'\n\n    if (config.output.path === DevTools.baseConfig.output.path) {\n      config.output.path = Path.resolve(config.context, 'public')\n    }\n\n    config.plugins = [\n      new AssetsPlugin({ \n        assetsRegex: /\\.(jpe?g|png|gif|svg|scss|sass|css)$/i,\n        metadata: true,\n        prettyPrint: true,\n        filename: 'assets.json'\n      }),\n      new Webpack.EnvironmentPlugin([\n        'NODE_ENV',\n        ...config.environment\n      ]),\n      new Webpack.DefinePlugin({\n        __CLIENT__: true,\n        __SERVER__: false,\n        __DEVELOPMENT__: __DEVELOPMENT__,\n        __PRODUCTION__: __PRODUCTION__,\n        ...config.define\n      }),\n      new CleanPlugin([config.output.path], { root: config.context }),\n      ...config.plugins || []\n    ]\n\n    if (__DEVELOPMENT__ && options.hot) {\n      config.entry.client.unshift(\n        'webpack-hot-middleware/client',\n        'webpack/hot/only-dev-server',\n        'react-hot-loader/patch'\n      )\n\n      config.plugins.push(\n        new Webpack.HotModuleReplacementPlugin(),\n        new Webpack.IgnorePlugin(/webpack-stats\\.json$/)\n      )\n    }\n\n    delete config.hot\n    delete config.define\n\n    return config\n  }\n\n  devMiddleware(config, options = {}) {\n    let browserConfig, serverConfig\n\n    if (Array.isArray(config)) {\n      browserConfig = config[0]\n      serverConfig = config[1]\n    } else {\n      browserConfig = config.browser\n      serverConfig = config.server\n    }\n\n    // SERVER SIDE //\n    const serverCompiler = Webpack(serverConfig)\n    serverCompiler.watch({}, (err, stats)=> {\n      if (err) {\n        throw err\n      }\n      if (stats.hasWarnings() || stats.hasErrors()) {\n        console.log(stats.toString(statsOptions))\n      } else {\n        let s = stats.toJson()\n        console.log(`(server) webpack built ${s.hash} in ${s.time}ms`)\n      }\n    })\n\n\n    // CLIENT SIDE //\n    const devCompiler = Webpack(browserConfig)\n    const devDefaultOptions = {\n      quiet: true,\n      noInfo: true,\n      hot: true,\n      inline: true,\n      lazy: false,\n      publicPath: browserConfig.output.publicPath,\n      headers: {'Access-Control-Allow-Origin': '*'},\n      stats: {colors: true}\n    }\n\n    const devOptions = {...devDefaultOptions, ...(options.middleware || {})}\n\n    const statsDefaults = {\n      hash: false,\n      version: false,\n      timings: true,\n      assets: true,\n      chunks: false,\n      chunkModules: false,\n      modules: false,\n      colors: true\n    }\n\n    const statsOptions = {...statsDefaults, ...(options.stats || {})}\n\n    return [\n      devMiddleware(devCompiler, devOptions),\n      hotMiddleware(devCompiler)\n    ]\n  }\n\n}\n\n"
   },
   {
-    "__docId__": 35,
+    "__docId__": 37,
     "kind": "variable",
     "static": true,
     "variation": null,
-    "name": "__PRODUCTION__",
+    "name": "merge",
     "memberof": "src/devtools.js",
-    "longname": "src/devtools.js~__PRODUCTION__",
+    "longname": "src/devtools.js~merge",
     "access": null,
     "export": false,
     "importPath": "protium/src/devtools.js",
@@ -838,7 +880,28 @@
     }
   },
   {
-    "__docId__": 36,
+    "__docId__": 38,
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "__PRODUCTION__",
+    "memberof": "src/devtools.js",
+    "longname": "src/devtools.js~__PRODUCTION__",
+    "access": null,
+    "export": false,
+    "importPath": "protium/src/devtools.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 16,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 39,
     "kind": "variable",
     "static": true,
     "variation": null,
@@ -850,7 +913,7 @@
     "importPath": "protium/src/devtools.js",
     "importStyle": null,
     "description": null,
-    "lineNumber": 11,
+    "lineNumber": 17,
     "undocument": true,
     "type": {
       "types": [
@@ -859,7 +922,7 @@
     }
   },
   {
-    "__docId__": 37,
+    "__docId__": 40,
     "kind": "class",
     "static": true,
     "variation": null,
@@ -871,12 +934,12 @@
     "importPath": "protium/src/devtools.js",
     "importStyle": "DevTools",
     "description": null,
-    "lineNumber": 13,
+    "lineNumber": 19,
     "undocument": true,
     "interface": false
   },
   {
-    "__docId__": 38,
+    "__docId__": 41,
     "kind": "constructor",
     "static": false,
     "variation": null,
@@ -885,7 +948,7 @@
     "longname": "src/devtools.js~DevTools#constructor",
     "access": null,
     "description": null,
-    "lineNumber": 43,
+    "lineNumber": 50,
     "undocument": true,
     "params": [
       {
@@ -898,7 +961,7 @@
     "generator": false
   },
   {
-    "__docId__": 39,
+    "__docId__": 42,
     "kind": "member",
     "static": false,
     "variation": null,
@@ -907,7 +970,7 @@
     "longname": "src/devtools.js~DevTools#cwd",
     "access": null,
     "description": null,
-    "lineNumber": 44,
+    "lineNumber": 51,
     "undocument": true,
     "type": {
       "types": [
@@ -916,7 +979,7 @@
     }
   },
   {
-    "__docId__": 40,
+    "__docId__": 43,
     "kind": "method",
     "static": false,
     "variation": null,
@@ -925,7 +988,7 @@
     "longname": "src/devtools.js~DevTools#serverConfig",
     "access": null,
     "description": null,
-    "lineNumber": 47,
+    "lineNumber": 54,
     "undocument": true,
     "params": [
       {
@@ -952,7 +1015,7 @@
     "generator": false
   },
   {
-    "__docId__": 41,
+    "__docId__": 44,
     "kind": "method",
     "static": false,
     "variation": null,
@@ -961,7 +1024,7 @@
     "longname": "src/devtools.js~DevTools#browserConfig",
     "access": null,
     "description": null,
-    "lineNumber": 76,
+    "lineNumber": 86,
     "undocument": true,
     "params": [
       {
@@ -988,7 +1051,7 @@
     "generator": false
   },
   {
-    "__docId__": 42,
+    "__docId__": 45,
     "kind": "method",
     "static": false,
     "variation": null,
@@ -997,7 +1060,7 @@
     "longname": "src/devtools.js~DevTools#devMiddleware",
     "access": null,
     "description": null,
-    "lineNumber": 122,
+    "lineNumber": 145,
     "undocument": true,
     "params": [
       {
@@ -1024,7 +1087,7 @@
     "generator": false
   },
   {
-    "__docId__": 43,
+    "__docId__": 46,
     "kind": "file",
     "static": true,
     "variation": null,
@@ -1037,7 +1100,7 @@
     "content": "import React, {Component} from 'react'\nimport Helmet from 'react-helmet'\n\nexport default class ErrorComponent extends Component {\n  render() {\n    const { error, store, production } = this.props\n    return <div>\n      <Helmet title=\"Error\" />\n      <p className=\"label\"><strong>ERROR</strong></p>\n      <h1>{error.message}</h1>\n      {!production && <div>\n        <h3>Stack Trace</h3>\n        <pre>{error.stack}</pre>\n      </div>}\n      {!production && store && <div>\n        <h3>State</h3>\n        <pre>{JSON.stringify(store.getState(), null, 2)}</pre>\n      </div>}\n    </div>\n  }\n  \n  static inlineCss = `\n    html, body { margin: 0; padding 0; }\n    * { box-sizing: border-box; }\n    body {\n      background: #e8e8e8;\n      color: #333;\n      font-family: sans-serif;\n      padding: 30px;\n      margin: 0;\n    }\n    \n    #application {\n      max-width: 90%;\n      padding: 30px;\n      margin: 0 auto;\n      background: #fff;\n      border-radius: 4px;\n    }\n    .label {\n      text-transform: uppercase;\n      color: #999;\n    }\n    h1 {\n      font-size: 25px;\n      letter-spacing: -0.04em;\n      border-bottom: 1px solid #d0d0d0;\n      padding-bottom: 0.5em;\n      margin-bottom: 1em;\n    }\n    pre {\n      background: #e8e8e8;\n      overflow:scroll;\n      padding: 12px 15px;\n      border: 1px solid #d0d0d0;\n      border-radius: 4px;\n      line-height: 1.3;\n    }\n`\n}"
   },
   {
-    "__docId__": 44,
+    "__docId__": 47,
     "kind": "class",
     "static": true,
     "variation": null,
@@ -1057,7 +1120,7 @@
     ]
   },
   {
-    "__docId__": 45,
+    "__docId__": 48,
     "kind": "method",
     "static": false,
     "variation": null,
@@ -1077,7 +1140,7 @@
     "generator": false
   },
   {
-    "__docId__": 46,
+    "__docId__": 49,
     "kind": "file",
     "static": true,
     "variation": null,
@@ -1087,10 +1150,10 @@
     "access": null,
     "description": null,
     "lineNumber": 1,
-    "content": "import React, { Component }   from 'react'\nimport { renderToString }     from 'react-dom/server'\nimport { map, merge }         from 'lodash'\nimport serialize              from 'serialize-javascript'\nimport Helmet                 from 'react-helmet'\n\nexport default class HtmlPage extends Component {\n\n  static defaultProps = {\n    state: {},\n    doctype: '<!doctype html>',\n    component: <div/>,\n    rootVar: '__STATE__',\n    rootId: 'application'\n  };\n\n  render() {\n    const html = this.renderAppHtml()\n    const head = this.getHead()\n    let htmlAttributes = head.htmlAttributes.toComponent()\n\n    // Hack to avoid React createElement warning\n    // https://github.com/nfl/react-helmet/issues/150\n    htmlAttributes = (Array.isArray(htmlAttributes) && !htmlAttributes.length) \n      ? {} \n      : htmlAttributes\n\n    return <html {...htmlAttributes}>\n      <head>\n        {head.title.toComponent()}\n        {head.meta.toComponent()}\n        {this.renderInlineCss()}\n        {this.renderInlineScripts()}\n        {head.link.toComponent()}\n      </head>\n      <body>\n        {html}\n        {this.renderState()}\n        {this.renderMain()}\n        {head.script.toComponent()}\n      </body>\n    </html>\n  }\n\n  getHead() {\n    return Helmet.rewind()\n  }\n\n  asyncCss() {\n    return this.props.inlineCss && this.props.inlineCss.length\n  }\n\n  renderMain() {\n    if (!this.props.main) { return null }\n    let scripts = Array.isArray(this.props.main)\n          ? this.props.main\n          : [this.props.main]\n    return map(scripts, (script, i)=> {\n      return this.renderScriptTag(script, i)\n    })\n  }\n\n  renderScriptTag(src, key) {\n    return <script key={key} src={src} />\n  }\n\n  renderAsyncLinks() {\n    let calls = map(this.props.links, k => `loadCSS(\"${k}\")`).join(';')\n    let html = LOADCSS_SCRIPT + calls\n    return <script dangerouslySetInnerHTML={__(html)} />\n  }\n\n  renderInlineScripts() {\n    if (!this.props.inlineScripts) { return null }\n    let scripts = Array.isArray(this.props.inlineScripts) \n          ? this.props.inlineScripts \n          : [this.props.inlineScripts]\n    return map(scripts, (script, i)=> {\n      let html = __(script)\n      return <script key={'inline-script-'+i} dangerouslySetInnerHTML={html} />\n    })\n  }\n\n  renderInlineCss() {\n    if (!this.props.inlineCss) { return null }\n    let links = Array.isArray(this.props.inlineCss) \n          ? this.props.inlineCss \n          : [this.props.inlineCss]\n    return map(links, (css, i)=> {\n      let html = __(css)\n      return <style key={'inline-css-'+i} dangerouslySetInnerHTML={html} />\n    })\n  }\n\n  renderAppHtml() {\n    const html = renderToString(this.props.component)\n    return <div id={this.props.rootId} dangerouslySetInnerHTML={__(html)} />\n  }\n\n  renderState() {\n    let html = `${this.props.rootVar}=${serialize(this.props.state)}`\n    return <script dangerouslySetInnerHTML={__(html)} />\n  }\n}\n\nconst LOADCSS_SCRIPT = `\n(function(c){c.loadCSS=function(h,e,k){function f(a){for(var d=b.href,c=g.length;c--;)\nif(g[c].href===d)return a();setTimeout(function(){f(a)})}var d=c.document,\nb=d.createElement(\"link\"),a;e?a=e:(a=(d.body||d.getElementsByTagName(\"head\")[0]).childNodes,\na=a[a.length-1]);var g=d.styleSheets;b.rel=\"stylesheet\";b.href=h;b.media=\"only x\";\na.parentNode.insertBefore(b,e?a:a.nextSibling);b.c=f;f(function(){b.media=k||\"all\"});\nreturn b};\"undefined\"!==typeof module&&(module.b=c.loadCSS)})(this);\n`.replace(/\\n/g, '')\n\nfunction __(html) {\n  return { __html: html }\n}"
+    "content": "import React, { Component }   from 'react'\nimport { renderToString }     from 'react-dom/server'\nimport { map }                from 'lodash'\nimport serialize              from 'serialize-javascript'\nimport Helmet                 from 'react-helmet'\n\nexport default class HtmlPage extends Component {\n\n  static defaultProps = {\n    state: {},\n    doctype: '<!doctype html>',\n    component: <div/>,\n    rootVar: '__STATE__',\n    rootId: 'application'\n  };\n\n  render() {\n    const html = this.renderAppHtml()\n    const head = this.getHead()\n    let htmlAttributes = head.htmlAttributes.toComponent()\n\n    // Hack to avoid React createElement warning\n    // https://github.com/nfl/react-helmet/issues/150\n    htmlAttributes = (Array.isArray(htmlAttributes) && !htmlAttributes.length) \n      ? {} \n      : htmlAttributes\n\n    return <html {...htmlAttributes}>\n      <head>\n        {head.title.toComponent()}\n        {head.meta.toComponent()}\n        {this.renderInlineCss()}\n        {this.renderInlineScripts()}\n        {head.link.toComponent()}\n      </head>\n      <body>\n        {html}\n        {this.renderState()}\n        {this.renderMain()}\n        {head.script.toComponent()}\n      </body>\n    </html>\n  }\n\n  getHead() {\n    return Helmet.rewind()\n  }\n\n  asyncCss() {\n    return this.props.inlineCss && this.props.inlineCss.length\n  }\n\n  renderMain() {\n    if (!this.props.main) { return null }\n    let scripts = Array.isArray(this.props.main)\n          ? this.props.main\n          : [this.props.main]\n    return map(scripts, (script, i)=> {\n      return this.renderScriptTag(script, i)\n    })\n  }\n\n  renderScriptTag(src, key) {\n    return <script key={key} src={src} />\n  }\n\n  renderAsyncLinks() {\n    let calls = map(this.props.links, k => `loadCSS(\"${k}\")`).join(';')\n    let html = LOADCSS_SCRIPT + calls\n    return <script dangerouslySetInnerHTML={__(html)} />\n  }\n\n  renderInlineScripts() {\n    if (!this.props.inlineScripts) { return null }\n    let scripts = Array.isArray(this.props.inlineScripts) \n          ? this.props.inlineScripts \n          : [this.props.inlineScripts]\n    return map(scripts, (script, i)=> {\n      let html = __(script)\n      return <script key={'inline-script-'+i} dangerouslySetInnerHTML={html} />\n    })\n  }\n\n  renderInlineCss() {\n    if (!this.props.inlineCss) { return null }\n    let links = Array.isArray(this.props.inlineCss) \n          ? this.props.inlineCss \n          : [this.props.inlineCss]\n    return map(links, (css, i)=> {\n      let html = __(css)\n      return <style key={'inline-css-'+i} dangerouslySetInnerHTML={html} />\n    })\n  }\n\n  renderAppHtml() {\n    const html = renderToString(this.props.component)\n    return <div id={this.props.rootId} dangerouslySetInnerHTML={__(html)} />\n  }\n\n  renderState() {\n    let html = `${this.props.rootVar}=${serialize(this.props.state)}`\n    return <script dangerouslySetInnerHTML={__(html)} />\n  }\n}\n\nconst LOADCSS_SCRIPT = `\n(function(c){c.loadCSS=function(h,e,k){function f(a){for(var d=b.href,c=g.length;c--;)\nif(g[c].href===d)return a();setTimeout(function(){f(a)})}var d=c.document,\nb=d.createElement(\"link\"),a;e?a=e:(a=(d.body||d.getElementsByTagName(\"head\")[0]).childNodes,\na=a[a.length-1]);var g=d.styleSheets;b.rel=\"stylesheet\";b.href=h;b.media=\"only x\";\na.parentNode.insertBefore(b,e?a:a.nextSibling);b.c=f;f(function(){b.media=k||\"all\"});\nreturn b};\"undefined\"!==typeof module&&(module.b=c.loadCSS)})(this);\n`.replace(/\\n/g, '')\n\nfunction __(html) {\n  return { __html: html }\n}"
   },
   {
-    "__docId__": 47,
+    "__docId__": 50,
     "kind": "class",
     "static": true,
     "variation": null,
@@ -1110,7 +1173,7 @@
     ]
   },
   {
-    "__docId__": 48,
+    "__docId__": 51,
     "kind": "method",
     "static": false,
     "variation": null,
@@ -1130,7 +1193,7 @@
     "generator": false
   },
   {
-    "__docId__": 49,
+    "__docId__": 52,
     "kind": "method",
     "static": false,
     "variation": null,
@@ -1150,7 +1213,7 @@
     "generator": false
   },
   {
-    "__docId__": 50,
+    "__docId__": 53,
     "kind": "method",
     "static": false,
     "variation": null,
@@ -1170,7 +1233,7 @@
     "generator": false
   },
   {
-    "__docId__": 51,
+    "__docId__": 54,
     "kind": "method",
     "static": false,
     "variation": null,
@@ -1190,7 +1253,7 @@
     "generator": false
   },
   {
-    "__docId__": 52,
+    "__docId__": 55,
     "kind": "method",
     "static": false,
     "variation": null,
@@ -1223,7 +1286,7 @@
     "generator": false
   },
   {
-    "__docId__": 53,
+    "__docId__": 56,
     "kind": "method",
     "static": false,
     "variation": null,
@@ -1243,7 +1306,7 @@
     "generator": false
   },
   {
-    "__docId__": 54,
+    "__docId__": 57,
     "kind": "method",
     "static": false,
     "variation": null,
@@ -1263,7 +1326,7 @@
     "generator": false
   },
   {
-    "__docId__": 55,
+    "__docId__": 58,
     "kind": "method",
     "static": false,
     "variation": null,
@@ -1283,7 +1346,7 @@
     "generator": false
   },
   {
-    "__docId__": 56,
+    "__docId__": 59,
     "kind": "method",
     "static": false,
     "variation": null,
@@ -1303,7 +1366,7 @@
     "generator": false
   },
   {
-    "__docId__": 57,
+    "__docId__": 60,
     "kind": "method",
     "static": false,
     "variation": null,
@@ -1323,7 +1386,7 @@
     "generator": false
   },
   {
-    "__docId__": 58,
+    "__docId__": 61,
     "kind": "variable",
     "static": true,
     "variation": null,
@@ -1344,7 +1407,7 @@
     }
   },
   {
-    "__docId__": 59,
+    "__docId__": 62,
     "kind": "function",
     "static": true,
     "variation": null,
@@ -1374,7 +1437,7 @@
     "generator": false
   },
   {
-    "__docId__": 60,
+    "__docId__": 63,
     "kind": "file",
     "static": true,
     "variation": null,
@@ -1387,7 +1450,7 @@
     "content": "export { connect }                   from 'react-redux'\nexport { asyncConnect }              from 'redux-connect'\nexport { default as Helmet }         from 'react-helmet'\nexport { default as Application }    from './application'\nexport { default as action }         from './action-creator'\nexport * as cookie                   from 'react-cookie'"
   },
   {
-    "__docId__": 61,
+    "__docId__": 64,
     "kind": "file",
     "static": true,
     "variation": null,
@@ -1397,16 +1460,16 @@
     "access": null,
     "description": null,
     "lineNumber": 1,
-    "content": "import React                      from 'react'\nimport { merge }                  from 'lodash'\nimport { plugToRequest }          from 'react-cookie'\nimport HtmlPage                   from './htmlpage'\nimport ErrorComponent             from './error'\nimport { renderToString, renderToStaticMarkup } from 'react-dom/server'\n\nconst production = process.env.NODE_ENV === 'production'\n\nglobal.__SERVER__ = true\nglobal.__CLIENT__ = false\n\nexport function renderer(appFn, options = {}) {\n  return (req, res)=> {\n    let app = (typeof appFn === 'function') ? appFn() : appFn\n\n    if (!app.router) {\n      throw new Error('Application must have a `router` for SSR.')\n    }\n\n    if (!app.options.page.errorComponent) {\n      app.options.page.errorComponent = ErrorComponent\n    }\n\n    if (!app.options.page.rootComponent) {\n      app.options.page.rootComponent = HtmlPage\n    }\n\n    const http = {req, res}\n    const unplug = plugToRequest(req, res)\n    const history = app.router.createHistory()\n    const store = app.createStore(history, http)\n\n    app.router.match(history, store, http, (error, redirect, renderProps) => {\n      if (error) {\n        const page = getErrorPage(null, app, error)\n        return res.status(500).send(getHtml(app, page))\n      }\n\n      if (redirect) {\n        return res.redirect(302, redirect.pathname + redirect.search)\n      }\n\n      if (!renderProps) {\n        return res.status(404)\n      }\n\n      app.resolve(store, renderProps, http)\n        .then(({ store, component, status })=> {\n          const page = getHtmlPage(store, app, component, options.page)\n          res.status(status).send(getHtml(app, page))\n        })\n        .catch((err)=> {\n          const page = getErrorPage(null, app, err)\n          res.status(500).send(getHtml(app, page))\n        })\n        .catch((error)=> {\n          const component = <ErrorComponent {...{error, production}} />\n          res.status(500).send(\n            '<!doctype html>' + renderToStaticMarkup(component))\n        })\n        .then(unplug)\n    })\n  }\n}\n\nfunction getHtml(app, page) {\n  return app.options.page.doctype + renderToString(page)\n}\n\nfunction getErrorPage(store, app, error) {\n  const ErrComp = app.options.page.errorComponent\n  if (ErrComp === ErrorComponent) {\n    app.options.page.inlineCss = ErrorComponent.inlineCss\n  }\n  app.options.page.main = false\n  const comp = <ErrComp {...{store, app, error}} />\n  return getHtmlPage(store, app, comp)\n}\n\nfunction getHtmlPage(store, app, component, extraOpts) {\n  let options = merge({}, app.options.page, extraOpts)\n  if (store) {\n    options.state = store.getState()\n  }\n  options.component = component\n  const Page = options.rootComponent\n  return <Page {...options} />\n}\n"
+    "content": "import React                      from 'react'\nimport { plugToRequest }          from 'react-cookie'\nimport HtmlPage                   from './htmlpage'\nimport ErrorComponent             from './error'\nimport extendify                  from 'extendify'\nimport { renderToString, renderToStaticMarkup } from 'react-dom/server'\n\nconst merge = extendify({\n  inPlace: false,\n  isDeep: true,\n  arrays: 'concat'\n})\n\nconst production = process.env.NODE_ENV === 'production'\n\nglobal.__SERVER__ = true\nglobal.__CLIENT__ = false\n\nexport function renderer(appFn, options = {}) {\n  return (req, res)=> {\n    let app = (typeof appFn === 'function') ? appFn() : appFn\n\n    if (req.url === '/favicon.ico') {\n      return res.sendStatus(404)\n    }\n\n    if (!app.router) {\n      throw new Error('Application must have a `router` for SSR.')\n    }\n\n    if (!app.options.page.errorComponent) {\n      app.options.page.errorComponent = ErrorComponent\n    }\n\n    if (!app.options.page.rootComponent) {\n      app.options.page.rootComponent = HtmlPage\n    }\n\n    const http = {req, res}\n    const unplug = plugToRequest(req, res)\n    const history = app.router.createHistory()\n    const store = app.createStore(history, http)\n\n    app.router.match(history, store, http, (error, redirect, renderProps) => {\n      if (error) {\n        const page = getErrorPage(null, app, error)\n        return res.status(500).send(getHtml(app, page))\n      }\n\n      if (redirect) {\n        return res.redirect(302, redirect.pathname + redirect.search)\n      }\n\n      if (!renderProps) {\n        return res.status(404)\n      }\n\n      app.resolve(store, renderProps, http)\n        .then(({ store, component, status })=> {\n          const page = getHtmlPage(store, app, component, options.page)\n          res.status(status).send(getHtml(app, page))\n        })\n        .catch((err)=> {\n          const page = getErrorPage(null, app, err)\n          res.status(500).send(getHtml(app, page))\n        })\n        .catch((error)=> {\n          const component = <ErrorComponent {...{error, production}} />\n          res.status(500).send(\n            '<!doctype html>' + renderToStaticMarkup(component))\n        })\n        .then(unplug)\n    })\n  }\n}\n\nfunction getHtml(app, page) {\n  return app.options.page.doctype + renderToString(page)\n}\n\nfunction getErrorPage(store, app, error) {\n  const ErrComp = app.options.page.errorComponent\n  if (ErrComp === ErrorComponent) {\n    app.options.page.inlineCss = ErrorComponent.inlineCss\n  }\n  app.options.page.main = false\n  const comp = <ErrComp {...{store, app, error}} />\n  return getHtmlPage(store, app, comp)\n}\n\nfunction getHtmlPage(store, app, component, extraOpts) {\n  let options = merge(app.options.page, extraOpts)\n  if (store) {\n    options.state = store.getState()\n  }\n  options.component = component\n  const Page = options.rootComponent\n  return <Page {...options} />\n}\n"
   },
   {
-    "__docId__": 62,
+    "__docId__": 65,
     "kind": "variable",
     "static": true,
     "variation": null,
-    "name": "production",
+    "name": "merge",
     "memberof": "src/renderer.js",
-    "longname": "src/renderer.js~production",
+    "longname": "src/renderer.js~merge",
     "access": null,
     "export": false,
     "importPath": "protium/src/renderer.js",
@@ -1421,7 +1484,28 @@
     }
   },
   {
-    "__docId__": 63,
+    "__docId__": 66,
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "production",
+    "memberof": "src/renderer.js",
+    "longname": "src/renderer.js~production",
+    "access": null,
+    "export": false,
+    "importPath": "protium/src/renderer.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 14,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 67,
     "kind": "function",
     "static": true,
     "variation": null,
@@ -1433,7 +1517,7 @@
     "importPath": "protium/src/renderer.js",
     "importStyle": "{renderer}",
     "description": null,
-    "lineNumber": 13,
+    "lineNumber": 19,
     "undocument": true,
     "params": [
       {
@@ -1460,7 +1544,7 @@
     "generator": false
   },
   {
-    "__docId__": 64,
+    "__docId__": 68,
     "kind": "function",
     "static": true,
     "variation": null,
@@ -1472,7 +1556,7 @@
     "importPath": "protium/src/renderer.js",
     "importStyle": null,
     "description": null,
-    "lineNumber": 67,
+    "lineNumber": 77,
     "undocument": true,
     "params": [
       {
@@ -1496,7 +1580,7 @@
     "generator": false
   },
   {
-    "__docId__": 65,
+    "__docId__": 69,
     "kind": "function",
     "static": true,
     "variation": null,
@@ -1508,7 +1592,7 @@
     "importPath": "protium/src/renderer.js",
     "importStyle": null,
     "description": null,
-    "lineNumber": 71,
+    "lineNumber": 81,
     "undocument": true,
     "params": [
       {
@@ -1538,7 +1622,7 @@
     "generator": false
   },
   {
-    "__docId__": 66,
+    "__docId__": 70,
     "kind": "function",
     "static": true,
     "variation": null,
@@ -1550,7 +1634,7 @@
     "importPath": "protium/src/renderer.js",
     "importStyle": null,
     "description": null,
-    "lineNumber": 81,
+    "lineNumber": 91,
     "undocument": true,
     "params": [
       {
@@ -1586,7 +1670,7 @@
     "generator": false
   },
   {
-    "__docId__": 67,
+    "__docId__": 71,
     "kind": "file",
     "static": true,
     "variation": null,
@@ -1596,10 +1680,31 @@
     "access": null,
     "description": null,
     "lineNumber": 1,
-    "content": "import React        from 'react'\nimport useScroll    from 'use-scroll-behavior'\nimport { merge }    from 'lodash'\nimport { \n  syncHistoryWithStore, \n  routerReducer,\n  routerMiddleware\n} from 'react-router-redux'\n\nimport { \n  ReduxAsyncConnect, \n  reducer as reduxAsyncConnect \n} from 'redux-connect'\n\nimport {\n  Router as ReactRouter,\n  RouterContext,\n  browserHistory,\n  createMemoryHistory,\n  match\n} from 'react-router'\n\n\nexport class Router {\n\n  static defaults = {\n    routes: []\n  };\n\n  constructor(opts) {\n    this.options = merge({}, Router.defaults, opts)\n    this.routes = null\n  }\n\n  getReducers() {\n    return {\n      routing: routerReducer,\n      reduxAsyncConnect\n    }\n  }\n\n  getMiddleware(history) {\n    return routerMiddleware(history)\n  }\n\n  createHistory() {\n    let history = __SERVER__ \n      ? createMemoryHistory()\n      : useScroll(browserHistory)\n    return history\n  }\n\n  getRoutes(store) {\n    let routes = (typeof this.options.routes === 'function')\n      ? this.options.routes(store)\n      : this.options.routes\n    return Promise.resolve(routes)\n      .then(result => {\n        return Array.isArray(result) ? result : [result]\n      })\n  }\n\n  getComponent(renderProps, http) {\n    return (!http)\n      ? <ReactRouter render={Router.asyncRenderer} {...renderProps} />\n      : <RouterContext {...renderProps} />\n  }\n\n  match(history, store, http, callback) {\n    this.getRoutes(store).then(routes => {\n      return match(this.createMatchOptions(routes, history, http), callback)\n    })\n  }\n\n  createMatchOptions(routes, history, http) {\n    const opts = { routes, history }\n    if (http) {\n      opts.location = http.req.url\n    }\n    return opts\n  }\n\n  registerStore(history, store) {\n    return syncHistoryWithStore(history, store)\n  }\n\n  static asyncRenderer(props) {\n    return <ReduxAsyncConnect {...props} filter={item => !item.deferred} />\n  }\n\n}\n\nexport default Router\n\nexport { default as renderer } from './renderer'\n\nexport {\n  push, \n  replace, \n  go, \n  goBack, \n  goForward\n} from 'react-router-redux'\n\nexport {\n  Route,\n  IndexRoute,\n  Redirect,\n  IndexRedirect,\n  Link,\n  IndexLink,\n} from 'react-router'\n\nexport {\n  IndexLinkContainer,\n  LinkContainer\n} from 'react-router-bootstrap'\n\n"
+    "content": "import React        from 'react'\nimport useScroll    from 'use-scroll-behavior'\nimport extendify          from 'extendify'\n\nimport { \n  syncHistoryWithStore, \n  routerReducer,\n  routerMiddleware\n} from 'react-router-redux'\n\nimport { \n  ReduxAsyncConnect, \n  reducer as reduxAsyncConnect \n} from 'redux-connect'\n\nimport {\n  Router as ReactRouter,\n  RouterContext,\n  browserHistory,\n  createMemoryHistory,\n  match\n} from 'react-router'\n\nconst merge = extendify({\n  inPlace: false,\n  isDeep: true,\n  arrays: 'concat'\n})\n\nexport class Router {\n\n  static defaults = {\n    routes: []\n  };\n\n  constructor(opts) {\n    this.options = merge({}, Router.defaults, opts)\n    this.routes = null\n  }\n\n  getReducers() {\n    return {\n      routing: routerReducer,\n      reduxAsyncConnect\n    }\n  }\n\n  getMiddleware(history) {\n    return routerMiddleware(history)\n  }\n\n  createHistory() {\n    let history = __SERVER__ \n      ? createMemoryHistory()\n      : useScroll(browserHistory)\n    return history\n  }\n\n  getRoutes(store) {\n    let routes = (typeof this.options.routes === 'function')\n      ? this.options.routes(store)\n      : this.options.routes\n    return Promise.resolve(routes)\n      .then(result => {\n        return Array.isArray(result) ? result : [result]\n      })\n  }\n\n  getComponent(renderProps, http) {\n    return (!http)\n      ? <ReactRouter render={Router.asyncRenderer} {...renderProps} />\n      : <RouterContext {...renderProps} />\n  }\n\n  match(history, store, http, callback) {\n    this.getRoutes(store).then(routes => {\n      return match(this.createMatchOptions(routes, history, http), callback)\n    })\n  }\n\n  createMatchOptions(routes, history, http) {\n    const opts = { routes, history }\n    if (http) {\n      opts.location = http.req.url\n    }\n    return opts\n  }\n\n  registerStore(history, store) {\n    return syncHistoryWithStore(history, store)\n  }\n\n  static asyncRenderer(props) {\n    return <ReduxAsyncConnect {...props} filter={item => !item.deferred} />\n  }\n\n}\n\nexport default Router\n\nexport { default as renderer } from './renderer'\n\nexport {\n  push, \n  replace, \n  go, \n  goBack, \n  goForward\n} from 'react-router-redux'\n\nexport {\n  Route,\n  IndexRoute,\n  Redirect,\n  IndexRedirect,\n  Link,\n  IndexLink,\n} from 'react-router'\n\nexport {\n  IndexLinkContainer,\n  LinkContainer\n} from 'react-router-bootstrap'\n\n"
   },
   {
-    "__docId__": 68,
+    "__docId__": 72,
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "merge",
+    "memberof": "src/router.js",
+    "longname": "src/router.js~merge",
+    "access": null,
+    "export": false,
+    "importPath": "protium/src/router.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 24,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 73,
     "kind": "class",
     "static": true,
     "variation": null,
@@ -1611,12 +1716,12 @@
     "importPath": "protium/src/router.js",
     "importStyle": "{Router}",
     "description": null,
-    "lineNumber": 24,
+    "lineNumber": 30,
     "undocument": true,
     "interface": false
   },
   {
-    "__docId__": 69,
+    "__docId__": 74,
     "kind": "constructor",
     "static": false,
     "variation": null,
@@ -1625,7 +1730,7 @@
     "longname": "src/router.js~Router#constructor",
     "access": null,
     "description": null,
-    "lineNumber": 30,
+    "lineNumber": 36,
     "undocument": true,
     "params": [
       {
@@ -1638,7 +1743,7 @@
     "generator": false
   },
   {
-    "__docId__": 70,
+    "__docId__": 75,
     "kind": "member",
     "static": false,
     "variation": null,
@@ -1647,7 +1752,7 @@
     "longname": "src/router.js~Router#options",
     "access": null,
     "description": null,
-    "lineNumber": 31,
+    "lineNumber": 37,
     "undocument": true,
     "type": {
       "types": [
@@ -1656,7 +1761,7 @@
     }
   },
   {
-    "__docId__": 71,
+    "__docId__": 76,
     "kind": "member",
     "static": false,
     "variation": null,
@@ -1665,7 +1770,7 @@
     "longname": "src/router.js~Router#routes",
     "access": null,
     "description": null,
-    "lineNumber": 32,
+    "lineNumber": 38,
     "undocument": true,
     "type": {
       "types": [
@@ -1674,7 +1779,7 @@
     }
   },
   {
-    "__docId__": 72,
+    "__docId__": 77,
     "kind": "method",
     "static": false,
     "variation": null,
@@ -1683,7 +1788,7 @@
     "longname": "src/router.js~Router#getReducers",
     "access": null,
     "description": null,
-    "lineNumber": 35,
+    "lineNumber": 41,
     "undocument": true,
     "params": [],
     "return": {
@@ -1694,7 +1799,7 @@
     "generator": false
   },
   {
-    "__docId__": 73,
+    "__docId__": 78,
     "kind": "method",
     "static": false,
     "variation": null,
@@ -1703,7 +1808,7 @@
     "longname": "src/router.js~Router#getMiddleware",
     "access": null,
     "description": null,
-    "lineNumber": 42,
+    "lineNumber": 48,
     "undocument": true,
     "params": [
       {
@@ -1721,7 +1826,7 @@
     "generator": false
   },
   {
-    "__docId__": 74,
+    "__docId__": 79,
     "kind": "method",
     "static": false,
     "variation": null,
@@ -1730,7 +1835,7 @@
     "longname": "src/router.js~Router#createHistory",
     "access": null,
     "description": null,
-    "lineNumber": 46,
+    "lineNumber": 52,
     "undocument": true,
     "params": [],
     "return": {
@@ -1741,7 +1846,7 @@
     "generator": false
   },
   {
-    "__docId__": 75,
+    "__docId__": 80,
     "kind": "method",
     "static": false,
     "variation": null,
@@ -1750,7 +1855,7 @@
     "longname": "src/router.js~Router#getRoutes",
     "access": null,
     "description": null,
-    "lineNumber": 53,
+    "lineNumber": 59,
     "undocument": true,
     "params": [
       {
@@ -1768,7 +1873,7 @@
     "generator": false
   },
   {
-    "__docId__": 76,
+    "__docId__": 81,
     "kind": "method",
     "static": false,
     "variation": null,
@@ -1777,7 +1882,7 @@
     "longname": "src/router.js~Router#getComponent",
     "access": null,
     "description": null,
-    "lineNumber": 63,
+    "lineNumber": 69,
     "undocument": true,
     "params": [
       {
@@ -1801,7 +1906,7 @@
     "generator": false
   },
   {
-    "__docId__": 77,
+    "__docId__": 82,
     "kind": "method",
     "static": false,
     "variation": null,
@@ -1810,7 +1915,7 @@
     "longname": "src/router.js~Router#match",
     "access": null,
     "description": null,
-    "lineNumber": 69,
+    "lineNumber": 75,
     "undocument": true,
     "params": [
       {
@@ -1841,7 +1946,7 @@
     "generator": false
   },
   {
-    "__docId__": 78,
+    "__docId__": 83,
     "kind": "method",
     "static": false,
     "variation": null,
@@ -1850,7 +1955,7 @@
     "longname": "src/router.js~Router#createMatchOptions",
     "access": null,
     "description": null,
-    "lineNumber": 75,
+    "lineNumber": 81,
     "undocument": true,
     "params": [
       {
@@ -1880,7 +1985,7 @@
     "generator": false
   },
   {
-    "__docId__": 79,
+    "__docId__": 84,
     "kind": "method",
     "static": false,
     "variation": null,
@@ -1889,7 +1994,7 @@
     "longname": "src/router.js~Router#registerStore",
     "access": null,
     "description": null,
-    "lineNumber": 83,
+    "lineNumber": 89,
     "undocument": true,
     "params": [
       {
@@ -1913,7 +2018,7 @@
     "generator": false
   },
   {
-    "__docId__": 80,
+    "__docId__": 85,
     "kind": "method",
     "static": true,
     "variation": null,
@@ -1922,7 +2027,7 @@
     "longname": "src/router.js~Router.asyncRenderer",
     "access": null,
     "description": null,
-    "lineNumber": 87,
+    "lineNumber": 93,
     "undocument": true,
     "params": [
       {
@@ -1940,7 +2045,7 @@
     "generator": false
   },
   {
-    "__docId__": 81,
+    "__docId__": 86,
     "kind": "file",
     "static": true,
     "variation": null,
@@ -1950,10 +2055,31 @@
     "access": null,
     "description": null,
     "lineNumber": 1,
-    "content": "import React                from 'react'\nimport { merge, reduce }    from 'lodash'\nimport { Provider }         from 'react-redux'\nimport persistState         from 'redux-devtools/lib/persistState'\nimport clientMiddleware     from './client-middleware'\nimport ApiClient            from './client'\nimport {\n  compose,\n  createStore,\n  combineReducers,\n  applyMiddleware\n} from 'redux'\n\nexport default class Store {\n\n  static defaults = {\n    devTools: true,\n    apiClient: {},\n    reducers: {},\n    middleware: [],\n    composers: [],\n    createMiddleware: middleware => middleware,\n    createComposers: comp => comp\n  }\n\n  constructor(opts) {\n    this.options = merge({}, Store.defaults, opts)\n    this.reducers = this.options.reducers\n    this.middleware = this.options.middleware\n    this.composers = this.options.composers\n  }\n  \n  addReducer(name, reducer) {\n    this.reducers[name] = reducer\n  }\n\n  upgradeWithRouting(reducers, routingMiddleware) {\n    this.routing = true\n    this.reducers = { ...this.reducers, ...reducers }\n    this.routingMiddleware = routingMiddleware\n  }\n\n  removeReducer(name) {\n    delete this.reducers[name]\n  }\n\n  getInitialState() {\n    let state = {}\n    if (__SERVER__) {\n      return state\n    }\n\n    if (global[this.options.rootVar]) {\n      state = global[this.options.rootVar]\n    }\n\n    return state\n  }\n\n  getWrappedComponent(store, instance) {\n    return <Provider store={store} key=\"provider\">{instance}</Provider>\n  }\n\n  finalize(http) {\n    const initialState = this.getInitialState()\n    let middleware = [ ...this.options.middleware ]\n\n    if (this.routing) {\n      middleware.push(this.routingMiddleware)\n    }\n\n    if (this.options.apiClient) {\n      if (this.options.auth) {\n        this.options.apiClient.auth = this.options.auth\n      }\n      middleware.push(clientMiddleware(this.options.apiClient, http))\n    }\n\n\n    middleware = this.options.createMiddleware(middleware, http)\n    \n    const reducer = combineReducers({ ...this.reducers })\n    \n    this.composers.push(applyMiddleware(...middleware))\n\n    if (__CLIENT__ && this.options.devTools && global.devToolsExtension) {\n      this.composers.push(\n        global.devToolsExtension(),\n        persistState(global.location.href.match(/[?&]debug_session=([^&]+)\\b/))\n      )\n    }\n    \n    const composers = this.options.createComposers(this.composers)\n    const finalCreateStore = compose(...composers)(createStore)\n    const finalStore = finalCreateStore(reducer, initialState)\n\n    if (this.options.auth && typeof this.options.auth.initialize === 'function') {\n      this.options.auth.initialize(finalStore, http)\n    }\n\n    return finalStore\n  }\n\n}\n"
+    "content": "import React                from 'react'\nimport { reduce }           from 'lodash'\nimport { Provider }         from 'react-redux'\nimport persistState         from 'redux-devtools/lib/persistState'\nimport clientMiddleware     from './client-middleware'\nimport ApiClient            from './client'\nimport extendify            from 'extendify'\nimport {\n  compose,\n  createStore,\n  combineReducers,\n  applyMiddleware\n} from 'redux'\n\nconst merge = extendify({\n  inPlace: false,\n  isDeep: true,\n  arrays: 'concat'\n})\n\nexport default class Store {\n\n  static defaults = {\n    devTools: true,\n    apiClient: {},\n    reducers: {},\n    middleware: [],\n    composers: [],\n    createMiddleware: middleware => middleware,\n    createComposers: comp => comp\n  }\n\n  constructor(opts) {\n    this.options = merge(Store.defaults, opts)\n    this.reducers = this.options.reducers\n    this.middleware = this.options.middleware\n    this.composers = this.options.composers\n  }\n  \n  addReducer(name, reducer) {\n    this.reducers[name] = reducer\n  }\n\n  upgradeWithRouting(reducers, routingMiddleware) {\n    this.routing = true\n    this.reducers = { ...this.reducers, ...reducers }\n    this.routingMiddleware = routingMiddleware\n  }\n\n  removeReducer(name) {\n    delete this.reducers[name]\n  }\n\n  getInitialState() {\n    let state = {}\n    if (__SERVER__) {\n      return state\n    }\n\n    if (global[this.options.rootVar]) {\n      state = global[this.options.rootVar]\n    }\n\n    return state\n  }\n\n  getWrappedComponent(store, instance) {\n    return <Provider store={store} key=\"provider\">{instance}</Provider>\n  }\n\n  finalize(http) {\n    const initialState = this.getInitialState()\n    let middleware = [ ...this.options.middleware ]\n\n    if (this.routing) {\n      middleware.push(this.routingMiddleware)\n    }\n\n    if (this.options.apiClient) {\n      if (this.options.auth) {\n        this.options.apiClient.auth = this.options.auth\n      }\n      middleware.push(clientMiddleware(this.options.apiClient, http))\n    }\n\n\n    middleware = this.options.createMiddleware(middleware, http)\n    \n    const reducer = combineReducers({ ...this.reducers })\n    \n    this.composers.push(applyMiddleware(...middleware))\n\n    if (__CLIENT__ && this.options.devTools && global.devToolsExtension) {\n      this.composers.push(\n        global.devToolsExtension(),\n        persistState(global.location.href.match(/[?&]debug_session=([^&]+)\\b/))\n      )\n    }\n    \n    const composers = this.options.createComposers(this.composers)\n    const finalCreateStore = compose(...composers)(createStore)\n    const finalStore = finalCreateStore(reducer, initialState)\n\n    if (this.options.auth && typeof this.options.auth.initialize === 'function') {\n      this.options.auth.initialize(finalStore, http)\n    }\n\n    return finalStore\n  }\n\n}\n"
   },
   {
-    "__docId__": 82,
+    "__docId__": 87,
+    "kind": "variable",
+    "static": true,
+    "variation": null,
+    "name": "merge",
+    "memberof": "src/store.js",
+    "longname": "src/store.js~merge",
+    "access": null,
+    "export": false,
+    "importPath": "protium/src/store.js",
+    "importStyle": null,
+    "description": null,
+    "lineNumber": 15,
+    "undocument": true,
+    "type": {
+      "types": [
+        "*"
+      ]
+    }
+  },
+  {
+    "__docId__": 88,
     "kind": "class",
     "static": true,
     "variation": null,
@@ -1965,12 +2091,12 @@
     "importPath": "protium/src/store.js",
     "importStyle": "Store",
     "description": null,
-    "lineNumber": 14,
+    "lineNumber": 21,
     "undocument": true,
     "interface": false
   },
   {
-    "__docId__": 83,
+    "__docId__": 89,
     "kind": "constructor",
     "static": false,
     "variation": null,
@@ -1979,7 +2105,7 @@
     "longname": "src/store.js~Store#constructor",
     "access": null,
     "description": null,
-    "lineNumber": 26,
+    "lineNumber": 33,
     "undocument": true,
     "params": [
       {
@@ -1992,7 +2118,7 @@
     "generator": false
   },
   {
-    "__docId__": 84,
+    "__docId__": 90,
     "kind": "member",
     "static": false,
     "variation": null,
@@ -2001,7 +2127,7 @@
     "longname": "src/store.js~Store#options",
     "access": null,
     "description": null,
-    "lineNumber": 27,
+    "lineNumber": 34,
     "undocument": true,
     "type": {
       "types": [
@@ -2010,7 +2136,7 @@
     }
   },
   {
-    "__docId__": 85,
+    "__docId__": 91,
     "kind": "member",
     "static": false,
     "variation": null,
@@ -2019,7 +2145,7 @@
     "longname": "src/store.js~Store#reducers",
     "access": null,
     "description": null,
-    "lineNumber": 28,
+    "lineNumber": 35,
     "undocument": true,
     "type": {
       "types": [
@@ -2028,7 +2154,7 @@
     }
   },
   {
-    "__docId__": 86,
+    "__docId__": 92,
     "kind": "member",
     "static": false,
     "variation": null,
@@ -2037,7 +2163,7 @@
     "longname": "src/store.js~Store#middleware",
     "access": null,
     "description": null,
-    "lineNumber": 29,
+    "lineNumber": 36,
     "undocument": true,
     "type": {
       "types": [
@@ -2046,7 +2172,7 @@
     }
   },
   {
-    "__docId__": 87,
+    "__docId__": 93,
     "kind": "member",
     "static": false,
     "variation": null,
@@ -2055,7 +2181,7 @@
     "longname": "src/store.js~Store#composers",
     "access": null,
     "description": null,
-    "lineNumber": 30,
+    "lineNumber": 37,
     "undocument": true,
     "type": {
       "types": [
@@ -2064,7 +2190,7 @@
     }
   },
   {
-    "__docId__": 88,
+    "__docId__": 94,
     "kind": "method",
     "static": false,
     "variation": null,
@@ -2073,7 +2199,7 @@
     "longname": "src/store.js~Store#addReducer",
     "access": null,
     "description": null,
-    "lineNumber": 33,
+    "lineNumber": 40,
     "undocument": true,
     "params": [
       {
@@ -2092,7 +2218,7 @@
     "generator": false
   },
   {
-    "__docId__": 89,
+    "__docId__": 95,
     "kind": "method",
     "static": false,
     "variation": null,
@@ -2101,7 +2227,7 @@
     "longname": "src/store.js~Store#upgradeWithRouting",
     "access": null,
     "description": null,
-    "lineNumber": 37,
+    "lineNumber": 44,
     "undocument": true,
     "params": [
       {
@@ -2120,7 +2246,7 @@
     "generator": false
   },
   {
-    "__docId__": 90,
+    "__docId__": 96,
     "kind": "member",
     "static": false,
     "variation": null,
@@ -2129,7 +2255,7 @@
     "longname": "src/store.js~Store#routing",
     "access": null,
     "description": null,
-    "lineNumber": 38,
+    "lineNumber": 45,
     "undocument": true,
     "type": {
       "types": [
@@ -2138,7 +2264,7 @@
     }
   },
   {
-    "__docId__": 91,
+    "__docId__": 97,
     "kind": "member",
     "static": false,
     "variation": null,
@@ -2147,7 +2273,7 @@
     "longname": "src/store.js~Store#reducers",
     "access": null,
     "description": null,
-    "lineNumber": 39,
+    "lineNumber": 46,
     "undocument": true,
     "type": {
       "types": [
@@ -2156,7 +2282,7 @@
     }
   },
   {
-    "__docId__": 92,
+    "__docId__": 98,
     "kind": "member",
     "static": false,
     "variation": null,
@@ -2165,7 +2291,7 @@
     "longname": "src/store.js~Store#routingMiddleware",
     "access": null,
     "description": null,
-    "lineNumber": 40,
+    "lineNumber": 47,
     "undocument": true,
     "type": {
       "types": [
@@ -2174,7 +2300,7 @@
     }
   },
   {
-    "__docId__": 93,
+    "__docId__": 99,
     "kind": "method",
     "static": false,
     "variation": null,
@@ -2183,7 +2309,7 @@
     "longname": "src/store.js~Store#removeReducer",
     "access": null,
     "description": null,
-    "lineNumber": 43,
+    "lineNumber": 50,
     "undocument": true,
     "params": [
       {
@@ -2196,7 +2322,7 @@
     "generator": false
   },
   {
-    "__docId__": 94,
+    "__docId__": 100,
     "kind": "method",
     "static": false,
     "variation": null,
@@ -2205,7 +2331,7 @@
     "longname": "src/store.js~Store#getInitialState",
     "access": null,
     "description": null,
-    "lineNumber": 47,
+    "lineNumber": 54,
     "undocument": true,
     "params": [],
     "return": {
@@ -2216,7 +2342,7 @@
     "generator": false
   },
   {
-    "__docId__": 95,
+    "__docId__": 101,
     "kind": "method",
     "static": false,
     "variation": null,
@@ -2225,7 +2351,7 @@
     "longname": "src/store.js~Store#getWrappedComponent",
     "access": null,
     "description": null,
-    "lineNumber": 60,
+    "lineNumber": 67,
     "undocument": true,
     "params": [
       {
@@ -2249,7 +2375,7 @@
     "generator": false
   },
   {
-    "__docId__": 96,
+    "__docId__": 102,
     "kind": "method",
     "static": false,
     "variation": null,
@@ -2258,7 +2384,7 @@
     "longname": "src/store.js~Store#finalize",
     "access": null,
     "description": null,
-    "lineNumber": 64,
+    "lineNumber": 71,
     "undocument": true,
     "params": [
       {
@@ -2276,7 +2402,7 @@
     "generator": false
   },
   {
-    "__docId__": 98,
+    "__docId__": 104,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2289,7 +2415,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 99,
+    "__docId__": 105,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2302,7 +2428,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 100,
+    "__docId__": 106,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2315,7 +2441,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 101,
+    "__docId__": 107,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2328,7 +2454,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 102,
+    "__docId__": 108,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2341,7 +2467,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 103,
+    "__docId__": 109,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2354,7 +2480,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 104,
+    "__docId__": 110,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2367,7 +2493,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 105,
+    "__docId__": 111,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2380,7 +2506,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 106,
+    "__docId__": 112,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2393,7 +2519,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 107,
+    "__docId__": 113,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2406,7 +2532,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 108,
+    "__docId__": 114,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2419,7 +2545,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 109,
+    "__docId__": 115,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2432,7 +2558,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 110,
+    "__docId__": 116,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2445,7 +2571,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 111,
+    "__docId__": 117,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2458,7 +2584,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 112,
+    "__docId__": 118,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2471,7 +2597,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 113,
+    "__docId__": 119,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2484,7 +2610,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 114,
+    "__docId__": 120,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2497,7 +2623,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 115,
+    "__docId__": 121,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2510,7 +2636,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 116,
+    "__docId__": 122,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2523,7 +2649,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 117,
+    "__docId__": 123,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2536,7 +2662,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 118,
+    "__docId__": 124,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2549,7 +2675,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 119,
+    "__docId__": 125,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2562,7 +2688,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 120,
+    "__docId__": 126,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2575,7 +2701,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 121,
+    "__docId__": 127,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2588,7 +2714,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 122,
+    "__docId__": 128,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2601,7 +2727,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 123,
+    "__docId__": 129,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2614,7 +2740,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 124,
+    "__docId__": 130,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2627,7 +2753,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 125,
+    "__docId__": 131,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2640,7 +2766,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 126,
+    "__docId__": 132,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2653,7 +2779,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 127,
+    "__docId__": 133,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2666,7 +2792,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 128,
+    "__docId__": 134,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2679,7 +2805,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 129,
+    "__docId__": 135,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2692,7 +2818,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 130,
+    "__docId__": 136,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2705,7 +2831,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 131,
+    "__docId__": 137,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2718,7 +2844,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 132,
+    "__docId__": 138,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2731,7 +2857,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 133,
+    "__docId__": 139,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2744,7 +2870,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 134,
+    "__docId__": 140,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2757,7 +2883,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 135,
+    "__docId__": 141,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2770,7 +2896,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 136,
+    "__docId__": 142,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2783,7 +2909,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 137,
+    "__docId__": 143,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2796,7 +2922,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 138,
+    "__docId__": 144,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2809,7 +2935,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 139,
+    "__docId__": 145,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2822,7 +2948,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 140,
+    "__docId__": 146,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2835,7 +2961,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 141,
+    "__docId__": 147,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2848,7 +2974,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 142,
+    "__docId__": 148,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2861,7 +2987,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 143,
+    "__docId__": 149,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2874,7 +3000,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 144,
+    "__docId__": 150,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2887,7 +3013,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 146,
+    "__docId__": 152,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2900,7 +3026,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 147,
+    "__docId__": 153,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2913,7 +3039,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 148,
+    "__docId__": 154,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2926,7 +3052,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 149,
+    "__docId__": 155,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2939,7 +3065,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 150,
+    "__docId__": 156,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2952,7 +3078,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 151,
+    "__docId__": 157,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2965,7 +3091,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 152,
+    "__docId__": 158,
     "kind": "external",
     "static": true,
     "variation": null,
@@ -2978,7 +3104,7 @@
     "builtinExternal": true
   },
   {
-    "__docId__": 153,
+    "__docId__": 159,
     "kind": "external",
     "static": true,
     "variation": null,
