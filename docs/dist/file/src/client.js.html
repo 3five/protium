@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <base data-ice="baseUrl" href="../../">
+  <title data-ice="title">src/client.js | Protium API Document</title>
+  <link type="text/css" rel="stylesheet" href="css/style.css">
+  <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
+  <script src="script/prettify/prettify.js"></script>
+  
+  
+  <script src="script/manual.js"></script>
+</head>
+<body class="layout-container" data-ice="rootContainer">
+
+<header>
+  <a href="../../index.html">Home</a>
+  
+  <a href="identifiers.html">Reference</a>
+  <a href="source.html">Source</a>
+  
+  <a data-ice="repoURL" href="https://github.com/3five/protium.git" class="repo-url-github">Repository</a>
+  <div class="search-box">
+  <span>
+    <img src="./image/search.png">
+    <span class="search-input-edge"></span><input class="search-input"><span class="search-input-edge"></span>
+  </span>
+    <ul class="search-result"></ul>
+  </div>
+</header>
+
+<nav class="navigation" data-ice="nav"><div>
+  <ul>
+    
+  <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/application.js~Application.html">Application</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/client.js~ApiClient.html">ApiClient</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/devtools.js~DevTools.html">DevTools</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/error.js~ErrorComponent.html">ErrorComponent</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/htmlpage.js~HtmlPage.html">HtmlPage</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/router.js~Router.html">Router</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/store.js~Store.html">Store</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-action">action</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-clientMiddleware">clientMiddleware</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-renderer">renderer</a></span></span></li>
+</ul>
+</div>
+</nav>
+
+<div class="content" data-ice="content"><h1 data-ice="title">src/client.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import &apos;isomorphic-fetch&apos;
+import Url        from &apos;url&apos;
+import QS         from &apos;qs&apos;
+import { map }    from &apos;lodash&apos;
+import extendify  from &apos;extendify&apos;
+
+const merge = extendify({
+  inPlace: false,
+  isDeep: true,
+  arrays: &apos;concat&apos;
+})
+
+const methods = [&apos;get&apos;, &apos;post&apos;, &apos;put&apos;, &apos;patch&apos;, &apos;del&apos;]
+
+export default class ApiClient {
+
+  static defaults = {
+    server: {
+      protocol: &apos;http&apos;,
+      host: &apos;localhost&apos;,
+      pathname: &apos;/&apos;,
+      port: process.env.API_PORT || process.env.PORT || 5000
+    },
+    client: {
+      pathname: &apos;/&apos;
+    }
+  };
+
+  static requestDefaults = {
+    method        : &apos;get&apos;,
+    mode          : &apos;same-origin&apos;,
+    credentials   : &apos;same-origin&apos;,
+    redirect      : &apos;follow&apos;,
+    cache         : &apos;default&apos;,
+    as            : &apos;json&apos;,
+    headers       : {}
+  }
+
+  constructor(options, store, http) {
+    if (http) {
+      this.req = http.req
+      this.res = http.res
+    }
+
+    this.store = store
+    this.options = merge(ApiClient.defaults, options)
+    
+    methods.forEach(method =&gt; {
+      this[method] = this.genericMethod.bind(this, method)
+    })
+  }
+
+  isExternal(path) {
+    return /^https?:\/\//i.test(path)
+  }
+
+  buildOptions(method, path, opts) {
+    let options = merge(ApiClient.requestDefaults, options)
+    let external = this.isExternal(path)
+    
+    options.method = method.toUpperCase()
+
+    if (!!options.body) {
+      options.body = (options.body instanceof FormData || typeof options.body === &apos;string&apos;) 
+        ? options.body 
+        : JSON.stringify(options.body)
+    }
+
+    if (options.query) {
+      url += QS.stringify(options.query)
+      delete options.query
+    }
+
+    if (options.headers) {
+      if (__SERVER__ &amp;&amp; this.req.get(&apos;cookie&apos;)) {
+        options.headers.cookie = this.req.get(&apos;cookie&apos;)
+      }
+
+      if (this.options.auth &amp;&amp; typeof this.options.auth.getBearer === &apos;function&apos;) {
+        let token = this.options.auth.getBearer(this.store)
+        if (token &amp;&amp; token.length &amp;&amp; !external) {
+          options.headers[&apos;Authorization&apos;] = `Bearer ${token}`
+        }
+      }
+
+      options.headers = new Headers(options.headers)
+    }
+    
+    if (external) {
+      options.mode = &apos;cors&apos;
+    }
+
+    return options
+  }
+
+  genericMethod(method, path, options = {}) {
+    let req = this.req
+    let url = this.formatUrl(path)
+    let requestOptions = this.buildOptions(method, path, options)
+    let request = new Request(url, requestOptions)
+
+    return fetch(request).then(response =&gt; {
+      switch(requestOptions.as) {
+        case &apos;json&apos;:
+          return response.json()
+        case &apos;text&apos;:
+          return response.text()
+        case &apos;blob&apos;:
+          return response.blob()
+        default:
+          return response
+      }
+    })
+  }
+
+  formatUrl(path) {
+    if (this.isExternal(path)) {
+      return path
+    }
+
+    const config = { ...(__SERVER__ ? this.options.server : this.options.client) }
+    const adjustedPath = path[0] === &apos;/&apos; ? path.slice(1) : path
+
+    if (config.base) {
+      config.pathname = config.base
+    }
+
+    if (config.host &amp;&amp; config.port) {
+      config.host = `${config.host}:${config.port}`
+    }
+
+    const baseUrl = Url.format(config)
+
+    return baseUrl + adjustedPath
+  }
+}
+</code></pre>
+
+</div>
+
+<footer class="footer">
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(0.4.7)</span></a>
+</footer>
+
+<script src="script/search_index.js"></script>
+<script src="script/search.js"></script>
+<script src="script/pretty-print.js"></script>
+<script src="script/inherited-summary.js"></script>
+<script src="script/test-summary.js"></script>
+<script src="script/inner-link.js"></script>
+<script src="script/patch-for-local.js"></script>
+</body>
+</html>

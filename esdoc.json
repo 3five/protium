@@ -1,7 +1,10 @@
 {
   "source": "./src",
-  "destination": "./docs",
+  "destination": "./docs/dist",
+  "title": "Protium",
+  "coverage": false,
   "plugins": [
-    {"name": "esdoc-es7-plugin"}
+    {"name": "esdoc-es7-plugin"},
+    {"name": "./docs/plugins/move-index.js"}
   ]
 }

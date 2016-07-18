@@ -2,8 +2,8 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <base href="./docs/dist/" />
-  <title data-ice="title">Protium API Document</title>
+  <base data-ice="baseUrl" href="../../">
+  <title data-ice="title">src/client-middleware.js | Protium API Document</title>
   <link type="text/css" rel="stylesheet" href="css/style.css">
   <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
   <script src="script/prettify/prettify.js"></script>
@@ -14,7 +14,7 @@
 <body class="layout-container" data-ice="rootContainer">
 
 <header>
-  <a href="./">Home</a>
+  <a href="../../index.html">Home</a>
   
   <a href="identifiers.html">Reference</a>
   <a href="source.html">Source</a>
@@ -46,78 +46,55 @@
 </div>
 </nav>
 
-<div class="content" data-ice="content"><div data-ice="index" class="github-markdown"><h1 id="protium">Protium</h1>
-<p>Protium is a micro framework for building universal React/Redux apps.</p>
-<p>Bundles <code>react</code>, <code>react-router</code>, and <code>redux</code> into a nice little package, takes care of routing and store/reducer setup for you (more examples forthcoming).</p>
-<p>WIP, don&apos;t use this in production... yet!</p>
-<p>Uses <a href="https://github.com/nfl/react-helmet">react-helmet</a> for <code>&lt;head&gt;</code> management.</p>
-<p><code>import {Helmet} from &apos;protium&apos;</code>, and include that component within any of your views.</p>
-<h2 id="example">Example</h2>
-<p><strong>webpack.config.js</strong></p>
-<pre><code class="lang-javascript"><code class="source-code prettyprint">var DevTools = require(&apos;protium/devtools&apos;).default
+<div class="content" data-ice="content"><h1 data-ice="title">src/client-middleware.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import ApiClient from &apos;./client&apos;
 
-var devtools = new DevTools(__dirname) // sets webpack context for your app
+export default function clientMiddleware(options, http) {
+  return store =&gt; next =&gt; action =&gt; {
+    const { req, res } = http || {}
+    const { dispatch, getState }              = store
+    const { promise, types, run, ...rest }    = action
+    const [REQUEST, SUCCESS, FAILURE]         = types || []
 
-module.exports = [
-  devtools.serverConfig(&apos;./app&apos;), // points to exported application
-  devtools.browserConfig(&apos;./client&apos;)  // points to client entrypoint
-]</code>
-</code></pre>
-<p><strong>app.js</strong></p>
-<pre><code class="lang-javascript"><code class="source-code prettyprint">
-import React from &apos;react&apos;
-import Root  from &apos;./views/root&apos;
-import Comp  from &apos;./views/comp&apos;
-import * as reducers from &apos;./reducers&apos;
-import { Application } from &apos;protium&apos;
-import {
-  Router,
-  Route,
-  IndexRoute
-} from &apos;protium/router&apos;
+    const client = new ApiClient(options, store, http)
 
-const router = new Router({
-  routes(store) { // use onEnter props to validate routes based on app state
-    // Can also return a promise here, for async route definition
-    return &lt;Route path=&quot;/&quot; component={Root}&gt;
-      &lt;IndexRoute component={Comp} /&gt;
-      &lt;Route path=&quot;/a&quot; component={Comp} /&gt;
-      &lt;Route path=&quot;/b&quot; component={Comp} /&gt;
-      &lt;Route path=&quot;/c&quot; component={Comp} /&gt;
-      &lt;Route path=&quot;*&quot; component={NotFoundComp} notFound={true} /&gt; // signals 404 on server
-    &lt;/Route&gt;
+    let result, error
+
+    // Non conforming action, skip it
+    if (!types || (types.length &gt; 1 &amp;&amp; !promise)) {
+      return next(action)
+    }
+
+    // Syncronous Action
+    if (types.length === 1) {
+      try {
+        result = run({ client, dispatch, getState })
+      } catch (e) {
+        error = e
+      }
+      return next({ ...rest, result, error, type: REQUEST })
+    }
+
+    // Async actions, kick it off.
+    next({...rest, type: REQUEST})
+
+    // Setup handler action
+    return promise({ client, dispatch, getState })
+      .then(onSuccess)
+      .catch(onError)
+
+
+    function onSuccess(result) {
+      return next({...rest, result, type: SUCCESS})
+    }
+
+    function onError(error) {
+      console.error(&apos;ApiClient&apos;, error)
+      return next({...rest, error, type: FAILURE})
+    }
   }
-})
+}</code></pre>
 
-export default new Application({
-  router,
-  store: {
-    reducers
-  }
-})</code>
-</code></pre>
-<p><strong>client.js</strong></p>
-<pre><code class="lang-javascript"><code class="source-code prettyprint">// client.js (short and sweet!)
-import app from &apos;./app&apos;
-
-app.render()</code>
-</code></pre>
-<pre><code class="lang-javascript"><code class="source-code prettyprint">// server.js
-import express       from &apos;express&apos;
-import app           from &apos;./app&apos;
-import { renderer }  from &apos;protium/server&apos;
-
-const server = express()
-export default server
-
-server.use(&apos;/assets&apos;, express.static(&apos;dist&apos;))
-server.get(&apos;/*&apos;, renderer(app, {
-  page: {
-    main: require(&apos;./webpack-assets.json&apos;).javascript.client
-  }
-}))</code>
-</code></pre>
-</div>
 </div>
 
 <footer class="footer">
