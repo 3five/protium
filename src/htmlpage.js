@@ -61,6 +61,7 @@ export default class HtmlPage extends Component {
   }
 
   renderScriptTag(src, key) {
+    if (!src) return <noscript />
     return <script key={key} src={src} />
   }
 
