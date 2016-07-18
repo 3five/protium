@@ -119,7 +119,6 @@ export default class DevTools {
         __PRODUCTION__: __PRODUCTION__,
         ...config.define
       }),
-      new CleanPlugin([config.output.path], { root: config.context }),
       ...config.plugins || []
     ]
 
