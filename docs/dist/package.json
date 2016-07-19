@@ -1,6 +1,6 @@
 {
   "name": "protium",
-  "version": "0.14.5",
+  "version": "0.14.7",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -21,21 +21,21 @@
     "react-dom": "^15.2.1",
     "babel-loader": "^6.2.4",
     "react-hot-loader": "^3.0.0-beta.2",
+    "source-map-loader": "^0.1.5",
     "webpack": "^2.1.0-beta.17"
   },
   "dependencies": {
-    "react": "^15.2.1",
-    "react-dom": "^15.2.1",
     "babel-core": "^6.7.6",
     "babel-loader": "^6.2.1",
     "clean-webpack-plugin": "^0.1.9",
-    "deepmerge": "^0.2.10",
     "extendify": "github:jonjaques/extendify#update_deps",
     "extract-text-webpack-plugin": "^2.0.0-beta.1",
     "isomorphic-fetch": "^2.2.1",
     "lodash": "^4.13.1",
     "qs": "^6.2.0",
+    "react": "^15.2.1",
     "react-cookie": "^0.4.7",
+    "react-dom": "^15.2.1",
     "react-helmet": "^3.1.0",
     "react-hot-loader": "^3.0.0-beta.2",
     "react-redux": "^4.4.5",
@@ -51,14 +51,16 @@
     "webpack": "^2.1.0-beta.17",
     "webpack-assets-plugin": "0.0.3",
     "webpack-dev-middleware": "^1.6.1",
+    "webpack-external-require": "^1.0.0",
     "webpack-hot-middleware": "^2.12.1",
     "webpack-node-externals": "^1.2.0"
   },
   "devDependencies": {
-    "esdoc": "^0.4.7",
-    "esdoc-es7-plugin": "0.0.3",
     "babel-preset-es2015-webpack": "^6.4.1",
     "babel-preset-react": "^6.11.1",
-    "babel-preset-stage-0": "^6.3.13"
+    "babel-preset-stage-0": "^6.3.13",
+    "babel-register": "^6.9.0",
+    "esdoc": "^0.4.7",
+    "esdoc-es7-plugin": "0.0.3"
   }
 }
