@@ -1,6 +1,6 @@
 import React        from 'react'
 import useScroll    from 'use-scroll-behavior'
-import extendify          from 'extendify'
+import extendify    from 'extendify'
 
 import { 
   syncHistoryWithStore, 
@@ -97,8 +97,6 @@ export class Router {
 }
 
 export default Router
-
-export { default as renderer } from './renderer'
 
 export {
   push, 
