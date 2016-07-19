@@ -40,11 +40,15 @@ export function renderer(appFn, options = {}) {
       app = appFn()
     }
 
+    if (!app) {
+      throw new Error('Application is not defined.')
+    }
+
     if (!app.router) {
       throw new Error('Application must have a `router` for SSR.')
     }
 
-    try {
+    // try {
 
     const http = {req, res}
     const unplug = plugToRequest(req, res)
@@ -81,11 +85,11 @@ export function renderer(appFn, options = {}) {
         .then(unplug)
     })
 
-    } catch(err) {
-      const page = getErrorPage(null, null, err)
-      res.status(500).send(getHtml(null, page))
-      try { unplug() } catch(e) {}
-    }
+    // } catch(err) {
+    //   const page = getErrorPage(null, null, err)
+    //   res.status(500).send(getHtml(null, page))
+    //   try { unplug() } catch(e) {}
+    // }
   }
 }
 
