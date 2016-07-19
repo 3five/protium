@@ -3,6 +3,8 @@ import { plugToRequest }          from 'react-cookie'
 import HtmlPage                   from './htmlpage'
 import ErrorComponent             from './error'
 import extendify                  from 'extendify'
+import path                       from 'path'
+import _require                   from 'webpack-external-require'
 import { renderToString, renderToStaticMarkup } from 'react-dom/server'
 
 const merge = extendify({
@@ -11,30 +13,38 @@ const merge = extendify({
   arrays: 'concat'
 })
 
+const DOCTYPE = '<!doctype html>'
+
 const production = process.env.NODE_ENV === 'production'
 
 global.__SERVER__ = true
 global.__CLIENT__ = false
 
 export function renderer(appFn, options = {}) {
-  return (req, res)=> {
-    let app = (typeof appFn === 'function') ? appFn() : appFn
 
+  return (req, res)=> {
     if (req.url === '/favicon.ico') {
       return res.sendStatus(404)
+    }
+
+    let app;
+
+    if (typeof appFn === 'string') {
+      let appPath = path.resolve(appFn)
+      if (!__PRODUCTION__) {
+        delete _require.cache[appPath]
+      }
+      let _app = _require(appPath)
+      app = _app.default ? _app.default : _app
+    } else if (typeof appFn === 'function') {
+      app = appFn()
     }
 
     if (!app.router) {
       throw new Error('Application must have a `router` for SSR.')
     }
 
-    if (!app.options.page.errorComponent) {
-      app.options.page.errorComponent = ErrorComponent
-    }
-
-    if (!app.options.page.rootComponent) {
-      app.options.page.rootComponent = HtmlPage
-    }
+    try {
 
     const http = {req, res}
     const unplug = plugToRequest(req, res)
@@ -64,36 +74,64 @@ export function renderer(appFn, options = {}) {
           const page = getErrorPage(null, app, err)
           res.status(500).send(getHtml(app, page))
         })
-        .catch((error)=> {
-          const component = <ErrorComponent {...{error, production}} />
-          res.status(500).send(
-            '<!doctype html>' + renderToStaticMarkup(component))
+        .catch((err)=> {
+          const page = getErrorPage(null, null, err)
+          res.status(500).send(getHtml(null, page))
         })
         .then(unplug)
     })
+
+    } catch(err) {
+      const page = getErrorPage(null, null, err)
+      res.status(500).send(getHtml(null, page))
+      try { unplug() } catch(e) {}
+    }
   }
 }
 
 function getHtml(app, page) {
-  return app.options.page.doctype + renderToString(page)
+  let dtype = DOCTYPE
+  if (app) {
+    dtype = app.options.page.doctype
+  }
+  return dtype + renderToString(page)
 }
 
-function getErrorPage(store, app, error) {
-  const ErrComp = app.options.page.errorComponent
-  if (ErrComp === ErrorComponent) {
-    app.options.page.inlineCss = ErrorComponent.inlineCss
+function getErrorPage(store, app, error, extraOpts) {
+  let options = app ? merge({}, app.options.page, extraOpts) : extraOpts
+  let ErrComp = ErrorComponent
+  let inlineCss = ErrComp.inlineCss
+
+  if (options.page) {
+    options.page.main = false
+
+    if (options.page.errorComponent) {
+      ErrComp = options.page.errorComponent
+    }
+
+    if (!options.page.inlineCss) {
+      options.page.inlineCss = ErrComp.inlineCss
+    }
   }
-  app.options.page.main = false
-  const comp = <ErrComp {...{store, app, error}} />
-  return getHtmlPage(store, app, comp)
+
+  const comp = <ErrComp {...{store, app, error, production}} />
+  const opts = !app ? {inlineCss} : null
+  return getHtmlPage(store, app, comp, opts)
 }
 
 function getHtmlPage(store, app, component, extraOpts) {
-  let options = merge(app.options.page, extraOpts)
+  let options = app ? merge({}, app.options.page, extraOpts) : extraOpts
+  let RootComp = HtmlPage
+ 
+  options.component = component
+ 
   if (store) {
     options.state = store.getState()
   }
-  options.component = component
-  const Page = options.rootComponent
-  return <Page {...options} />
+
+  if (app && app.options.page && app.options.page.rootComponent) {
+    RootComp = app.options.page.rootComponent
+  }
+
+  return <RootComp {...options} />
 }
