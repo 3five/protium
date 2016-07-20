@@ -79,7 +79,7 @@ export function renderer(appFn, options = {}) {
     let app;
 
     if (typeof appFn === &apos;string&apos;) {
-      let appPath = path.resolve(appFn)
+      let appPath = _require.resolve(appFn)
       if (!__PRODUCTION__) {
         delete _require.cache[appPath]
       }
@@ -89,11 +89,16 @@ export function renderer(appFn, options = {}) {
       app = appFn()
     }
 
+
+    if (!app) {
+      throw new Error(&apos;Application is not defined.&apos;)
+    }
+
     if (!app.router) {
       throw new Error(&apos;Application must have a `router` for SSR.&apos;)
     }
 
-    try {
+    // try {
 
     const http = {req, res}
     const unplug = plugToRequest(req, res)
@@ -130,11 +135,11 @@ export function renderer(appFn, options = {}) {
         .then(unplug)
     })
 
-    } catch(err) {
-      const page = getErrorPage(null, null, err)
-      res.status(500).send(getHtml(null, page))
-      try { unplug() } catch(e) {}
-    }
+    // } catch(err) {
+    //   const page = getErrorPage(null, null, err)
+    //   res.status(500).send(getHtml(null, page))
+    //   try { unplug() } catch(e) {}
+    // }
   }
 }
 
