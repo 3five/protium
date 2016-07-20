@@ -30,7 +30,7 @@ export function renderer(appFn, options = {}) {
     let app;
 
     if (typeof appFn === 'string') {
-      let appPath = path.resolve(appFn)
+      let appPath = _require.resolve(appFn)
       if (!__PRODUCTION__) {
         delete _require.cache[appPath]
       }
@@ -39,6 +39,7 @@ export function renderer(appFn, options = {}) {
     } else if (typeof appFn === 'function') {
       app = appFn()
     }
+
 
     if (!app) {
       throw new Error('Application is not defined.')
