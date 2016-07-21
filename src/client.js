@@ -10,7 +10,7 @@ const merge = extendify({
   arrays: 'concat'
 })
 
-const methods = ['get', 'post', 'put', 'patch', 'del']
+const methods = ['get', 'post', 'put', 'patch', 'delete', 'del']
 
 export default class ApiClient {
 
@@ -60,7 +60,15 @@ export default class ApiClient {
     
     options.method = method.toUpperCase()
 
-    if (!!options.body) {
+    if (options.method === 'del') {
+      options.method = 'delete'
+    }
+
+    if (options.data && !options.body) {
+      options.body = options.data
+    }
+
+    if (options.body) {
       options.body = (options.body instanceof FormData || typeof options.body === 'string') 
         ? options.body 
         : JSON.stringify(options.body)
