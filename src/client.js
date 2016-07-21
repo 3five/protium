@@ -60,8 +60,8 @@ export default class ApiClient {
     
     options.method = method.toUpperCase()
 
-    if (options.method === 'del') {
-      options.method = 'delete'
+    if (options.method === 'DEL') {
+      options.method = 'DELETE'
     }
 
     if (options.data && !options.body) {
