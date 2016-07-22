@@ -105,7 +105,7 @@ export default class ApiClient {
     let req = this.req
     let url = this.formatUrl(path)
     let options = this.buildOptions(method, path, opts)
-    let request = new Request(url, requestOptions)
+    let request = new Request(url, options)
 
     return fetch(request).then(response => {
       if (!response.ok) {
