@@ -92,6 +92,11 @@ export default class ApiClient {
       }
 
       options.headers = new Headers(options.headers)
+
+      if (options.as === 'json') {
+        options.headers.set('Content-Type', 'application/json')
+      }
+
     }
     
     if (external) {
