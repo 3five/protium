@@ -92,7 +92,7 @@ export default class ApiClient {
     }
 
     this.store = store
-    this.options = merge(ApiClient.defaults, options)
+    this.options = merge({}, ApiClient.defaults, options)
     
     methods.forEach(method =&gt; {
       this[method] = this.genericMethod.bind(this, method)
@@ -104,13 +104,13 @@ export default class ApiClient {
   }
 
   buildOptions(method, path, opts) {
-    let options = merge(ApiClient.requestDefaults, options)
+    let options = merge({}, ApiClient.requestDefaults, opts)
     let external = this.isExternal(path)
     
     options.method = method.toUpperCase()
 
-    if (options.method === &apos;del&apos;) {
-      options.method = &apos;delete&apos;
+    if (options.method === &apos;DEL&apos;) {
+      options.method = &apos;DELETE&apos;
     }
 
     if (options.data &amp;&amp; !options.body) {
@@ -150,14 +150,18 @@ export default class ApiClient {
     return options
   }
 
-  genericMethod(method, path, options = {}) {
+  genericMethod(method, path, opts = {}) {
     let req = this.req
     let url = this.formatUrl(path)
-    let requestOptions = this.buildOptions(method, path, options)
+    let options = this.buildOptions(method, path, opts)
     let request = new Request(url, requestOptions)
 
     return fetch(request).then(response =&gt; {
-      switch(requestOptions.as) {
+      if (!response.ok) {
+        return Promise.reject(response)
+      }
+
+      switch(options.as) {
         case &apos;json&apos;:
           return response.json()
         case &apos;text&apos;:
