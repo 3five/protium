@@ -70,14 +70,15 @@ app.render()
 ```javascript
 // server.js
 import express       from 'express'
-import app           from './app'
+import path          from 'path'
 import { renderer }  from 'protium/server'
+import app           from './app'
 
 const server = express()
 export default server
 
 server.use('/assets', express.static('dist'))
-server.get('/*', renderer(app, {
+server.get('/*', renderer(path.resolve('./app.js'), {
   page: {
     main: require('./webpack-assets.json').javascript.client
   }
