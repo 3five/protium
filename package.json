@@ -47,6 +47,7 @@
     "redux-actions": "^0.10.1",
     "redux-connect": "^2.4.0",
     "redux-devtools": "^3.3.1",
+    "redux-promise": "^0.5.3",
     "serialize-javascript": "^1.3.0",
     "source-map-loader": "^0.1.5",
     "use-scroll-behavior": "^0.1.4",
