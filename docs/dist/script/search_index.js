@@ -42,12 +42,6 @@ window.esdocSearchIndex = [
     "class"
   ],
   [
-    "protium/src/action-creator.js~action",
-    "function/index.html#static-function-action",
-    "<span>action</span> <span class=\"search-result-import-path\">protium/src/action-creator.js</span>",
-    "function"
-  ],
-  [
     "protium/src/client-middleware.js~clientmiddleware",
     "function/index.html#static-function-clientMiddleware",
     "<span>clientMiddleware</span> <span class=\"search-result-import-path\">protium/src/client-middleware.js</span>",
@@ -388,12 +382,6 @@ window.esdocSearchIndex = [
     "external/index.html",
     "BuiltinExternal/WebAPIExternal.js~XMLHttpRequest",
     "external"
-  ],
-  [
-    "src/action-creator.js",
-    "file/src/action-creator.js.html",
-    "src/action-creator.js",
-    "file"
   ],
   [
     "src/application.js",

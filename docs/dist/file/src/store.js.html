@@ -39,7 +39,6 @@
 <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/htmlpage.js~HtmlPage.html">HtmlPage</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/router.js~Router.html">Router</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/store.js~Store.html">Store</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-action">action</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-clientMiddleware">clientMiddleware</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-renderer">renderer</a></span></span></li>
 </ul>
@@ -51,6 +50,7 @@
 import { reduce }           from &apos;lodash&apos;
 import { Provider }         from &apos;react-redux&apos;
 import persistState         from &apos;redux-devtools/lib/persistState&apos;
+import promiseMiddleware    from &apos;redux-promise&apos;
 import clientMiddleware     from &apos;./client-middleware&apos;
 import ApiClient            from &apos;./client&apos;
 import extendify            from &apos;extendify&apos;
@@ -125,13 +125,14 @@ export default class Store {
       middleware.push(this.routingMiddleware)
     }
 
+    middleware.push(promiseMiddleware)
+
     if (this.options.apiClient) {
       if (this.options.auth) {
         this.options.apiClient.auth = this.options.auth
       }
       middleware.push(clientMiddleware(this.options.apiClient, http))
     }
-
 
     middleware = this.options.createMiddleware(middleware, http)
     

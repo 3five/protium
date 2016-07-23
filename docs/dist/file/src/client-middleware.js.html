@@ -39,7 +39,6 @@
 <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/htmlpage.js~HtmlPage.html">HtmlPage</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/router.js~Router.html">Router</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/store.js~Store.html">Store</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-action">action</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-clientMiddleware">clientMiddleware</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-renderer">renderer</a></span></span></li>
 </ul>
@@ -47,51 +46,31 @@
 </nav>
 
 <div class="content" data-ice="content"><h1 data-ice="title">src/client-middleware.js</h1>
-<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import ApiClient from &apos;./client&apos;
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import { isFSA } from &apos;flux-standard-action&apos;
+import ApiClient from &apos;./client&apos;
+
+function isFunction(fn) {
+  return typeof fn === &apos;function&apos;;
+}
 
 export default function clientMiddleware(options, http) {
   return store =&gt; next =&gt; action =&gt; {
     const { req, res } = http || {}
-    const { dispatch, getState }              = store
-    const { promise, types, run, ...rest }    = action
-    const [REQUEST, SUCCESS, FAILURE]         = types || []
-
+    const { dispatch, getState } = store
     const client = new ApiClient(options, store, http)
 
-    let result, error
-
-    // Non conforming action, skip it
-    if (!types || (types.length &gt; 1 &amp;&amp; !promise)) {
-      return next(action)
+    if (isFunction(action)) {
+      return action({ dispatch, getState, client });
     }
 
-    // Syncronous Action
-    if (types.length === 1) {
-      try {
-        result = run({ client, dispatch, getState })
-      } catch (e) {
-        error = e
-      }
-      return next({ ...rest, result, error, type: REQUEST })
+    if (isFSA(action) &amp;&amp; isFunction(action.payload)) {
+      return next({
+        ...action,
+        payload: action.payload({ dispatch, getState, client }),
+      });
     }
 
-    // Async actions, kick it off.
-    next({...rest, type: REQUEST})
-
-    // Setup handler action
-    return promise({ client, dispatch, getState })
-      .then(onSuccess)
-      .catch(onError)
-
-
-    function onSuccess(result) {
-      return next({...rest, result, type: SUCCESS})
-    }
-
-    function onError(error) {
-      console.error(&apos;ApiClient&apos;, error)
-      return next({...rest, error, type: FAILURE})
-    }
+    return next(action);
   }
 }</code></pre>
 

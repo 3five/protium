@@ -39,7 +39,6 @@
 <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/htmlpage.js~HtmlPage.html">HtmlPage</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/router.js~Router.html">Router</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/store.js~Store.html">Store</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-action">action</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-clientMiddleware">clientMiddleware</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-renderer">renderer</a></span></span></li>
 </ul>
@@ -104,14 +103,15 @@ app.render()</code>
 </code></pre>
 <pre><code class="lang-javascript"><code class="source-code prettyprint">// server.js
 import express       from &apos;express&apos;
-import app           from &apos;./app&apos;
+import path          from &apos;path&apos;
 import { renderer }  from &apos;protium/server&apos;
+import app           from &apos;./app&apos;
 
 const server = express()
 export default server
 
 server.use(&apos;/assets&apos;, express.static(&apos;dist&apos;))
-server.get(&apos;/*&apos;, renderer(app, {
+server.get(&apos;/*&apos;, renderer(path.resolve(&apos;./app.js&apos;), {
   page: {
     main: require(&apos;./webpack-assets.json&apos;).javascript.client
   }
