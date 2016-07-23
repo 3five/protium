@@ -2,6 +2,7 @@ import React                from 'react'
 import { reduce }           from 'lodash'
 import { Provider }         from 'react-redux'
 import persistState         from 'redux-devtools/lib/persistState'
+import promiseMiddleware    from 'redux-promise'
 import clientMiddleware     from './client-middleware'
 import ApiClient            from './client'
 import extendify            from 'extendify'
@@ -76,13 +77,14 @@ export default class Store {
       middleware.push(this.routingMiddleware)
     }
 
+    middleware.push(promiseMiddleware)
+
     if (this.options.apiClient) {
       if (this.options.auth) {
         this.options.apiClient.auth = this.options.auth
       }
       middleware.push(clientMiddleware(this.options.apiClient, http))
     }
-
 
     middleware = this.options.createMiddleware(middleware, http)
     

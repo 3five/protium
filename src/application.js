@@ -28,7 +28,7 @@ export default class Application {
   };
 
   constructor(options = {}) {
-    this.options = merge(Application.defaults, options)
+    this.options = merge({}, Application.defaults, options)
     this.options.store.rootVar = this.options.page.rootVar
     this.router = this.options.router
     this.store = new Store(this.options.store)
