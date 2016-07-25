@@ -77,14 +77,14 @@ export default class Store {
       middleware.push(this.routingMiddleware)
     }
 
-    middleware.push(promiseMiddleware)
-
     if (this.options.apiClient) {
       if (this.options.auth) {
         this.options.apiClient.auth = this.options.auth
       }
       middleware.push(clientMiddleware(this.options.apiClient, http))
     }
+
+    middleware.push(promiseMiddleware)
 
     middleware = this.options.createMiddleware(middleware, http)
     
