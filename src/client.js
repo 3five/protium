@@ -71,9 +71,14 @@ export default class ApiClient {
     }
 
     if (options.body) {
-      options.body = (options.body instanceof FormData || typeof options.body === 'string') 
-        ? options.body 
-        : JSON.stringify(options.body)
+      if (options.body instanceof FormData) {
+        options.headers['Content-Type'] = 'multipart/form-data'
+      } else if (typeof options.body === 'string') {
+        options.headers['Content-Type'] = 'application/json'
+      } else {
+        options.headers['Content-Type'] = 'application/json'
+        options.body = JSON.stringify(options.body)
+      }
     }
 
     if (options.query) {
@@ -94,10 +99,6 @@ export default class ApiClient {
       }
 
       options.headers = new Headers(options.headers)
-
-      if (options.as === 'json') {
-        options.headers.set('Content-Type', 'application/json')
-      }
 
     }
     
