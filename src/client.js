@@ -33,6 +33,7 @@ export default class ApiClient {
     redirect      : 'follow',
     cache         : 'default',
     as            : 'json',
+    type          : 'json',
     headers       : {}
   }
 
@@ -66,21 +67,6 @@ export default class ApiClient {
       options.method = 'DELETE'
     }
 
-    if (options.data && !options.body) {
-      options.body = options.data
-    }
-
-    if (options.body) {
-      if (options.body instanceof FormData) {
-        options.headers['Content-Type'] = 'multipart/form-data'
-      } else if (typeof options.body === 'string') {
-        options.headers['Content-Type'] = 'application/json'
-      } else {
-        options.headers['Content-Type'] = 'application/json'
-        options.body = JSON.stringify(options.body)
-      }
-    }
-
     if (options.query) {
       options.url += ('?' + QS.stringify(options.query))
       delete options.query
@@ -99,7 +85,15 @@ export default class ApiClient {
       }
 
       options.headers = new Headers(options.headers)
+    }
 
+    if (options.data && !options.body) {
+      options.body = options.data
+    }
+
+    if (options.body && typeof options.body !== 'string' && options.type.toLowerCase() === 'json') {
+      options.body = JSON.stringify(options.body)
+      options.headers.set('Content-Type', 'application/json')
     }
     
     if (external) {
