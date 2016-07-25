@@ -57,6 +57,8 @@ export default class ApiClient {
   buildOptions(method, path, opts) {
     let options = merge({}, ApiClient.requestDefaults, opts)
     let external = this.isExternal(path)
+
+    options.url = this.formatUrl(path)
     
     options.method = method.toUpperCase()
 
@@ -75,7 +77,7 @@ export default class ApiClient {
     }
 
     if (options.query) {
-      url += QS.stringify(options.query)
+      options.url += QS.stringify(options.query)
       delete options.query
     }
 
@@ -108,8 +110,9 @@ export default class ApiClient {
 
   genericMethod(method, path, opts = {}) {
     let req = this.req
-    let url = this.formatUrl(path)
     let options = this.buildOptions(method, path, opts)
+    let url = ''+options.url
+    delete options.url
     let request = new Request(url, options)
 
     return fetch(request).then(response => {
