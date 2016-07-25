@@ -77,7 +77,7 @@ export default class ApiClient {
     }
 
     if (options.query) {
-      options.url += QS.stringify(options.query)
+      options.url += ('?' + QS.stringify(options.query))
       delete options.query
     }
 
