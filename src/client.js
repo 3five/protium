@@ -33,6 +33,7 @@ export default class ApiClient {
     redirect      : 'follow',
     cache         : 'default',
     as            : 'json',
+    type          : 'json',
     headers       : {}
   }
 
@@ -57,6 +58,8 @@ export default class ApiClient {
   buildOptions(method, path, opts) {
     let options = merge({}, ApiClient.requestDefaults, opts)
     let external = this.isExternal(path)
+
+    options.url = this.formatUrl(path)
     
     options.method = method.toUpperCase()
 
@@ -64,18 +67,8 @@ export default class ApiClient {
       options.method = 'DELETE'
     }
 
-    if (options.data && !options.body) {
-      options.body = options.data
-    }
-
-    if (options.body) {
-      options.body = (options.body instanceof FormData || typeof options.body === 'string') 
-        ? options.body 
-        : JSON.stringify(options.body)
-    }
-
     if (options.query) {
-      url += QS.stringify(options.query)
+      options.url += ('?' + QS.stringify(options.query))
       delete options.query
     }
 
@@ -92,11 +85,15 @@ export default class ApiClient {
       }
 
       options.headers = new Headers(options.headers)
+    }
 
-      if (options.as === 'json') {
-        options.headers.set('Content-Type', 'application/json')
-      }
+    if (options.data && !options.body) {
+      options.body = options.data
+    }
 
+    if (options.body && typeof options.body !== 'string' && options.type.toLowerCase() === 'json') {
+      options.body = JSON.stringify(options.body)
+      options.headers.set('Content-Type', 'application/json')
     }
     
     if (external) {
@@ -108,8 +105,9 @@ export default class ApiClient {
 
   genericMethod(method, path, opts = {}) {
     let req = this.req
-    let url = this.formatUrl(path)
     let options = this.buildOptions(method, path, opts)
+    let url = ''+options.url
+    delete options.url
     let request = new Request(url, options)
 
     return fetch(request).then(response => {
