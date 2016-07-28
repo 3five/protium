@@ -6,21 +6,8 @@ import { createAction } from 'redux-actions'
 const loadStart = createAction('@protium/BEGIN_LOAD');
 const loadEnd = createAction('@protium/END_LOAD');
 
-let instances = 0;
-
 export default function asyncMiddleware({ dispatch }) {
-
-  function handler(type = 'then') {
-    return result => {
-      if (instances > 0) {
-        instances--
-        if (instances === 0) {
-          dispatch(loadEnd())
-        }
-      }
-      return type === 'then' ? result : Promise.reject(result)
-    }
-  }
+  const tracker = new Tracker()
 
   return next => action => {
 
@@ -32,15 +19,44 @@ export default function asyncMiddleware({ dispatch }) {
       return next(action);
     }
 
-    if (action.promise) {
-      instances++
+    if (isPromise(action.payload)) {
       dispatch(loadStart())
-      action.promise
-        .then(handler('then'))
-        .catch(handler('catch'))
+      tracker.enqueue(action.payload)
     }
 
+    process.nextTick(x => {
+      if (!tracker.loading) {
+        dispatch(loadEnd())
+      }
+    })
+
     return next(action);
+  }
+}
+
+class Tracker {
+  
+  promises = []
+  
+  get loading() {
+    return !!this.promises.length
+  }
+  
+  enqueue(promise) {
+    this.promises.push(promise)
+    promise.then(x => {
+      this.dequeue(promise)
+      return x
+    })
+    .catch(err => {
+      this.dequeue(promise)
+      return Promise.reject(err)
+    })
+  }
+  
+  dequeue(promise) {
+    let index = this.promises.indexOf(promise)
+    this.promises.splice(index, 1)
   }
 }
 
