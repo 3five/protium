@@ -398,7 +398,7 @@
     "access": null,
     "description": null,
     "lineNumber": 1,
-    "content": "import 'isomorphic-fetch'\nimport Url        from 'url'\nimport QS         from 'qs'\nimport { map }    from 'lodash'\nimport extendify  from 'extendify'\n\nconst merge = extendify({\n  inPlace: false,\n  isDeep: true,\n  arrays: 'concat'\n})\n\nconst methods = ['get', 'post', 'put', 'patch', 'delete', 'del']\n\nexport default class ApiClient {\n\n  static defaults = {\n    server: {\n      protocol: 'http',\n      host: 'localhost',\n      pathname: '/',\n      port: process.env.API_PORT || process.env.PORT || 5000\n    },\n    client: {\n      pathname: '/'\n    }\n  };\n\n  static requestDefaults = {\n    method        : 'get',\n    mode          : 'same-origin',\n    credentials   : 'same-origin',\n    redirect      : 'follow',\n    cache         : 'default',\n    as            : 'json',\n    headers       : {}\n  }\n\n  constructor(options, store, http) {\n    if (http) {\n      this.req = http.req\n      this.res = http.res\n    }\n\n    this.store = store\n    this.options = merge({}, ApiClient.defaults, options)\n    \n    methods.forEach(method => {\n      this[method] = this.genericMethod.bind(this, method)\n    })\n  }\n\n  isExternal(path) {\n    return /^https?:\\/\\//i.test(path)\n  }\n\n  buildOptions(method, path, opts) {\n    let options = merge({}, ApiClient.requestDefaults, opts)\n    let external = this.isExternal(path)\n    \n    options.method = method.toUpperCase()\n\n    if (options.method === 'DEL') {\n      options.method = 'DELETE'\n    }\n\n    if (options.data && !options.body) {\n      options.body = options.data\n    }\n\n    if (options.body) {\n      options.body = (options.body instanceof FormData || typeof options.body === 'string') \n        ? options.body \n        : JSON.stringify(options.body)\n    }\n\n    if (options.query) {\n      url += QS.stringify(options.query)\n      delete options.query\n    }\n\n    if (options.headers) {\n      if (__SERVER__ && this.req.get('cookie')) {\n        options.headers.cookie = this.req.get('cookie')\n      }\n\n      if (this.options.auth && typeof this.options.auth.getBearer === 'function') {\n        let token = this.options.auth.getBearer(this.store)\n        if (token && token.length && !external) {\n          options.headers['Authorization'] = `Bearer ${token}`\n        }\n      }\n\n      options.headers = new Headers(options.headers)\n\n      if (options.as === 'json') {\n        options.headers.set('Content-Type', 'application/json')\n      }\n\n    }\n    \n    if (external) {\n      options.mode = 'cors'\n    }\n\n    return options\n  }\n\n  genericMethod(method, path, opts = {}) {\n    let req = this.req\n    let url = this.formatUrl(path)\n    let options = this.buildOptions(method, path, opts)\n    let request = new Request(url, options)\n\n    return fetch(request).then(response => {\n      if (!response.ok) {\n        return Promise.reject(response)\n      }\n\n      switch(options.as) {\n        case 'json':\n          return response.json()\n        case 'text':\n          return response.text()\n        case 'blob':\n          return response.blob()\n        default:\n          return response\n      }\n    })\n  }\n\n  formatUrl(path) {\n    if (this.isExternal(path)) {\n      return path\n    }\n\n    const config = { ...(__SERVER__ ? this.options.server : this.options.client) }\n    const adjustedPath = path[0] === '/' ? path.slice(1) : path\n\n    if (config.base) {\n      config.pathname = config.base\n    }\n\n    if (config.host && config.port) {\n      config.host = `${config.host}:${config.port}`\n    }\n\n    const baseUrl = Url.format(config)\n\n    return baseUrl + adjustedPath\n  }\n}\n"
+    "content": "import 'isomorphic-fetch'\nimport Url        from 'url'\nimport QS         from 'qs'\nimport { map }    from 'lodash'\nimport extendify  from 'extendify'\n\nconst merge = extendify({\n  inPlace: false,\n  isDeep: true,\n  arrays: 'concat'\n})\n\nconst methods = ['get', 'post', 'put', 'patch', 'delete', 'del']\n\nexport default class ApiClient {\n\n  static defaults = {\n    server: {\n      protocol: 'http',\n      host: 'localhost',\n      pathname: '/',\n      port: process.env.API_PORT || process.env.PORT || 5000\n    },\n    client: {\n      pathname: '/'\n    }\n  };\n\n  static requestDefaults = {\n    method        : 'get',\n    mode          : 'same-origin',\n    credentials   : 'same-origin',\n    redirect      : 'follow',\n    cache         : 'default',\n    as            : 'json',\n    type          : 'json',\n    headers       : {}\n  }\n\n  constructor(options, store, http) {\n    if (http) {\n      this.req = http.req\n      this.res = http.res\n    }\n\n    this.store = store\n    this.options = merge({}, ApiClient.defaults, options)\n    \n    methods.forEach(method => {\n      this[method] = this.genericMethod.bind(this, method)\n    })\n  }\n\n  isExternal(path) {\n    return /^https?:\\/\\//i.test(path)\n  }\n\n  buildOptions(method, path, opts) {\n    let options = merge({}, ApiClient.requestDefaults, opts)\n    let external = this.isExternal(path)\n\n    options.url = this.formatUrl(path)\n    \n    options.method = method.toUpperCase()\n\n    if (options.method === 'DEL') {\n      options.method = 'DELETE'\n    }\n\n    if (options.query) {\n      options.url += ('?' + QS.stringify(options.query))\n      delete options.query\n    }\n\n    if (options.headers) {\n      if (__SERVER__ && this.req.get('cookie')) {\n        options.headers.cookie = this.req.get('cookie')\n      }\n\n      if (this.options.auth && typeof this.options.auth.getBearer === 'function') {\n        let token = this.options.auth.getBearer(this.store)\n        if (token && token.length && !external) {\n          options.headers['Authorization'] = `Bearer ${token}`\n        }\n      }\n\n      options.headers = new Headers(options.headers)\n    }\n\n    if (options.data && !options.body) {\n      options.body = options.data\n    }\n\n    if (options.body && typeof options.body !== 'string' && options.type.toLowerCase() === 'json') {\n      options.body = JSON.stringify(options.body)\n      options.headers.set('Content-Type', 'application/json')\n    }\n    \n    if (external) {\n      options.mode = 'cors'\n    }\n\n    return options\n  }\n\n  genericMethod(method, path, opts = {}) {\n    let req = this.req\n    let options = this.buildOptions(method, path, opts)\n    let url = ''+options.url\n    delete options.url\n    let request = new Request(url, options)\n\n    return fetch(request).then(response => {\n      if (!response.ok) {\n        return Promise.reject(response)\n      }\n\n      switch(options.as) {\n        case 'json':\n          return response.json()\n        case 'text':\n          return response.text()\n        case 'blob':\n          return response.blob()\n        default:\n          return response\n      }\n    })\n  }\n\n  formatUrl(path) {\n    if (this.isExternal(path)) {\n      return path\n    }\n\n    const config = { ...(__SERVER__ ? this.options.server : this.options.client) }\n    const adjustedPath = path[0] === '/' ? path.slice(1) : path\n\n    if (config.base) {\n      config.pathname = config.base\n    }\n\n    if (config.host && config.port) {\n      config.host = `${config.host}:${config.port}`\n    }\n\n    const baseUrl = Url.format(config)\n\n    return baseUrl + adjustedPath\n  }\n}\n"
   },
   {
     "__docId__": 17,
@@ -469,7 +469,7 @@
     "longname": "src/client.js~ApiClient#constructor",
     "access": null,
     "description": null,
-    "lineNumber": 39,
+    "lineNumber": 40,
     "undocument": true,
     "params": [
       {
@@ -503,7 +503,7 @@
     "longname": "src/client.js~ApiClient#req",
     "access": null,
     "description": null,
-    "lineNumber": 41,
+    "lineNumber": 42,
     "undocument": true,
     "type": {
       "types": [
@@ -521,7 +521,7 @@
     "longname": "src/client.js~ApiClient#res",
     "access": null,
     "description": null,
-    "lineNumber": 42,
+    "lineNumber": 43,
     "undocument": true,
     "type": {
       "types": [
@@ -539,7 +539,7 @@
     "longname": "src/client.js~ApiClient#store",
     "access": null,
     "description": null,
-    "lineNumber": 45,
+    "lineNumber": 46,
     "undocument": true,
     "type": {
       "types": [
@@ -557,7 +557,7 @@
     "longname": "src/client.js~ApiClient#options",
     "access": null,
     "description": null,
-    "lineNumber": 46,
+    "lineNumber": 47,
     "undocument": true,
     "type": {
       "types": [
@@ -575,7 +575,7 @@
     "longname": "src/client.js~ApiClient#isExternal",
     "access": null,
     "description": null,
-    "lineNumber": 53,
+    "lineNumber": 54,
     "undocument": true,
     "params": [
       {
@@ -602,7 +602,7 @@
     "longname": "src/client.js~ApiClient#buildOptions",
     "access": null,
     "description": null,
-    "lineNumber": 57,
+    "lineNumber": 58,
     "undocument": true,
     "params": [
       {
@@ -641,7 +641,7 @@
     "longname": "src/client.js~ApiClient#genericMethod",
     "access": null,
     "description": null,
-    "lineNumber": 109,
+    "lineNumber": 106,
     "undocument": true,
     "params": [
       {
@@ -683,7 +683,7 @@
     "longname": "src/client.js~ApiClient#formatUrl",
     "access": null,
     "description": null,
-    "lineNumber": 133,
+    "lineNumber": 131,
     "undocument": true,
     "params": [
       {
