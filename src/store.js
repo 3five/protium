@@ -4,6 +4,7 @@ import { Provider }         from 'react-redux'
 import persistState         from 'redux-devtools/lib/persistState'
 import promiseMiddleware    from 'redux-promise'
 import clientMiddleware     from './client-middleware'
+import asyncMiddleware     from './async-middleware'
 import ApiClient            from './client'
 import extendify            from 'extendify'
 import {
