@@ -1,13 +1,11 @@
 import { createAction } from 'redux-actions'
 
-// const BEGIN_GLOBAL_LOAD = '@reduxAsyncConnect/BEGIN_GLOBAL_LOAD';
-// const END_GLOBAL_LOAD = '@reduxAsyncConnect/END_GLOBAL_LOAD';
+const loadStart = createAction('@reduxAsyncConnect/BEGIN_GLOBAL_LOAD');
+const loadEnd = createAction('@reduxAsyncConnect/END_GLOBAL_LOAD');
 
-const loadStart = createAction('@protium/BEGIN_LOAD');
-const loadEnd = createAction('@protium/END_LOAD');
+export default function asyncMiddleware({ dispatch }) {  
 
-export default function asyncMiddleware({ dispatch }) {
-  const tracker = new Tracker()
+  const tracker = new Tracker(dispatch)
 
   return next => action => {
 
@@ -24,12 +22,6 @@ export default function asyncMiddleware({ dispatch }) {
       tracker.enqueue(action.payload)
     }
 
-    process.nextTick(x => {
-      if (!tracker.loading) {
-        dispatch(loadEnd())
-      }
-    })
-
     return next(action);
   }
 }
@@ -37,9 +29,13 @@ export default function asyncMiddleware({ dispatch }) {
 class Tracker {
   
   promises = []
-  
+
   get loading() {
     return !!this.promises.length
+  }
+
+  constructor(dispatch) {
+    this.dispatch = dispatch
   }
   
   enqueue(promise) {
@@ -57,6 +53,11 @@ class Tracker {
   dequeue(promise) {
     let index = this.promises.indexOf(promise)
     this.promises.splice(index, 1)
+    if (!this.loading) {
+      setTimeout(x => {
+        this.dispatch(loadEnd())
+      }, 0)
+    }
   }
 }
 

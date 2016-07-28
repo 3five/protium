@@ -85,8 +85,8 @@ export default class Store {
       middleware.push(clientMiddleware(this.options.apiClient, http))
     }
 
-    middleware.push(promiseMiddleware)
     middleware.push(asyncMiddleware)
+    middleware.push(promiseMiddleware)
 
     middleware = this.options.createMiddleware(middleware, http)
     
