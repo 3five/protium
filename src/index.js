@@ -2,6 +2,7 @@ export { default as Helmet }             from 'react-helmet'
 export { default as cookie }             from 'react-cookie'
 export { default as Application }        from './application'
 export { asyncConnect }                  from 'redux-connect'
+export { connect }                       from 'react-redux'
 
 export {
   createAction,
@@ -14,6 +15,5 @@ export {
   bindActionCreators,
   compose,
   combineReducers,
-  connect, 
-  createStore,
-} from 'react-redux'
+  createStore
+} from 'redux'
