@@ -104,6 +104,7 @@ export default class DevTools {
     config.entry = { 
       client: entry,
       vendor: [
+        'react-hot-loader/patch',
         'flux-standard-action',
         'isomorphic-fetch',
         'qs',
