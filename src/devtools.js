@@ -104,6 +104,7 @@ export default class DevTools {
     config.entry = { 
       client: entry,
       vendor: [
+        'react-hot-loader/patch',
         'flux-standard-action',
         'isomorphic-fetch',
         'qs',
@@ -120,8 +121,7 @@ export default class DevTools {
         'redux-actions',
         'redux-connect',
         'redux-promise',
-        'use-scroll-behavior',
-        'react-hot-loader/patch'
+        'use-scroll-behavior'
       ]
     }
 
