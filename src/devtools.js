@@ -25,8 +25,10 @@ export default class DevTools {
     output: {
       filename: '[name].js',
       path: 'public',
-      publicPath: '/assets/'
+      publicPath: '/assets/',
     },
+
+    commonsChunk: {},
 
     module: {
       preLoaders: [
@@ -91,7 +93,27 @@ export default class DevTools {
 
     config.context = this.cwd
 
-    config.entry = { client: entry }
+    config.entry = { 
+      client: entry,
+      vendor: [
+        'flux-standard-action',
+        'isomorphic-fetch',
+        'qs',
+        'react',
+        'react-cookie',
+        'react-dom',
+        'react-helmet',
+        'react-redux',
+        'react-router',
+        'react-router-bootstrap',
+        'react-router-redux',
+        'redux',
+        'redux-actions',
+        'redux-connect',
+        'redux-promise',
+        'use-scroll-behavior'
+      ]
+    }
 
     config.output.filename = '[name].js'
     config.output.library = '__APPLICATION__'
@@ -102,6 +124,11 @@ export default class DevTools {
     }
 
     config.plugins = [
+      new Webpack.optimize.CommonsChunkPlugin({
+        name: 'vendor', 
+        filename: 'vendor.js',
+        async: false
+      }),
       new AssetsPlugin({ 
         assetsRegex: /\.(jpe?g|png|gif|svg|scss|sass|css)$/i,
         metadata: true,
