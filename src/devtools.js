@@ -120,7 +120,8 @@ export default class DevTools {
         'redux-actions',
         'redux-connect',
         'redux-promise',
-        'use-scroll-behavior'
+        'use-scroll-behavior',
+        'react-hot-loader/patch'
       ]
     }
 
