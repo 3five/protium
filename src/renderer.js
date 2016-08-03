@@ -115,8 +115,8 @@ function getHtml(app, page) {
   return dtype + renderToString(page)
 }
 
-function getErrorPage(store, app, error, extraOpts) {
-  let options = app ? merge({}, app.options.page, extraOpts) : extraOpts
+function getErrorPage(store, app, error, extraOpts = {}) {
+  let options = app && app.options ? merge({}, app.options.page, extraOpts) : extraOpts
   let ErrComp = ErrorComponent
   let inlineCss = ErrComp.inlineCss
 

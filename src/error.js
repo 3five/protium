@@ -11,7 +11,7 @@ export default class ErrorComponent extends Component {
   render() {
     const { error, store, production } = this.props
     let pError = pe.render(error)
-    
+
     // Ridiculous whitespace hack
     const errString = (convert.toHtml(pError))
       .replace(/<\/span>    <span style="color:#AAA">/gm, '')
@@ -21,7 +21,8 @@ export default class ErrorComponent extends Component {
       backgroundColor: '#000',
       whiteSpace: 'pre-line',
       overflow: 'scroll',
-      fontFamily: 'monospace'
+      fontFamily: 'monospace',
+      padding: '15px'
     }
 
     return <div className="container">
