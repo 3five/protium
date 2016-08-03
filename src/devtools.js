@@ -33,7 +33,7 @@ export default class DevTools {
     module: {
       preLoaders: [
         {
-          test: /\.js$/,
+          test: /\.jsx?$/,
           loader: "source-map-loader"
         }
       ],
@@ -55,17 +55,22 @@ export default class DevTools {
 
   serverConfig(entrypoint, options = {}) {
 
-    const config = merge({}, DevTools.baseConfig, options)
+    const opts = merge({}, DevTools.baseConfig, options)
 
     const entry = Array.isArray(entrypoint) ? entrypoint : [entrypoint]
 
+    const config = {}
+
     config.context = this.cwd
+    config.devtool = opts.devtool
 
     config.entry = { server: entry }
 
+    config.output = opts.output
     config.output.path = Path.resolve(config.context, 'public')
     config.output.libraryTarget = 'commonjs'
 
+    config.module = opts.module
     config.externals = [nodeExternals()]
 
     config.target = 'node'
@@ -87,11 +92,14 @@ export default class DevTools {
 
   browserConfig(entrypoint, options = {}) {
 
-    const config = merge({}, DevTools.baseConfig, options)
+    const opts = merge({}, DevTools.baseConfig, options)
 
     const entry = Array.isArray(entrypoint) ? entrypoint : [entrypoint]
 
+    const config = {}
+
     config.context = this.cwd
+    config.devtool = opts.devtool
 
     config.entry = { 
       client: entry,
@@ -99,6 +107,7 @@ export default class DevTools {
         'flux-standard-action',
         'isomorphic-fetch',
         'qs',
+        'lodash',
         'react',
         'react-cookie',
         'react-dom',
@@ -115,6 +124,7 @@ export default class DevTools {
       ]
     }
 
+    config.output = opts.output
     config.output.filename = '[name].js'
     config.output.library = '__APPLICATION__'
     config.output.libraryTarget = 'var'
@@ -122,6 +132,8 @@ export default class DevTools {
     if (config.output.path === DevTools.baseConfig.output.path) {
       config.output.path = Path.resolve(config.context, 'public')
     }
+
+    config.module = opts.module
 
     config.plugins = [
       new Webpack.optimize.CommonsChunkPlugin({
@@ -137,19 +149,19 @@ export default class DevTools {
       }),
       new Webpack.EnvironmentPlugin([
         'NODE_ENV',
-        ...config.environment
+        ...opts.environment
       ]),
       new Webpack.DefinePlugin({
         __CLIENT__: true,
         __SERVER__: false,
         __DEVELOPMENT__: __DEVELOPMENT__,
         __PRODUCTION__: __PRODUCTION__,
-        ...config.define
+        ...opts.define
       }),
-      ...config.plugins || []
+      ...opts.plugins || []
     ]
 
-    if (__DEVELOPMENT__ && options.hot) {
+    if (__DEVELOPMENT__ && opts.hot) {
       config.entry.client.unshift(
         'webpack-hot-middleware/client',
         'webpack/hot/only-dev-server',
@@ -161,9 +173,6 @@ export default class DevTools {
         new Webpack.IgnorePlugin(/webpack-stats\.json$/)
       )
     }
-
-    delete config.hot
-    delete config.define
 
     return config
   }
