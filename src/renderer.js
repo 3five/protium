@@ -1,11 +1,16 @@
+// import 'source-map-support/register'
 import React                      from 'react'
+import path                       from 'path'
+import extendify                  from 'extendify'
+import _require                   from 'webpack-external-require'
 import { plugToRequest }          from 'react-cookie'
 import HtmlPage                   from './htmlpage'
 import ErrorComponent             from './error'
-import extendify                  from 'extendify'
-import path                       from 'path'
-import _require                   from 'webpack-external-require'
-import { renderToString, renderToStaticMarkup } from 'react-dom/server'
+import Application                from './application'
+import { 
+  renderToString, 
+  renderToStaticMarkup 
+} from 'react-dom/server'
 
 const merge = extendify({
   inPlace: false,
@@ -29,34 +34,38 @@ export function renderer(appFn, options = {}) {
 
     let app;
 
-    if (typeof appFn === 'string') {
-      let appPath = _require.resolve(appFn)
-      if (!__PRODUCTION__) {
-        delete _require.cache[appPath]
+    try {
+      if (typeof appFn === 'string') {
+        let appPath = _require.resolve(appFn)
+        if (!__PRODUCTION__) {
+          delete _require.cache[appPath]
+        }
+        let _app = _require(appPath)
+        app = _app.default ? _app.default : _app
+      } 
+      else if (typeof appFn === 'function') {
+        app = appFn()
+      } 
+      else if (appFn instanceof Application) {
+        app = appFn
+      } 
+      else {
+        throw new Error('Unable to load application')
       }
-      let _app = _require(appPath)
-      app = _app.default ? _app.default : _app
-    } else if (typeof appFn === 'function') {
-      app = appFn()
+    } catch(err) {
+      const page = getErrorPage(null, null, err)
+      return res.status(500).send(getHtml(null, page))
     }
 
 
-    if (!app) {
-      throw new Error('Application is not defined.')
-    }
-
-    if (!app.router) {
-      throw new Error('Application must have a `router` for SSR.')
-    }
-
-    // try {
+    try {
 
     const http = {req, res}
     const unplug = plugToRequest(req, res)
     const history = app.router.createHistory()
     const store = app.createStore(history, http)
 
-    app.router.match(history, store, http, (error, redirect, renderProps) => {
+    return app.router.match(history, store, http, (error, redirect, renderProps) => {
       if (error) {
         const page = getErrorPage(null, app, error)
         return res.status(500).send(getHtml(app, page))
@@ -70,7 +79,7 @@ export function renderer(appFn, options = {}) {
         return res.status(404)
       }
 
-      app.resolve(store, renderProps, http)
+      return app.resolve(store, renderProps, http)
         .then(({ store, component, status })=> {
           const page = getHtmlPage(store, app, component, options.page)
           res.status(status).send(getHtml(app, page))
@@ -86,11 +95,15 @@ export function renderer(appFn, options = {}) {
         .then(unplug)
     })
 
-    // } catch(err) {
-    //   const page = getErrorPage(null, null, err)
-    //   res.status(500).send(getHtml(null, page))
-    //   try { unplug() } catch(e) {}
-    // }
+    } catch(err) {
+      const page = getErrorPage(null, null, err)
+      res.status(500).send(getHtml(null, page))
+      try { unplug() } catch(e) {}
+      return
+    }
+
+    // Should never fire
+    res.sendStatus(500)
   }
 }
 
