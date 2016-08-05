@@ -42,6 +42,12 @@ window.esdocSearchIndex = [
     "class"
   ],
   [
+    "protium/src/async-middleware.js~asyncmiddleware",
+    "function/index.html#static-function-asyncMiddleware",
+    "<span>asyncMiddleware</span> <span class=\"search-result-import-path\">protium/src/async-middleware.js</span>",
+    "function"
+  ],
+  [
     "protium/src/client-middleware.js~clientmiddleware",
     "function/index.html#static-function-clientMiddleware",
     "<span>clientMiddleware</span> <span class=\"search-result-import-path\">protium/src/client-middleware.js</span>",
@@ -442,6 +448,12 @@ window.esdocSearchIndex = [
     "class/src/application.js~Application.html#instance-member-store",
     "src/application.js~Application#store",
     "member"
+  ],
+  [
+    "src/async-middleware.js",
+    "file/src/async-middleware.js.html",
+    "src/async-middleware.js",
+    "file"
   ],
   [
     "src/client-middleware.js",

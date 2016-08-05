@@ -39,6 +39,7 @@
 <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/htmlpage.js~HtmlPage.html">HtmlPage</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/router.js~Router.html">Router</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/store.js~Store.html">Store</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-asyncMiddleware">asyncMiddleware</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-clientMiddleware">clientMiddleware</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-renderer">renderer</a></span></span></li>
 </ul>
@@ -73,13 +74,15 @@ export default class DevTools {
     output: {
       filename: &apos;[name].js&apos;,
       path: &apos;public&apos;,
-      publicPath: &apos;/assets/&apos;
+      publicPath: &apos;/assets/&apos;,
     },
+
+    commonsChunk: {},
 
     module: {
       preLoaders: [
         {
-          test: /\.js$/,
+          test: /\.jsx?$/,
           loader: &quot;source-map-loader&quot;
         }
       ],
@@ -101,17 +104,22 @@ export default class DevTools {
 
   serverConfig(entrypoint, options = {}) {
 
-    const config = merge({}, DevTools.baseConfig, options)
+    const opts = merge({}, DevTools.baseConfig, options)
 
     const entry = Array.isArray(entrypoint) ? entrypoint : [entrypoint]
 
+    const config = {}
+
     config.context = this.cwd
+    config.devtool = opts.devtool
 
     config.entry = { server: entry }
 
+    config.output = opts.output
     config.output.path = Path.resolve(config.context, &apos;public&apos;)
     config.output.libraryTarget = &apos;commonjs&apos;
 
+    config.module = opts.module
     config.externals = [nodeExternals()]
 
     config.target = &apos;node&apos;
@@ -133,14 +141,40 @@ export default class DevTools {
 
   browserConfig(entrypoint, options = {}) {
 
-    const config = merge({}, DevTools.baseConfig, options)
+    const opts = merge({}, DevTools.baseConfig, options)
 
     const entry = Array.isArray(entrypoint) ? entrypoint : [entrypoint]
 
+    const config = {}
+
     config.context = this.cwd
+    config.devtool = opts.devtool
 
-    config.entry = { client: entry }
+    config.entry = { 
+      client: entry,
+      vendor: [
+        &apos;react-hot-loader/patch&apos;,
+        &apos;flux-standard-action&apos;,
+        &apos;isomorphic-fetch&apos;,
+        &apos;qs&apos;,
+        &apos;lodash&apos;,
+        &apos;react&apos;,
+        &apos;react-cookie&apos;,
+        &apos;react-dom&apos;,
+        &apos;react-helmet&apos;,
+        &apos;react-redux&apos;,
+        &apos;react-router&apos;,
+        &apos;react-router-bootstrap&apos;,
+        &apos;react-router-redux&apos;,
+        &apos;redux&apos;,
+        &apos;redux-actions&apos;,
+        &apos;redux-connect&apos;,
+        &apos;redux-promise&apos;,
+        &apos;use-scroll-behavior&apos;
+      ]
+    }
 
+    config.output = opts.output
     config.output.filename = &apos;[name].js&apos;
     config.output.library = &apos;__APPLICATION__&apos;
     config.output.libraryTarget = &apos;var&apos;
@@ -149,7 +183,14 @@ export default class DevTools {
       config.output.path = Path.resolve(config.context, &apos;public&apos;)
     }
 
+    config.module = opts.module
+
     config.plugins = [
+      new Webpack.optimize.CommonsChunkPlugin({
+        name: &apos;vendor&apos;, 
+        filename: &apos;vendor.js&apos;,
+        async: false
+      }),
       new AssetsPlugin({ 
         assetsRegex: /\.(jpe?g|png|gif|svg|scss|sass|css)$/i,
         metadata: true,
@@ -158,19 +199,19 @@ export default class DevTools {
       }),
       new Webpack.EnvironmentPlugin([
         &apos;NODE_ENV&apos;,
-        ...config.environment
+        ...opts.environment
       ]),
       new Webpack.DefinePlugin({
         __CLIENT__: true,
         __SERVER__: false,
         __DEVELOPMENT__: __DEVELOPMENT__,
         __PRODUCTION__: __PRODUCTION__,
-        ...config.define
+        ...opts.define
       }),
-      ...config.plugins || []
+      ...opts.plugins || []
     ]
 
-    if (__DEVELOPMENT__ &amp;&amp; options.hot) {
+    if (__DEVELOPMENT__ &amp;&amp; opts.hot) {
       config.entry.client.unshift(
         &apos;webpack-hot-middleware/client&apos;,
         &apos;webpack/hot/only-dev-server&apos;,
@@ -182,9 +223,6 @@ export default class DevTools {
         new Webpack.IgnorePlugin(/webpack-stats\.json$/)
       )
     }
-
-    delete config.hot
-    delete config.define
 
     return config
   }

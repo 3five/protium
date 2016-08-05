@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <base data-ice="baseUrl" href="../../">
-  <title data-ice="title">src/error.js | Protium API Document</title>
+  <title data-ice="title">src/async-middleware.js | Protium API Document</title>
   <link type="text/css" rel="stylesheet" href="css/style.css">
   <link type="text/css" rel="stylesheet" href="css/prettify-tomorrow.css">
   <script src="script/prettify/prettify.js"></script>
@@ -46,92 +46,74 @@
 </div>
 </nav>
 
-<div class="content" data-ice="content"><h1 data-ice="title">src/error.js</h1>
-<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import React, {Component} from &apos;react&apos;
-import Helmet from &apos;react-helmet&apos;
-import PrettyError from &apos;pretty-error&apos;
-import AnsiToHTML from &apos;ansi-to-html&apos;
+<div class="content" data-ice="content"><h1 data-ice="title">src/async-middleware.js</h1>
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">import { createAction } from &apos;redux-actions&apos;
 
-const pe = new PrettyError()
-const convert = new AnsiToHTML();
-pe._renderer._config.terminalWidth = 9999
+const loadStart = createAction(&apos;@reduxAsyncConnect/BEGIN_GLOBAL_LOAD&apos;);
+const loadEnd = createAction(&apos;@reduxAsyncConnect/END_GLOBAL_LOAD&apos;);
 
-export default class ErrorComponent extends Component {
-  render() {
-    const { error, store, production } = this.props
-    let pError = pe.render(error)
+export default function asyncMiddleware({ dispatch }) {  
 
-    // Ridiculous whitespace hack
-    const errString = (convert.toHtml(pError))
-      .replace(/&lt;\/span&gt;    &lt;span style=&quot;color:#AAA&quot;&gt;/gm, &apos;&apos;)
+  const tracker = new Tracker(dispatch)
 
-    const errStyle = {
-      color: &apos;#fff&apos;,
-      backgroundColor: &apos;#000&apos;,
-      whiteSpace: &apos;pre-line&apos;,
-      overflow: &apos;scroll&apos;,
-      fontFamily: &apos;monospace&apos;,
-      padding: &apos;15px&apos;
+  return next =&gt; action =&gt; {
+
+    if (action.error) {
+      console.error(`Error: ${action.type}\n`, action.payload)
     }
 
-    return &lt;div className=&quot;container&quot;&gt;
-      &lt;Helmet title=&quot;Error&quot; /&gt;
-      &lt;span className=&quot;label label-danger&quot;&gt;
-        &lt;strong&gt;ERROR&lt;/strong&gt;
-      &lt;/span&gt;
-      &lt;h1&gt;{error.message}&lt;/h1&gt;
-      {!production &amp;&amp; &lt;div&gt;
-        &lt;h3&gt;Stack Trace&lt;/h3&gt;
-        &lt;div style={errStyle} 
-             className=&quot;well&quot; 
-             dangerouslySetInnerHTML={{__html: errString}}&gt;&lt;/div&gt;
-      &lt;/div&gt;}
-      {!production &amp;&amp; store &amp;&amp; &lt;div&gt;
-        &lt;h3&gt;State&lt;/h3&gt;
-        &lt;pre&gt;{JSON.stringify(store.getState(), null, 2)}&lt;/pre&gt;
-      &lt;/div&gt;}
-    &lt;/div&gt;
+    if (!__CLIENT__) {
+      return next(action);
+    }
+
+    if (isPromise(action.payload)) {
+      dispatch(loadStart())
+      tracker.enqueue(action.payload)
+    }
+
+    return next(action);
+  }
+}
+
+class Tracker {
+  
+  promises = []
+
+  get loading() {
+    return !!this.promises.length
+  }
+
+  constructor(dispatch) {
+    this.dispatch = dispatch
   }
   
-  static inlineCss = `
-    html, body { margin: 0; padding 0; }
-    * { box-sizing: border-box; }
-    body {
-      background: #e8e8e8;
-      color: #333;
-      font-family: sans-serif;
-      padding: 30px;
-      margin: 0;
+  enqueue(promise) {
+    this.promises.push(promise)
+    promise.then(x =&gt; {
+      this.dequeue(promise)
+      return x
+    })
+    .catch(err =&gt; {
+      this.dequeue(promise)
+      return Promise.reject(err)
+    })
+  }
+  
+  dequeue(promise) {
+    let index = this.promises.indexOf(promise)
+    this.promises.splice(index, 1)
+    if (!this.loading) {
+      setTimeout(x =&gt; {
+        this.dispatch(loadEnd())
+      }, 0)
     }
-    
-    #application {
-      max-width: 90%;
-      padding: 30px;
-      margin: 0 auto;
-      background: #fff;
-      border-radius: 4px;
-    }
-    .label {
-      text-transform: uppercase;
-      color: #999;
-    }
-    h1 {
-      font-size: 25px;
-      letter-spacing: -0.04em;
-      border-bottom: 1px solid #d0d0d0;
-      padding-bottom: 0.5em;
-      margin-bottom: 1em;
-    }
-    pre {
-      background: #e8e8e8;
-      overflow:scroll;
-      padding: 12px 15px;
-      border: 1px solid #d0d0d0;
-      border-radius: 4px;
-      line-height: 1.3;
-    }
-`
-}</code></pre>
+  }
+}
+
+function isPromise(x) {
+  return x &amp;&amp; x.then;
+}
+</code></pre>
 
 </div>
 

@@ -39,6 +39,7 @@
 <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/htmlpage.js~HtmlPage.html">HtmlPage</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/router.js~Router.html">Router</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/store.js~Store.html">Store</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-asyncMiddleware">asyncMiddleware</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-clientMiddleware">clientMiddleware</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-renderer">renderer</a></span></span></li>
 </ul>
@@ -46,16 +47,25 @@
 </nav>
 
 <div class="content" data-ice="content"><h1 data-ice="title">src/index.js</h1>
-<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">export { connect }                       from &apos;react-redux&apos;
-export { asyncConnect }                  from &apos;redux-connect&apos;
-export { default as Helmet }             from &apos;react-helmet&apos;
+<pre class="source-code line-number raw-source-code"><code class="prettyprint linenums" data-ice="content">export { default as Helmet }             from &apos;react-helmet&apos;
 export { default as cookie }             from &apos;react-cookie&apos;
 export { default as Application }        from &apos;./application&apos;
+export { asyncConnect }                  from &apos;redux-connect&apos;
+export { connect }                       from &apos;react-redux&apos;
+
 export {
   createAction,
   handleAction,
   handleActions
-} from &apos;redux-actions&apos;</code></pre>
+} from &apos;redux-actions&apos;
+
+export { 
+  applyMiddleware,
+  bindActionCreators,
+  compose,
+  combineReducers,
+  createStore
+} from &apos;redux&apos;</code></pre>
 
 </div>
 
