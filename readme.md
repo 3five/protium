@@ -4,8 +4,6 @@ Protium is a micro framework for building universal React/Redux apps.
 
 Bundles `react`, `react-router`, and `redux` into a nice little package, takes care of routing and store/reducer setup for you (more examples forthcoming).
 
-WIP, don't use this in production... yet!
-
 Uses [react-helmet](https://github.com/nfl/react-helmet) for `<head>` management.
 
 `import {Helmet} from 'protium'`, and include that component within any of your views.
