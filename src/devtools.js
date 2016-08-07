@@ -104,15 +104,16 @@ export default class DevTools {
     config.entry = { 
       client: entry,
       vendor: [
-        'react-hot-loader/patch',
         'flux-standard-action',
         'isomorphic-fetch',
-        'qs',
         'lodash',
+        'protium',
+        'qs',
         'react',
         'react-cookie',
         'react-dom',
         'react-helmet',
+        'react-hot-loader/patch',
         'react-redux',
         'react-router',
         'react-router-bootstrap',
