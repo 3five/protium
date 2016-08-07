@@ -29,6 +29,27 @@ export default class DevTools {
     },
 
     commonsChunk: {},
+    vendorLibs: [
+      'flux-standard-action',
+      'isomorphic-fetch',
+      'lodash',
+      'protium',
+      'qs',
+      'react',
+      'react-cookie',
+      'react-dom',
+      'react-helmet',
+      'react-hot-loader/patch',
+      'react-redux',
+      'react-router',
+      'react-router-bootstrap',
+      'react-router-redux',
+      'redux',
+      'redux-actions',
+      'redux-connect',
+      'redux-promise',
+      'use-scroll-behavior'
+    ],
 
     module: {
       preLoaders: [
@@ -103,27 +124,7 @@ export default class DevTools {
 
     config.entry = { 
       client: entry,
-      vendor: [
-        'flux-standard-action',
-        'isomorphic-fetch',
-        'lodash',
-        'protium',
-        'qs',
-        'react',
-        'react-cookie',
-        'react-dom',
-        'react-helmet',
-        'react-hot-loader/patch',
-        'react-redux',
-        'react-router',
-        'react-router-bootstrap',
-        'react-router-redux',
-        'redux',
-        'redux-actions',
-        'redux-connect',
-        'redux-promise',
-        'use-scroll-behavior'
-      ]
+      vendor: opts.vendorLibs
     }
 
     config.output = opts.output
