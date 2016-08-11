@@ -30,6 +30,7 @@ export default class HtmlPage extends Component {
         {head.title.toComponent()}
         {head.meta.toComponent()}
         {this.renderInlineCss()}
+        {this.renderAsyncLinks()}
         {this.renderInlineScripts()}
         {head.link.toComponent()}
       </head>
@@ -66,6 +67,7 @@ export default class HtmlPage extends Component {
   }
 
   renderAsyncLinks() {
+    if (!this.props.asyncLinks) { return null }
     let calls = map(this.props.links, k => `loadCSS("${k}")`).join(';')
     let html = LOADCSS_SCRIPT + calls
     return <script dangerouslySetInnerHTML={__(html)} />
