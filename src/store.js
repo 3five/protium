@@ -78,7 +78,7 @@ export default class Store {
       middleware.push(this.routingMiddleware)
     }
 
-    middleware.push(thunkMiddleware(this.options.buildContext, options, http))
+    middleware.push(thunkMiddleware(this.options.buildContext, this.options, http))
     middleware.push(asyncTrackerMiddleware)
     middleware.push(promiseMiddleware)
 
