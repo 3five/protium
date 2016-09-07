@@ -1,11 +1,5 @@
 window.esdocSearchIndex = [
   [
-    "protium/src/client.js~apiclient",
-    "class/src/client.js~ApiClient.html",
-    "<span>ApiClient</span> <span class=\"search-result-import-path\">protium/src/client.js</span>",
-    "class"
-  ],
-  [
     "protium/src/application.js~application",
     "class/src/application.js~Application.html",
     "<span>Application</span> <span class=\"search-result-import-path\">protium/src/application.js</span>",
@@ -21,6 +15,12 @@ window.esdocSearchIndex = [
     "protium/src/error.js~errorcomponent",
     "class/src/error.js~ErrorComponent.html",
     "<span>ErrorComponent</span> <span class=\"search-result-import-path\">protium/src/error.js</span>",
+    "class"
+  ],
+  [
+    "protium/src/fetch-client.js~fetchclient",
+    "class/src/fetch-client.js~FetchClient.html",
+    "<span>FetchClient</span> <span class=\"search-result-import-path\">protium/src/fetch-client.js</span>",
     "class"
   ],
   [
@@ -42,15 +42,15 @@ window.esdocSearchIndex = [
     "class"
   ],
   [
-    "protium/src/async-middleware.js~asyncmiddleware",
+    "protium/src/async-tracker.js~asyncmiddleware",
     "function/index.html#static-function-asyncMiddleware",
-    "<span>asyncMiddleware</span> <span class=\"search-result-import-path\">protium/src/async-middleware.js</span>",
+    "<span>asyncMiddleware</span> <span class=\"search-result-import-path\">protium/src/async-tracker.js</span>",
     "function"
   ],
   [
-    "protium/src/client-middleware.js~clientmiddleware",
-    "function/index.html#static-function-clientMiddleware",
-    "<span>clientMiddleware</span> <span class=\"search-result-import-path\">protium/src/client-middleware.js</span>",
+    "protium/src/context-thunk.js~contextthunkmiddleware",
+    "function/index.html#static-function-contextThunkMiddleware",
+    "<span>contextThunkMiddleware</span> <span class=\"search-result-import-path\">protium/src/context-thunk.js</span>",
     "function"
   ],
   [
@@ -450,76 +450,16 @@ window.esdocSearchIndex = [
     "member"
   ],
   [
-    "src/async-middleware.js",
-    "file/src/async-middleware.js.html",
-    "src/async-middleware.js",
+    "src/async-tracker.js",
+    "file/src/async-tracker.js.html",
+    "src/async-tracker.js",
     "file"
   ],
   [
-    "src/client-middleware.js",
-    "file/src/client-middleware.js.html",
-    "src/client-middleware.js",
+    "src/context-thunk.js",
+    "file/src/context-thunk.js.html",
+    "src/context-thunk.js",
     "file"
-  ],
-  [
-    "src/client.js",
-    "file/src/client.js.html",
-    "src/client.js",
-    "file"
-  ],
-  [
-    "src/client.js~apiclient#buildoptions",
-    "class/src/client.js~ApiClient.html#instance-method-buildOptions",
-    "src/client.js~ApiClient#buildOptions",
-    "method"
-  ],
-  [
-    "src/client.js~apiclient#constructor",
-    "class/src/client.js~ApiClient.html#instance-constructor-constructor",
-    "src/client.js~ApiClient#constructor",
-    "method"
-  ],
-  [
-    "src/client.js~apiclient#formaturl",
-    "class/src/client.js~ApiClient.html#instance-method-formatUrl",
-    "src/client.js~ApiClient#formatUrl",
-    "method"
-  ],
-  [
-    "src/client.js~apiclient#genericmethod",
-    "class/src/client.js~ApiClient.html#instance-method-genericMethod",
-    "src/client.js~ApiClient#genericMethod",
-    "method"
-  ],
-  [
-    "src/client.js~apiclient#isexternal",
-    "class/src/client.js~ApiClient.html#instance-method-isExternal",
-    "src/client.js~ApiClient#isExternal",
-    "method"
-  ],
-  [
-    "src/client.js~apiclient#options",
-    "class/src/client.js~ApiClient.html#instance-member-options",
-    "src/client.js~ApiClient#options",
-    "member"
-  ],
-  [
-    "src/client.js~apiclient#req",
-    "class/src/client.js~ApiClient.html#instance-member-req",
-    "src/client.js~ApiClient#req",
-    "member"
-  ],
-  [
-    "src/client.js~apiclient#res",
-    "class/src/client.js~ApiClient.html#instance-member-res",
-    "src/client.js~ApiClient#res",
-    "member"
-  ],
-  [
-    "src/client.js~apiclient#store",
-    "class/src/client.js~ApiClient.html#instance-member-store",
-    "src/client.js~ApiClient#store",
-    "member"
   ],
   [
     "src/devtools.js",
@@ -568,6 +508,72 @@ window.esdocSearchIndex = [
     "class/src/error.js~ErrorComponent.html#instance-method-render",
     "src/error.js~ErrorComponent#render",
     "method"
+  ],
+  [
+    "src/fetch-client.js",
+    "file/src/fetch-client.js.html",
+    "src/fetch-client.js",
+    "file"
+  ],
+  [
+    "src/fetch-client.js~fetchclient#buildoptions",
+    "class/src/fetch-client.js~FetchClient.html#instance-method-buildOptions",
+    "src/fetch-client.js~FetchClient#buildOptions",
+    "method"
+  ],
+  [
+    "src/fetch-client.js~fetchclient#constructor",
+    "class/src/fetch-client.js~FetchClient.html#instance-constructor-constructor",
+    "src/fetch-client.js~FetchClient#constructor",
+    "method"
+  ],
+  [
+    "src/fetch-client.js~fetchclient#formaturl",
+    "class/src/fetch-client.js~FetchClient.html#instance-method-formatUrl",
+    "src/fetch-client.js~FetchClient#formatUrl",
+    "method"
+  ],
+  [
+    "src/fetch-client.js~fetchclient#genericmethod",
+    "class/src/fetch-client.js~FetchClient.html#instance-method-genericMethod",
+    "src/fetch-client.js~FetchClient#genericMethod",
+    "method"
+  ],
+  [
+    "src/fetch-client.js~fetchclient#isexternal",
+    "class/src/fetch-client.js~FetchClient.html#instance-method-isExternal",
+    "src/fetch-client.js~FetchClient#isExternal",
+    "method"
+  ],
+  [
+    "src/fetch-client.js~fetchclient#options",
+    "class/src/fetch-client.js~FetchClient.html#instance-member-options",
+    "src/fetch-client.js~FetchClient#options",
+    "member"
+  ],
+  [
+    "src/fetch-client.js~fetchclient#req",
+    "class/src/fetch-client.js~FetchClient.html#instance-member-req",
+    "src/fetch-client.js~FetchClient#req",
+    "member"
+  ],
+  [
+    "src/fetch-client.js~fetchclient#res",
+    "class/src/fetch-client.js~FetchClient.html#instance-member-res",
+    "src/fetch-client.js~FetchClient#res",
+    "member"
+  ],
+  [
+    "src/fetch-client.js~fetchclient#sethttp",
+    "class/src/fetch-client.js~FetchClient.html#instance-method-setHTTP",
+    "src/fetch-client.js~FetchClient#setHTTP",
+    "method"
+  ],
+  [
+    "src/fetch-client.js~fetchclient#store",
+    "class/src/fetch-client.js~FetchClient.html#instance-member-store",
+    "src/fetch-client.js~FetchClient#store",
+    "member"
   ],
   [
     "src/htmlpage.js",

@@ -33,14 +33,14 @@
   <ul>
     
   <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/application.js~Application.html">Application</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/client.js~ApiClient.html">ApiClient</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/devtools.js~DevTools.html">DevTools</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/error.js~ErrorComponent.html">ErrorComponent</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/fetch-client.js~FetchClient.html">FetchClient</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/htmlpage.js~HtmlPage.html">HtmlPage</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/router.js~Router.html">Router</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-class">C</span><span data-ice="name"><span><a href="class/src/store.js~Store.html">Store</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-asyncMiddleware">asyncMiddleware</a></span></span></li>
-<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-clientMiddleware">clientMiddleware</a></span></span></li>
+<li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-contextThunkMiddleware">contextThunkMiddleware</a></span></span></li>
 <li data-ice="doc"><span data-ice="kind" class="kind-function">F</span><span data-ice="name"><span><a href="function/index.html#static-function-renderer">renderer</a></span></span></li>
 </ul>
 </div>
@@ -87,7 +87,7 @@
     <td>
       <div>
         <p>
-           <span data-ice="name"><span><a href="function/index.html#static-function-clientMiddleware">clientMiddleware</a></span></span><span data-ice="signature">(options: <span>*</span>, http: <span>*</span>): <span>*</span></span>
+           <span data-ice="name"><span><a href="function/index.html#static-function-contextThunkMiddleware">contextThunkMiddleware</a></span></span><span data-ice="signature">(buildContext: <span>*</span>, options: <span>*</span>, http: <span>*</span>): <span>*</span></span>
         </p>
       </div>
       <div>
@@ -142,11 +142,11 @@
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/async-middleware.js.html#lineNumber6">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/async-tracker.js.html#lineNumber7">source</a></span></span>
     </span>
   </h3>
 
-  <div data-ice="importPath" class="import-path"><pre class="prettyprint"><code data-ice="importPathCode">import asyncMiddleware from &apos;<span><a href="file/src/async-middleware.js.html#lineNumber6">protium/src/async-middleware.js</a></span>&apos;</code></pre></div>
+  <div data-ice="importPath" class="import-path"><pre class="prettyprint"><code data-ice="importPathCode">import asyncMiddleware from &apos;<span><a href="file/src/async-tracker.js.html#lineNumber7">protium/src/async-tracker.js</a></span>&apos;</code></pre></div>
   
   
   
@@ -198,21 +198,21 @@
   
 </div>
 <div class="detail" data-ice="detail">
-  <h3 data-ice="anchor" id="static-function-clientMiddleware">
+  <h3 data-ice="anchor" id="static-function-contextThunkMiddleware">
     <span class="access" data-ice="access">public</span>
     
     
     
     
-    <span data-ice="name">clientMiddleware</span><span data-ice="signature">(options: <span>*</span>, http: <span>*</span>): <span>*</span></span>
+    <span data-ice="name">contextThunkMiddleware</span><span data-ice="signature">(buildContext: <span>*</span>, options: <span>*</span>, http: <span>*</span>): <span>*</span></span>
     <span class="right-info">
       
       
-      <span data-ice="source"><span><a href="file/src/client-middleware.js.html#lineNumber8">source</a></span></span>
+      <span data-ice="source"><span><a href="file/src/context-thunk.js.html#lineNumber7">source</a></span></span>
     </span>
   </h3>
 
-  <div data-ice="importPath" class="import-path"><pre class="prettyprint"><code data-ice="importPathCode">import clientMiddleware from &apos;<span><a href="file/src/client-middleware.js.html#lineNumber8">protium/src/client-middleware.js</a></span>&apos;</code></pre></div>
+  <div data-ice="importPath" class="import-path"><pre class="prettyprint"><code data-ice="importPathCode">import contextThunkMiddleware from &apos;<span><a href="file/src/context-thunk.js.html#lineNumber7">protium/src/context-thunk.js</a></span>&apos;</code></pre></div>
   
   
   
@@ -228,6 +228,12 @@
     <tbody>
     
     <tr data-ice="property" data-depth="0">
+      <td data-ice="name" data-depth="0">buildContext</td>
+      <td data-ice="type"><span>*</span></td>
+      <td data-ice="appendix"></td>
+      <td data-ice="description"></td>
+    </tr>
+<tr data-ice="property" data-depth="0">
       <td data-ice="name" data-depth="0">options</td>
       <td data-ice="type"><span>*</span></td>
       <td data-ice="appendix"></td>
@@ -346,7 +352,7 @@
 </div>
 
 <footer class="footer">
-  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(0.4.7)</span></a>
+  Generated by <a href="https://esdoc.org">ESDoc<span data-ice="esdocVersion">(0.4.8)</span></a>
 </footer>
 
 <script src="script/search_index.js"></script>
