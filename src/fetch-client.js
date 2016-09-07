@@ -12,7 +12,7 @@ const merge = extendify({
 
 const methods = ['get', 'post', 'put', 'patch', 'delete', 'del']
 
-export default class ApiClient {
+export default class FetchClient {
 
   static defaults = {
     server: {
@@ -39,16 +39,22 @@ export default class ApiClient {
 
   constructor(options, store, http) {
     if (http) {
-      this.req = http.req
-      this.res = http.res
+      this.setHttp(http)
     }
 
     this.store = store
-    this.options = merge({}, ApiClient.defaults, options)
+    this.options = merge({}, FetchClient.defaults, options)
     
     methods.forEach(method => {
       this[method] = this.genericMethod.bind(this, method)
     })
+  }
+
+  setHTTP(http) {
+    delete this.req
+    delete this.res
+    this.req = http.req
+    this.res = http.res
   }
 
   isExternal(path) {
@@ -56,7 +62,7 @@ export default class ApiClient {
   }
 
   buildOptions(method, path, opts) {
-    let options = merge({}, ApiClient.requestDefaults, opts)
+    let options = merge({}, FetchClient.requestDefaults, opts)
     let external = this.isExternal(path)
 
     options.url = this.formatUrl(path)
@@ -133,7 +139,10 @@ export default class ApiClient {
       return path
     }
 
-    const config = { ...(__SERVER__ ? this.options.server : this.options.client) }
+    let config = __SERVER__ 
+      ? this.options.server 
+      : this.options.client
+
     const adjustedPath = path[0] === '/' ? path.slice(1) : path
 
     if (config.base) {

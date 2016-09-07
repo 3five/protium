@@ -7,7 +7,8 @@ module.exports = {
     index: ['./src/index'],
     router: ['./src/router'],
     devtools: ['./src/devtools'],
-    server: ['./src/renderer']
+    server: ['./src/renderer'],
+    'fetch-client': ['./src/fetch-client']
   },
   output: {
     path: './',

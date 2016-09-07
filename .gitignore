@@ -9,4 +9,5 @@ node_modules
 /router.js*
 /server.js*
 /devtools.js*
+/fetch-client.js*
 *.DS_Store*

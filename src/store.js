@@ -3,10 +3,9 @@ import { reduce }           from 'lodash'
 import { Provider }         from 'react-redux'
 import persistState         from 'redux-devtools/lib/persistState'
 import promiseMiddleware    from 'redux-promise'
-import clientMiddleware     from './client-middleware'
-import asyncMiddleware     from './async-middleware'
-import ApiClient            from './client'
 import extendify            from 'extendify'
+import thunkMiddleware     from './context-thunk'
+import asyncMiddleware      from './async-tracker'
 import {
   compose,
   createStore,
@@ -28,6 +27,7 @@ export default class Store {
     reducers: {},
     middleware: [],
     composers: [],
+    buildContext: ({}),
     createMiddleware: middleware => middleware,
     createComposers: comp => comp
   }
@@ -78,14 +78,8 @@ export default class Store {
       middleware.push(this.routingMiddleware)
     }
 
-    if (this.options.apiClient) {
-      if (this.options.auth) {
-        this.options.apiClient.auth = this.options.auth
-      }
-      middleware.push(clientMiddleware(this.options.apiClient, http))
-    }
-
-    middleware.push(asyncMiddleware)
+    middleware.push(thunkMiddleware(this.options.buildContext, options, http))
+    middleware.push(asyncTrackerMiddleware)
     middleware.push(promiseMiddleware)
 
     middleware = this.options.createMiddleware(middleware, http)

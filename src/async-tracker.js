@@ -1,7 +1,8 @@
-import { createAction } from 'redux-actions'
+ import { createAction } from 'redux-actions'
 
-const loadStart = createAction('@reduxAsyncConnect/BEGIN_GLOBAL_LOAD');
-const loadEnd = createAction('@reduxAsyncConnect/END_GLOBAL_LOAD');
+const loadStart = createAction('@reduxAsyncConnect/BEGIN_GLOBAL_LOAD')
+
+const loadEnd = createAction('@reduxAsyncConnect/END_GLOBAL_LOAD')
 
 export default function asyncMiddleware({ dispatch }) {  
 
@@ -11,10 +12,11 @@ export default function asyncMiddleware({ dispatch }) {
 
     if (action.error) {
       console.error(`Error: ${action.type}\n`, action.payload)
+      return next(action)
     }
 
     if (!__CLIENT__) {
-      return next(action);
+      return next(action)
     }
 
     if (isPromise(action.payload)) {
@@ -22,7 +24,7 @@ export default function asyncMiddleware({ dispatch }) {
       tracker.enqueue(action.payload)
     }
 
-    return next(action);
+    return next(action)
   }
 }
 
@@ -62,5 +64,5 @@ class Tracker {
 }
 
 function isPromise(x) {
-  return x && x.then;
+  return x && x.then
 }
