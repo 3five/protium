@@ -4,7 +4,7 @@ import { Provider }         from 'react-redux'
 import persistState         from 'redux-devtools/lib/persistState'
 import promiseMiddleware    from 'redux-promise'
 import extendify            from 'extendify'
-import thunkMiddleware     from './context-thunk'
+import thunkMiddleware      from './context-thunk'
 import asyncMiddleware      from './async-tracker'
 import {
   compose,
@@ -79,7 +79,7 @@ export default class Store {
     }
 
     middleware.push(thunkMiddleware(this.options.buildContext, this.options, http))
-    middleware.push(asyncTrackerMiddleware)
+    middleware.push(asyncMiddleware)
     middleware.push(promiseMiddleware)
 
     middleware = this.options.createMiddleware(middleware, http)
