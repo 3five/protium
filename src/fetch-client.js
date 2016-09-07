@@ -139,9 +139,10 @@ export default class FetchClient {
       return path
     }
 
+    // Copy config to avoid mutating options
     let config = __SERVER__ 
-      ? this.options.server 
-      : this.options.client
+      ? { ...this.options.server }
+      : { ...this.options.client }
 
     const adjustedPath = path[0] === '/' ? path.slice(1) : path
 
