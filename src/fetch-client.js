@@ -84,9 +84,13 @@ export default class FetchClient {
       }
 
       if (this.options.auth && typeof this.options.auth.getBearer === 'function') {
-        let token = this.options.auth.getBearer(this.store)
-        if (token && token.length && !external) {
-          options.headers['Authorization'] = `Bearer ${token}`
+        try {
+          let token = this.options.auth.getBearer(this.store)
+          if (token && token.length) {
+            options.headers['Authorization'] = `Bearer ${token}`
+          }
+        } catch(e) {
+          console.log('FetchClient@buildOptions: Unable to retrieve token', e, e.stack)
         }
       }
 
