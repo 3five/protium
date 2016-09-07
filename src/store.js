@@ -27,7 +27,7 @@ export default class Store {
     reducers: {},
     middleware: [],
     composers: [],
-    buildContext: ({}),
+    buildContext: (store, options, http)=> ({}),
     createMiddleware: middleware => middleware,
     createComposers: comp => comp
   }
