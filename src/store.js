@@ -3,7 +3,7 @@ import { reduce }           from 'lodash'
 import { Provider }         from 'react-redux'
 import persistState         from 'redux-devtools/lib/persistState'
 import promiseMiddleware    from 'redux-promise'
-import extendify            from 'extendify'
+import extendify            from 'custom-extend'
 import thunkMiddleware      from './context-thunk'
 import asyncMiddleware      from './async-tracker'
 import {

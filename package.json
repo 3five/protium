@@ -27,7 +27,7 @@
   "dependencies": {
     "ansi-to-html": "^0.4.1",
     "clean-webpack-plugin": "^0.1.9",
-    "extendify": "github:jonjaques/extendify#update_deps",
+    "custom-extend": "^1.0.0",
     "extract-text-webpack-plugin": "^2.0.0-beta.3",
     "flux-standard-action": "^0.6.1",
     "isomorphic-fetch": "^2.2.1",

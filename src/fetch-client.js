@@ -2,7 +2,7 @@ import 'isomorphic-fetch'
 import Url        from 'url'
 import QS         from 'qs'
 import { map }    from 'lodash'
-import extendify  from 'extendify'
+import extendify  from 'custom-extend'
 
 const merge = extendify({
   inPlace: false,

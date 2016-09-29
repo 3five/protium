@@ -1,6 +1,6 @@
 import React        from 'react'
 import useScroll    from 'react-router-scroll/lib/useScroll'
-import extendify    from 'extendify'
+import extendify    from 'custom-extend'
 
 import { 
   syncHistoryWithStore, 

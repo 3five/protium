@@ -4,7 +4,7 @@ import { some }           from 'lodash'
 import { loadOnServer }   from 'redux-connect'
 import { AppContainer }   from 'react-hot-loader'
 import Store              from './store'
-import extendify          from 'extendify'
+import extendify          from 'custom-extend'
 
 const merge = extendify({
   inPlace: false,

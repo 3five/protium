@@ -5,7 +5,7 @@ import CleanPlugin      from 'clean-webpack-plugin'
 import nodeExternals    from 'webpack-node-externals'
 import devMiddleware    from 'webpack-dev-middleware'
 import hotMiddleware    from 'webpack-hot-middleware'
-import extendify        from 'extendify'
+import extendify        from 'custom-extend'
 
 const merge = extendify({
   inPlace: false,

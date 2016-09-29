@@ -1,7 +1,7 @@
 // import 'source-map-support/register'
 import React                      from 'react'
 import path                       from 'path'
-import extendify                  from 'extendify'
+import extendify                  from 'custom-extend'
 import _require                   from 'webpack-external-require'
 import { plugToRequest }          from 'react-cookie'
 import HtmlPage                   from './htmlpage'

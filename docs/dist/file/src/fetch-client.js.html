@@ -51,7 +51,7 @@
 import Url        from &apos;url&apos;
 import QS         from &apos;qs&apos;
 import { map }    from &apos;lodash&apos;
-import extendify  from &apos;extendify&apos;
+import extendify  from &apos;custom-extend&apos;
 
 const merge = extendify({
   inPlace: false,
@@ -133,9 +133,13 @@ export default class FetchClient {
       }
 
       if (this.options.auth &amp;&amp; typeof this.options.auth.getBearer === &apos;function&apos;) {
-        let token = this.options.auth.getBearer(this.store)
-        if (token &amp;&amp; token.length &amp;&amp; !external) {
-          options.headers[&apos;Authorization&apos;] = `Bearer ${token}`
+        try {
+          let token = this.options.auth.getBearer(this.store)
+          if (token &amp;&amp; token.length) {
+            options.headers[&apos;Authorization&apos;] = `Bearer ${token}`
+          }
+        } catch(e) {
+          console.log(&apos;FetchClient@buildOptions: Unable to retrieve token&apos;, e, e.stack)
         }
       }
 
@@ -188,9 +192,10 @@ export default class FetchClient {
       return path
     }
 
+    // Copy config to avoid mutating options
     let config = __SERVER__ 
-      ? this.options.server 
-      : this.options.client
+      ? { ...this.options.server }
+      : { ...this.options.client }
 
     const adjustedPath = path[0] === &apos;/&apos; ? path.slice(1) : path
 

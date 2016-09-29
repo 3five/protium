@@ -308,7 +308,7 @@
                 "column": 16
               }
             },
-            "name": "extendify"
+            "name": 'custom-extend'
           }
         }
       ],
@@ -327,9 +327,9 @@
             "column": 34
           }
         },
-        "value": "extendify",
-        "rawValue": "extendify",
-        "raw": "'extendify'"
+        "value": 'custom-extend',
+        "rawValue": 'custom-extend',
+        "raw": "'custom-extend'"
       }
     },
     {
@@ -405,7 +405,7 @@
                   "column": 23
                 }
               },
-              "name": "extendify"
+              "name": 'custom-extend'
             },
             "arguments": [
               {

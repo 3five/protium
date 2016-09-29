@@ -52,8 +52,8 @@ import { reduce }           from &apos;lodash&apos;
 import { Provider }         from &apos;react-redux&apos;
 import persistState         from &apos;redux-devtools/lib/persistState&apos;
 import promiseMiddleware    from &apos;redux-promise&apos;
-import extendify            from &apos;extendify&apos;
-import thunkMiddleware     from &apos;./context-thunk&apos;
+import extendify            from &apos;custom-extend&apos;
+import thunkMiddleware      from &apos;./context-thunk&apos;
 import asyncMiddleware      from &apos;./async-tracker&apos;
 import {
   compose,
@@ -76,7 +76,7 @@ export default class Store {
     reducers: {},
     middleware: [],
     composers: [],
-    buildContext: ({}),
+    buildContext: (store, options, http)=&gt; ({}),
     createMiddleware: middleware =&gt; middleware,
     createComposers: comp =&gt; comp
   }
@@ -127,8 +127,8 @@ export default class Store {
       middleware.push(this.routingMiddleware)
     }
 
-    middleware.push(thunkMiddleware(this.options.buildContext, options, http))
-    middleware.push(asyncTrackerMiddleware)
+    middleware.push(thunkMiddleware(this.options.buildContext, this.options, http))
+    middleware.push(asyncMiddleware)
     middleware.push(promiseMiddleware)
 
     middleware = this.options.createMiddleware(middleware, http)
