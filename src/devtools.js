@@ -44,11 +44,11 @@ export default class DevTools {
       'react-router',
       'react-router-bootstrap',
       'react-router-redux',
+      'react-router-scroll/lib/useScroll',
       'redux',
       'redux-actions',
       'redux-connect',
       'redux-promise',
-      'use-scroll-behavior'
     ],
 
     module: {

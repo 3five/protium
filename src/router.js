@@ -1,5 +1,5 @@
 import React        from 'react'
-import useScroll    from 'use-scroll-behavior'
+import useScroll    from 'react-router-scroll/lib/useScroll'
 import extendify    from 'extendify'
 
 import { 
