@@ -53,7 +53,7 @@ export class Router {
   createHistory() {
     let history = __SERVER__ 
       ? createMemoryHistory()
-      : useScroll(browserHistory)
+      : browserHistory
     return history
   }
 
