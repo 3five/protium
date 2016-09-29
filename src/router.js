@@ -14,6 +14,7 @@ import {
 } from 'redux-connect'
 
 import {
+  applyRouterMiddleware,
   Router as ReactRouter,
   RouterContext,
   browserHistory,
@@ -91,7 +92,11 @@ export class Router {
   }
 
   static asyncRenderer(props) {
-    return <ReduxAsyncConnect {...props} filter={item => !item.deferred} />
+    return <ReduxAsyncConnect 
+      {...props} 
+      filter={item => !item.deferred} 
+      render={applyRouterMiddleware(useScroll())}
+    />
   }
 
 }
