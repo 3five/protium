@@ -1,6 +1,6 @@
 {
   "name": "protium",
-  "version": "0.19.3",
+  "version": "0.19.4",
   "description": "A micro framework for building universal React/Redux apps.",
   "main": "index.js",
   "scripts": {
