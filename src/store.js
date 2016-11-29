@@ -79,7 +79,11 @@ export default class Store {
     }
 
     middleware.push(thunkMiddleware(this.options.buildContext, this.options, http))
-    middleware.push(asyncMiddleware)
+    
+    if (__CLIENT__) {
+      middleware.push(asyncMiddleware)
+    }
+
     middleware.push(promiseMiddleware)
 
     middleware = this.options.createMiddleware(middleware, http)
