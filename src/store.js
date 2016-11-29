@@ -74,9 +74,9 @@ export default class Store {
     const initialState = this.getInitialState()
     let middleware = [ ...this.options.middleware ]
 
-    if (this.routing) {
-      middleware.push(this.routingMiddleware)
-    }
+    // if (this.routing) {
+    //   middleware.push(this.routingMiddleware)
+    // }
 
     middleware.push(thunkMiddleware(this.options.buildContext, this.options, http))
     
