@@ -46,7 +46,7 @@ export default class Store {
   upgradeWithRouting(reducers, routingMiddleware) {
     this.routing = true
     this.reducers = { ...this.reducers, ...reducers }
-    this.routingMiddleware = routingMiddleware
+    // this.routingMiddleware = routingMiddleware
   }
 
   removeReducer(name) {

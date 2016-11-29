@@ -41,7 +41,7 @@ export class Router {
 
   getReducers() {
     return {
-      routing: routerReducer,
+      // routing: routerReducer,
       reduxAsyncConnect
     }
   }

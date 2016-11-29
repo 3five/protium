@@ -40,12 +40,12 @@ export default class Application {
   createStore(history, http) {
     let store = http ? null : __PROTIUM__.store
 
-    // if (history) {
-    //   this.store.upgradeWithRouting(
-    //     this.router.getReducers(), 
-    //     this.router.getMiddleware(history)
-    //   )
-    // }
+    if (history) {
+      this.store.upgradeWithRouting(
+        this.router.getReducers(), 
+        this.router.getMiddleware(history)
+      )
+    }
 
     // Only hang onto the store globally if clientside
     if (!store) {
