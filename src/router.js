@@ -40,10 +40,15 @@ export class Router {
   }
 
   getReducers() {
-    return {
-      // routing: routerReducer,
+    let reducers = {
       reduxAsyncConnect
     }
+
+    if (__CLIENT__) {
+      reducers.routing = routerReducer
+    }
+
+    return reducers
   }
 
   getMiddleware(history) {

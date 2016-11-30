@@ -55,9 +55,9 @@ export default class Application {
       }
     }
     
-    // if (history) {
-    //   this.router.registerStore(history, store)
-    // }
+    if (__CLIENT__ && history) {
+      this.router.registerStore(history, store)
+    }
 
     return store
   }

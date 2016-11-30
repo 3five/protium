@@ -46,7 +46,7 @@ export default class Store {
   upgradeWithRouting(reducers, routingMiddleware) {
     this.routing = true
     this.reducers = { ...this.reducers, ...reducers }
-    // this.routingMiddleware = routingMiddleware
+    this.routingMiddleware = routingMiddleware
   }
 
   removeReducer(name) {
@@ -74,9 +74,9 @@ export default class Store {
     const initialState = this.getInitialState()
     let middleware = [ ...this.options.middleware ]
 
-    // if (this.routing) {
-    //   middleware.push(this.routingMiddleware)
-    // }
+    if (__CLIENT__ && this.routing) {
+      middleware.push(this.routingMiddleware)
+    }
 
     middleware.push(thunkMiddleware(this.options.buildContext, this.options, http))
     
