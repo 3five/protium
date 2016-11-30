@@ -25,7 +25,7 @@ const production = process.env.NODE_ENV === 'production'
 global.__SERVER__ = true
 global.__CLIENT__ = false
 
-export function renderer(appFn, options = {}) {
+export function renderer(appFn, options = {}, contextualOptions = ()=> ({})) {
 
   return (req, res)=> {
     if (req.url === '/favicon.ico') {
@@ -65,6 +65,8 @@ export function renderer(appFn, options = {}) {
     const history = app.router.createHistory()
     const store = app.createStore(history, http)
 
+    const appOptions = merge({}, options, contextualOptions(req, res))
+
     return app.router.match(history, store, http, (error, redirect, renderProps) => {
       if (error) {
         const page = getErrorPage(null, app, error)
@@ -81,7 +83,7 @@ export function renderer(appFn, options = {}) {
 
       return app.resolve(store, renderProps, http)
         .then(({ store, component, status })=> {
-          const page = getHtmlPage(store, app, component, options.page)
+          const page = getHtmlPage(store, app, component, appOptions.page)
           res.status(status).send(getHtml(app, page))
         })
         .catch((err)=> {
