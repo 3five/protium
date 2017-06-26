@@ -1,5 +1,6 @@
 var webpack = require('webpack')
 var fs = require('fs')
+var path = require('path')
 var nodeExternals = require('webpack-node-externals')
 
 module.exports = {
@@ -11,13 +12,17 @@ module.exports = {
     'fetch-client': ['./src/fetch-client']
   },
   output: {
-    path: './',
+    path: path.resolve('./'),
     filename: '[name].js',
     libraryTarget: 'commonjs'
   },
   module: {
     loaders: [
-      { test: /\.jsx?$/, include: __dirname + '/src', loader: 'babel-loader' }
+      { 
+        test: /\.jsx?$/, 
+        include: __dirname + '/src', 
+        loader: 'babel-loader' 
+      }
     ]
   },
   externals: [ 
