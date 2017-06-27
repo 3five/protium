@@ -14,7 +14,7 @@
 <body class="layout-container" data-ice="rootContainer">
 
 <header>
-  <a href="../../index.html">Home</a>
+  <a href="..\../index.html">Home</a>
   
   <a href="identifiers.html">Reference</a>
   <a href="source.html">Source</a>
@@ -63,6 +63,7 @@ import {
 } from &apos;redux-connect&apos;
 
 import {
+  applyRouterMiddleware,
   Router as ReactRouter,
   RouterContext,
   browserHistory,
@@ -88,10 +89,15 @@ export class Router {
   }
 
   getReducers() {
-    return {
-      routing: routerReducer,
+    let reducers = {
       reduxAsyncConnect
     }
+
+    if (__CLIENT__) {
+      reducers.routing = routerReducer
+    }
+
+    return reducers
   }
 
   getMiddleware(history) {
@@ -101,7 +107,7 @@ export class Router {
   createHistory() {
     let history = __SERVER__ 
       ? createMemoryHistory()
-      : useScroll(browserHistory)
+      : browserHistory
     return history
   }
 
@@ -140,7 +146,11 @@ export class Router {
   }
 
   static asyncRenderer(props) {
-    return &lt;ReduxAsyncConnect {...props} filter={item =&gt; !item.deferred} /&gt;
+    return &lt;ReduxAsyncConnect 
+      {...props} 
+      filter={item =&gt; !item.deferred} 
+      render={applyRouterMiddleware(useScroll())}
+    /&gt;
   }
 
 }

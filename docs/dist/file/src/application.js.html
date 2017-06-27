@@ -14,7 +14,7 @@
 <body class="layout-container" data-ice="rootContainer">
 
 <header>
-  <a href="../../index.html">Home</a>
+  <a href="..\../index.html">Home</a>
   
   <a href="identifiers.html">Reference</a>
   <a href="source.html">Source</a>
@@ -104,7 +104,7 @@ export default class Application {
       }
     }
     
-    if (history) {
+    if (__CLIENT__ &amp;&amp; history) {
       this.router.registerStore(history, store)
     }
 

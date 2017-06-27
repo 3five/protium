@@ -14,7 +14,7 @@
 <body class="layout-container" data-ice="rootContainer">
 
 <header>
-  <a href="../../index.html">Home</a>
+  <a href="..\../index.html">Home</a>
   
   <a href="identifiers.html">Reference</a>
   <a href="source.html">Source</a>
@@ -123,12 +123,16 @@ export default class Store {
     const initialState = this.getInitialState()
     let middleware = [ ...this.options.middleware ]
 
-    if (this.routing) {
+    if (__CLIENT__ &amp;&amp; this.routing) {
       middleware.push(this.routingMiddleware)
     }
 
     middleware.push(thunkMiddleware(this.options.buildContext, this.options, http))
-    middleware.push(asyncMiddleware)
+    
+    if (__CLIENT__) {
+      middleware.push(asyncMiddleware)
+    }
+
     middleware.push(promiseMiddleware)
 
     middleware = this.options.createMiddleware(middleware, http)
