@@ -1,11 +1,10 @@
 {
   "presets": [
-    ["es2015", {modules: false}
-    ],
     "react",
+    ["es2015", {"modules": false}],
     "stage-0"
   ],
   "plugins": [
-    "transform-class-properties"
+    ["transform-class-properties", { "spec": true } ]
   ]
 }
